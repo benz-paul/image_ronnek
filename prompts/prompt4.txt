@@ -1,0 +1,12 @@
+Title: JSON to Scene Creation
+
+Create an image for the scene with:
+scene_goal: [SCENE_GOAL]
+Teaching Narrative: [TEACHING_NARRATIVE]
+Concept Focus: [CONCEPT_FOCUS]
+Character dialogues: [CHARACTER_DIALOGUES]
+
+Scene ID: [SCENE_ID]
+
+JSON Structure Used:
+[JSON_GENERATED]
