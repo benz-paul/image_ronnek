@@ -39,7 +39,7 @@ class Logger:
         if self.logger.handlers:
             self.logger.handlers.clear()
 
-        file_handler = logging.FileHandler(log_file, mode="a")
+        file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
         file_handler.setLevel(logging.DEBUG)
 
         console_handler = logging.StreamHandler(sys.stdout)

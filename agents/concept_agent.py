@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 
 from core.logger import logger
 from core.llm_client import create_llm_client
-from core.prompt_loader import get_prompt_loader
+from core.prompt_loader import get_prompt_loader, render_prompt
 from core.state_manager import get_state_manager
 
 
@@ -46,9 +46,12 @@ class ConceptAgent:
             prompt_template, chapter=state.get_chapter_name()
         )
 
+        prompt = render_prompt(prompt, state)
+
         logger.info("Extracting concept inventory from chapter...")
 
         state.save_prompt(0, prompt)
+        state.save_prompt(0, prompt, suffix="final")
 
         try:
             response = self.llm_client.call(prompt, attachments=[str(pdf_path)])

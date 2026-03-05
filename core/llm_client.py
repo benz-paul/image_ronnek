@@ -82,18 +82,41 @@ class LLMClient:
 
             for attachment_path in attachments:
                 if Path(attachment_path).exists():
-                    with open(attachment_path, "rb") as f:
-                        import base64
+                    file_path = Path(attachment_path)
 
-                        encoded = base64.b64encode(f.read()).decode("utf-8")
+                    if file_path.suffix.lower() == ".pdf":
+                        from pypdf import PdfReader
+
+                        pdf_text = []
+                        reader = PdfReader(attachment_path)
+                        for page in reader.pages:
+                            text = page.extract_text()
+                            if text:
+                                pdf_text.append(text)
+
+                        full_text = "\n\n".join(pdf_text)
                         content_parts.append(
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:application/pdf;base64,{encoded}"
-                                },
-                            }
+                            {"type": "text", "text": f"\n\n[PDF CONTENT]\n{full_text}"}
                         )
+                    else:
+                        with open(attachment_path, "rb") as f:
+                            import base64
+
+                            encoded = base64.b64encode(f.read()).decode("utf-8")
+                            mime_type = "image/jpeg"
+                            if file_path.suffix.lower() == ".png":
+                                mime_type = "image/png"
+                            elif file_path.suffix.lower() == ".webp":
+                                mime_type = "image/webp"
+
+                            content_parts.append(
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:{mime_type};base64,{encoded}"
+                                    },
+                                }
+                            )
 
             messages.append(HumanMessage(content=content_parts))
         else:

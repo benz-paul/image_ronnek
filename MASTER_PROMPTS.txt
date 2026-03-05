@@ -1,17 +1,3 @@
-usable Master Prompt – Obtaining PDF downloads of NCERT syllabus chapters
-Provide the official NCERT website direct PDF link (chapter-level, not third-party) for:
-
-Class: [Enter Class]
-Subject: [Enter Subject]
-Chapter Number: [Enter Number]
-Chapter Title: [Enter Title]
-Medium: [English/Hindi]
-
-Return only:
-Chapter Name
-Official NCERT PDF Link (https://ncert.nic.in/...)
-
-
 Master prompts:
 
 ----
@@ -252,19 +238,19 @@ JSON Template:
 ```
 {
   "academic_context": {
-    "subject_id": "mathematics",
-    "chapter_id": "arithmetic_progressions",
-    "title": "Chapter 5: Arithmetic Progressions",
+    "subject_id": "[SUBJECT_ID]",
+    "chapter_id": "[CHAPTER_ID]",
+    "title": "[CHAPTER_TITLE]",
     "board": "cbse",
     "grade": 10
   },
 
   "story_backbone": {
-    "title": "The Mystery of the Game Rewards",
-    "core_premise": "A student playing a mobile game begins to notice patterns in the rewards earned at each level and investigates the mathematical rule behind them.",
-    "theme": "pattern discovery",
-    "tone": "curious_and_exploratory",
-    "story_goal": "Help the student discover how steady numerical patterns lead to the concept of arithmetic progression."
+    "title": "[STORY_TITLE]",
+    "core_premise": "[CORE_PREMISE]",
+    "theme": "[STORY_THEME]",
+    "tone": "[STORY_TONE]",
+    "story_goal": "[STORY_GOAL]"
   },
 
   "learning_objectives": {
@@ -274,34 +260,34 @@ JSON Template:
 
   "character_registry": [
     {
-      "character_id": "Aarav",
-      "role": "student_player",
+      "character_id": "[CHAR1_ID]",
+      "role": "[CHAR1_ROLE]",
       "design": {
-        "appearance": "Teenage boy sitting with a smartphone, excited while playing a game",
-        "personality_traits": ["curious", "observant", "analytical"]
+        "appearance": "[CHAR1_APPEARANCE]",
+        "personality_traits": [CHAR1_TRAITS]
       }
     },
     {
-      "character_id": "GameAI",
-      "role": "guide",
+      "character_id": "[CHAR2_ID]",
+      "role": "[CHAR2_ROLE]",
       "design": {
-        "appearance": "Friendly holographic assistant appearing from the game interface",
-        "personality_traits": ["calm", "logical", "encouraging"]
+        "appearance": "[CHAR2_APPEARANCE]",
+        "personality_traits": [CHAR2_TRAITS]
       }
     }
   ],
 
   "learning_steps": [
     {
-      "learning_step_id": "LS1",
-      "title": "Recognizing a Steady Pattern",
+      "learning_step_id": "[LS_ID]",
+      "title": "[LS_TITLE]",
 
       "concepts_introduced": [
-        "sequence",
-        "steady increase pattern"
+        "[CONCEPT1]",
+        "[CONCEPT2]"
       ],
 
-      "narrative_moment": "Aarav is playing his favorite mobile game in the evening. As he clears multiple levels, the reward screen displays coins earned at each stage. Aarav pauses and notices something unusual — the rewards seem to increase in a steady way. Curious about the pattern, he starts comparing the numbers between levels. GameAI appears and encourages him to investigate the numbers more closely. This moment sets up the discovery of the rule behind the pattern.",
+      "narrative_moment": "[NARRATIVE_MOMENT]",
 
       "expected_scene_phases": [
         "hook",
@@ -315,13 +301,50 @@ JSON Template:
 
       "concept_scene_mapping": [
         {
-          "concept": "sequence",
+          "concept": "[CONCEPT1]",
           "scene_ids": ["S1", "S2"]
         },
         {
-          "concept": "steady increase pattern",
+          "concept": "[CONCEPT2]",
           "scene_ids": ["S3", "S4"]
         }
+      ],
+
+      "scenes": [
+        {
+          "scene_id": "S1",
+          "scene_order": 1,
+          "scene_phase": "hook",
+          "scene_goal": "[SCENE_GOAL]",
+          "concept_focus": "[CONCEPT_FOCUS]",
+          "emotional_tone": "[EMOTIONAL_TONE]",
+
+          "visual_setting": {
+            "environment": "[ENVIRONMENT]",
+            "atmosphere": "[ATMOSPHERE]"
+          },
+
+          "characters": [
+            { "ref": "[CHAR_REF]" }
+          ],
+
+          "narrative": {
+            "screenplay": "[SCREENPLAY]",
+            "camera_suggestion": "[CAMERA_SUGGESTION]",
+            "action_flow": "[ACTION_FLOW]"
+          },
+
+          "dialogue": [
+            {
+              "speaker": "[SPEAKER]",
+              "text": "[DIALOGUE_TEXT]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
       ],
 
       "scenes": [
@@ -405,14 +428,18 @@ Output ONLY valid JSON.
 Follow the JSON schema exactly.
 Do not include explanations outside JSON.
 
-
 ----
 
 Prompt 4 – JSON to Scene Creation
-Create Scene_id S1 as image in this format:
-scene_goal: [Take scene_goal for the scene_id mentioned]
-Teaching Narrative: Bring the teaching narrative from Json structure
-Concept Focus: Bring the concept focus from json structure
-Character dialogues: appear inside speech bubbles.
+Create an image for the scene with:
+scene_goal: [SCENE_GOAL]
+Teaching Narrative: [TEACHING_NARRATIVE]
+Concept Focus: [CONCEPT_FOCUS]
+Character dialogues: [CHARACTER_DIALOGUES]
 
-Final JSON:[paste json generated]
+Scene ID: [SCENE_ID]
+
+JSON Structure Used:
+[JSON_GENERATED]
+
+----

@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional
 
 from core.logger import logger
 from core.llm_client import create_llm_client
-from core.prompt_loader import get_prompt_loader
+from core.prompt_loader import get_prompt_loader, render_prompt
 from core.state_manager import get_state_manager
 
 
@@ -55,25 +55,24 @@ class LearningStepsAgent:
             concept_inventory=concepts_text,
         )
 
+        prompt = render_prompt(prompt, state)
+
         logger.info("Decomposing chapter into learning steps...")
 
         state.save_prompt(2, prompt)
+        state.save_prompt(2, prompt, suffix="final")
 
         try:
             response = self.llm_client.call(prompt)
 
             state.save_raw_response(2, response)
-
-            steps_data = self._parse_steps_response(response)
-
-            state.save_json("learning_steps.json", steps_data)
             state.save_output("learning_steps.txt", response)
 
+            steps_data = {"raw_text": response}
+            state.save_json("learning_steps.json", steps_data)
             state.update("learning_steps", steps_data)
 
-            logger.info(
-                f"Decomposed into {len(steps_data.get('learning_steps', []))} learning steps"
-            )
+            logger.info("Decomposed chapter into learning steps")
 
             return steps_data
 

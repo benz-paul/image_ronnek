@@ -52,6 +52,7 @@ class ChapterState:
             "pdf_url": None,
             "pdf_path": None,
             "concept_inventory": None,
+            "story_backbones": None,
             "selected_story": None,
             "learning_steps": None,
             "scenes": {},
@@ -154,15 +155,18 @@ class ChapterState:
 
         logger.debug(f"Saved output to {filepath}")
 
-    def save_json(self, name: str, data: Dict[str, Any]) -> None:
+    def save_json(self, name: str, data: Dict[str, Any], suffix: str = "") -> None:
         """
         Save JSON file.
 
         Args:
             name: JSON filename
             data: Data to save as JSON
+            suffix: Optional suffix for filename
         """
-        filepath = self.json_dir / name
+        suffix_part = f"_{suffix}" if suffix else ""
+        name_with_suffix = name.replace(".json", f"{suffix_part}.json")
+        filepath = self.json_dir / name_with_suffix
 
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)

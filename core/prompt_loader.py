@@ -93,9 +93,32 @@ class PromptLoader:
             raise KeyError(f"Prompt {prompt_num} not found")
         return self._prompts[prompt_num]
 
+    @staticmethod
+    def normalize_subject(subject: str) -> str:
+        """Normalize subject name to standard form."""
+        mapping = {
+            "maths": "mathematics",
+            "math": "mathematics",
+            "science": "science",
+            "physics": "physics",
+            "chemistry": "chemistry",
+            "biology": "biology",
+        }
+        return mapping.get(subject.lower(), subject.lower())
+
+    @staticmethod
+    def slugify(text: str) -> str:
+        """Convert text to URL-friendly slug."""
+        import re
+
+        text = text.lower()
+        text = re.sub(r"[^a-z0-9]+", "_", text)
+        return text.strip("_")
+
     def inject_values(self, prompt: str, **kwargs) -> str:
         """
-        Dynamically inject values into a prompt.
+        Safely inject values into prompt templates without regex.
+        Supports multiple placeholder styles.
 
         Args:
             prompt: Prompt template
@@ -105,75 +128,89 @@ class PromptLoader:
             Prompt with injected values
         """
         result = prompt
+        kwarg_dict = dict(kwargs)
 
-        common_mappings = {
-            "Enter Class": kwargs.get("class_level", ""),
-            "Enter Subject": kwargs.get("subject", ""),
-            "Enter Number": kwargs.get("chapter_number", ""),
-            "Enter Title": kwargs.get("chapter_title", ""),
-            "English/Hindi": kwargs.get("medium", "English"),
-            "Chapter Name": kwargs.get("chapter_name", ""),
+        insert_patterns = {
+            "(Insert the chapter name used in the previous prompts)": kwarg_dict.get(
+                "chapter"
+            ),
+            "(Insert the chapter name used in previous prompts)": kwarg_dict.get(
+                "chapter"
+            ),
+            "(Insert the chapter name)": kwarg_dict.get("chapter"),
+            "[Insert the chapter name used in the previous prompts]": kwarg_dict.get(
+                "chapter"
+            ),
+            "[Insert the chapter name]": kwarg_dict.get("chapter"),
+            "[Chapter Name]": kwarg_dict.get("chapter"),
+            "(Chapter Name)": kwarg_dict.get("chapter"),
+            "(Insert the **selected story backbone output from the story backbone generation prompt**, specifically the **Core Narrative Premise of the chosen story**)": kwarg_dict.get(
+                "story_backbone"
+            ),
+            "(Insert the selected story backbone output from the story backbone generation prompt, specifically the Core Narrative Premise of the chosen story)": kwarg_dict.get(
+                "story_backbone"
+            ),
+            "(Insert the **previous learning step output from the learning step decomposition prompt**)": kwarg_dict.get(
+                "previous_learning_step"
+            ),
+            "(Insert the previous learning step output from the learning step decomposition prompt)": kwarg_dict.get(
+                "previous_learning_step"
+            ),
+            "(Insert the **current learning step from the learning step decomposition output**)": kwarg_dict.get(
+                "current_learning_step"
+            ),
+            "(Insert the current learning step from the learning step decomposition output)": kwarg_dict.get(
+                "current_learning_step"
+            ),
+            "(Insert the **next learning step from the learning step decomposition output**)": kwarg_dict.get(
+                "next_learning_step"
+            ),
+            "(Insert the next learning step from the learning step decomposition output)": kwarg_dict.get(
+                "next_learning_step"
+            ),
+            "(Insert the **Concept Inventory output generated from Prompt 0**)": kwarg_dict.get(
+                "concept_inventory"
+            ),
+            "(Insert the Concept Inventory output generated from Prompt 0)": kwarg_dict.get(
+                "concept_inventory"
+            ),
+            "(Insert the Concept Inventory)": kwarg_dict.get("concept_inventory"),
+            "(Insert the **Concept Inventory** generated from Prompt 0)": kwarg_dict.get(
+                "concept_inventory"
+            ),
         }
 
-        for placeholder, value in common_mappings.items():
-            if value:
-                result = result.replace(f"[{placeholder}]", str(value))
-                result = result.replace(f"({placeholder})", str(value))
-                result = result.replace(f"<{placeholder}>", str(value))
+        for placeholder, val in insert_patterns.items():
+            if val:
+                result = result.replace(placeholder, str(val))
 
-        for key, value in kwargs.items():
-            if not value:
+        for key, value in kwarg_dict.items():
+            if value is None:
                 continue
 
             value_str = str(value)
 
-            result = result.replace(f"[{key.upper()}]", value_str)
-            result = result.replace(f"[{key}]", value_str)
-            result = result.replace(f"({key})", value_str)
-            result = result.replace(f"<{key}>", value_str)
+            result = result.replace("{" + key + "}", value_str)
+            result = result.replace("{" + key.upper() + "}", value_str)
+            result = result.replace("[" + key.upper() + "]", value_str)
+            result = result.replace("[" + key + "]", value_str)
+            result = result.replace("(" + key + ")", value_str)
+            result = result.replace("<" + key + ">", value_str)
 
-            if "chapter" in key.lower():
-                result = result.replace(
-                    "(Insert the chapter name used in previous prompts)", value_str
-                )
-                result = result.replace(
-                    "[Insert the chapter name used in previous prompts]", value_str
-                )
+        common_mappings = {
+            "Enter Class": kwarg_dict.get("class_level", ""),
+            "Enter Subject": kwarg_dict.get("subject", ""),
+            "Enter Number": kwarg_dict.get("chapter_number", ""),
+            "Enter Title": kwarg_dict.get("chapter_title", ""),
+            "English/Hindi": kwarg_dict.get("medium", "English"),
+            "Chapter Name": kwarg_dict.get("chapter_name", ""),
+        }
 
-            if "story" in key.lower() or "narrative" in key.lower():
-                result = result.replace(
-                    "(Insert the selected story backbone output from the previous prompt",
-                    value_str,
-                )
-                result = result.replace(
-                    "[Insert the selected story backbone output from the previous prompt",
-                    value_str,
-                )
-                result = result.replace(
-                    "selected story backbone output from the previous prompt — specifically",
-                    value_str,
-                )
-                result = result.replace(
-                    "selected story backbone output from the previous prompt — specifically the **Core Narrative Premise** of the chosen story",
-                    value_str,
-                )
-
-            if "concept" in key.lower() or "inventory" in key.lower():
-                result = result.replace(
-                    "(Insert the **Concept Inventory output generated from Prompt 0**)",
-                    value_str,
-                )
-                result = result.replace(
-                    "[Insert the **Concept Inventory output generated from Prompt 0**]",
-                    value_str,
-                )
-                result = result.replace(
-                    "(Insert the Concept Inventory output generated from Prompt 0)",
-                    value_str,
-                )
-                result = result.replace(
-                    "[Output from Prompt 0 concept inventories]", value_str
-                )
+        for placeholder, value in common_mappings.items():
+            if value:
+                result = result.replace("[" + placeholder + "]", str(value))
+                result = result.replace("(" + placeholder + ")", str(value))
+                result = result.replace("<" + placeholder + ">", str(value))
 
         return result
 
@@ -203,6 +240,64 @@ class PromptLoader:
         """
         pdf_prompt = self.get_pdf_prompt()
         return self.inject_values(pdf_prompt, **kwargs)
+
+
+def render_prompt(template: str, state) -> str:
+    """
+    Render prompt template with chapter metadata using safe formatting.
+
+    Args:
+        template: Prompt template string
+        state: State manager instance
+
+    Returns:
+        Rendered prompt with chapter metadata
+    """
+    subject_id = state.subject.lower()
+    chapter_id = state.chapter_title.lower().replace(" ", "_")
+    chapter_number = state.chapter_number
+    chapter_title = state.chapter_title
+    board = "cbse"
+    grade = state.class_level
+
+    logger.info(
+        f"Rendering prompt for {state.subject} Chapter {chapter_number}: {chapter_title}"
+    )
+
+    import re
+
+    def replace_placeholder(match):
+        key = match.group(1)
+        replacements = {
+            "subject_id": subject_id,
+            "chapter_id": chapter_id,
+            "chapter_number": chapter_number,
+            "chapter_title": chapter_title,
+            "board": board,
+            "grade": grade,
+        }
+        return str(replacements.get(key, match.group(0)))
+
+    pattern = (
+        r"\{("
+        + "|".join(
+            [
+                "subject_id",
+                "chapter_id",
+                "chapter_number",
+                "chapter_title",
+                "board",
+                "grade",
+            ]
+        )
+        + r")\}"
+    )
+    rendered = re.sub(pattern, replace_placeholder, template)
+
+    logger.debug("Rendered Prompt Preview:")
+    logger.debug(rendered[:1000])
+
+    return rendered
 
 
 _prompt_loader: Optional[PromptLoader] = None

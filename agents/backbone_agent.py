@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional
 
 from core.logger import logger
 from core.llm_client import create_llm_client
-from core.prompt_loader import get_prompt_loader
+from core.prompt_loader import get_prompt_loader, render_prompt
 from core.state_manager import get_state_manager
 
 
@@ -50,22 +50,24 @@ class BackboneAgent:
             concept_inventory=concepts_text,
         )
 
+        prompt = render_prompt(prompt, state)
+
         logger.info("Generating story backbone possibilities...")
 
         state.save_prompt(1, prompt)
+        state.save_prompt(1, prompt, suffix="final")
 
         try:
             response = self.llm_client.call(prompt)
 
             state.save_raw_response(1, response)
-
-            backbone_data = self._parse_backbone_response(response)
-
-            selected_story = self._select_best_story(backbone_data)
-
-            state.save_json("story_backbone.json", backbone_data)
             state.save_output("story_backbone.txt", response)
 
+            selected_story = self._select_best_story(response)
+
+            state.update(
+                "story_backbones", {"raw_text": response, "selected": selected_story}
+            )
             state.update("selected_story", selected_story)
 
             logger.info(f"Selected story: {selected_story.get('title', 'Unknown')}")
@@ -163,31 +165,72 @@ class BackboneAgent:
 
         return {"stories": stories, "raw_text": response}
 
-    def _select_best_story(self, backbone_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _select_best_story(self, response: str) -> Dict[str, Any]:
         """
-        Select the best story from possibilities.
+        Select the best story from the raw response.
 
         Args:
-            backbone_data: Parsed backbone data
+            response: Raw LLM response text
 
         Returns:
-            Selected story
+            Selected story with title and core_premise
         """
-        stories = backbone_data.get("stories", [])
+        import re
 
-        if not stories:
-            raise ValueError("No stories found in backbone data")
+        title_patterns = [
+            r'(?:###\s*\d+\.?\s*Title:?\s*["\']?)([^"\'\n]+)',
+            r"(?:###\s*Story\s*Backbone\s*\d+)[:\s]+([^\n]+)",
+            r"(?:^\d+\.\s+\*?\*?Story\s*Title\*?\*?)[:\s]+([^\n]+)",
+            r'Title[:\s]+["\']([^"\']+)["\']',
+            r'\*\*Title[:\s]+\*\*["\']?([^"\']+)["\']?',
+        ]
 
-        if len(stories) == 1:
-            return stories[0]
+        title = None
+        for pattern in title_patterns:
+            match = re.search(pattern, response, re.MULTILINE | re.IGNORECASE)
+            if match:
+                title = match.group(1).strip().strip('*"')
+                break
 
-        best_story = stories[0]
+        if not title:
+            title = "First Story"
 
-        logger.info(f"Top story: {best_story.get('title')}")
-        logger.info(f"  Coverage: {best_story.get('coverage_percentage')}%")
-        logger.info(f"  Pedagogical: {best_story.get('pedagogical_strength')}%")
+        premise_patterns = [
+            r"(?:Core Narrative Premise|Story Premise)[:\s\*]+(.+?)(?=\n\d+\.|\n---|\n\*\*|\nOverall|\Z)",
+            r"\*\*Core Narrative Premise[:\s]+\*\*\s*(.+?)(?=\n\d+\.|\n---|\n\*\*|\nOverall|\Z)",
+            r"(?:Premise|Core Narrative)[:\s]+(.+?)(?=\n\d+\.|\n---|\nOverall|\Z)",
+        ]
 
-        return best_story
+        premise = None
+        for pattern in premise_patterns:
+            match = re.search(pattern, response, re.DOTALL | re.IGNORECASE)
+            if match:
+                premise = match.group(1).strip()
+                if len(premise) > 50:
+                    break
+
+        if not premise:
+            premise = response[:500]
+
+        coverage_pattern = r"Overall Concept Coverage.*?(\d+)\s*%"
+        coverage_match = re.search(coverage_pattern, response, re.IGNORECASE)
+        coverage = int(coverage_match.group(1)) if coverage_match else 0
+
+        pedagogical_pattern = r"Pedagogical Strength.*?(\d+)\s*%"
+        pedagogical_match = re.search(pedagogical_pattern, response, re.IGNORECASE)
+        pedagogical = int(pedagogical_match.group(1)) if pedagogical_match else 0
+
+        logger.info(f"Selected story: {title}")
+        logger.info(f"  Coverage: {coverage}%")
+        logger.info(f"  Pedagogical: {pedagogical}%")
+
+        return {
+            "title": title,
+            "core_premise": premise,
+            "coverage_percentage": coverage,
+            "pedagogical_strength": pedagogical,
+            "raw_text": response,
+        }
 
 
 def create_backbone_agent() -> BackboneAgent:
