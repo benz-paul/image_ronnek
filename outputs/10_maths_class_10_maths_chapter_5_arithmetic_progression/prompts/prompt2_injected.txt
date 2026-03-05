@@ -1,0 +1,111 @@
+Title: Chapter Decomposition Engine for the Selected Story Backbone
+
+Context: I am teaching a CBSE Class 10 student using a selected real-world story as the narrative backbone. The goal is to transform the chapter into a sequence of learning steps that unfold naturally within the chosen story, so that the student experiences the chapter as a smooth and engaging narrative.
+
+Input:
+
+Chapter:
+Class 10 Maths Chapter 5 Arithmetic Progression
+
+Selected Real-World Story Narrative:
+**
+In a vibrant town named Numberville, a train called the Arithmetic Express travels through the countryside. Each car of the train represents a term in an arithmetic sequence, starting from a small number, 'a'. As the train moves forward, it adds a constant number, 'd', to each consecutive car. The conductor, Mr. Sequence, explains how they can calculate the number in each car using the formula \( a_n = a + (n-1)d \). On their journey, they meet different townsfolk who need to find out how far the train will go after 'n' stops (n-th term) and how much total distance they have traveled up to that point (sum of first n terms). As the train travels infinitely, they discuss real-life applications like saving up for a new train ticket, showing the community how arithmetic progressions help in budgeting. The townsfolk visualize this journey through a graph showing the train’s steady movement, reinforcing how sequences and sums relate.
+
+Concept Inventory:
+1. Sequence - A list of numbers arranged in a specific order based on a pattern.
+
+2. Arithmetic Progression - A sequence in which the difference between consecutive terms remains constant.
+
+3. First Term - The starting value of an arithmetic progression, usually denoted as 'a'.
+
+4. Common Difference - The constant difference between consecutive terms in an arithmetic progression, denoted as 'd'.
+
+5. n-th Term - The term at position 'n' in an arithmetic progression, calculated using the formula: \( a_n = a + (n-1)d \).
+
+6. Sum of First n Terms - The total of the first 'n' terms of an arithmetic progression, calculated using the formula: \( S_n = \frac{n}{2} [2a + (n-1)d] \) or \( S_n = \frac{n}{2} (a + a_n) \).
+
+7. Infinite Arithmetic Progression - A progression that continues indefinitely without a defined last term.
+
+8. Identifying Terms - The process of determining specific terms in an arithmetic progression given certain parameters.
+
+9. Applications of Arithmetic Progression - Various real-life scenarios where arithmetic progression concepts are applicable, such as calculating distances, financial projections, etc.
+
+10. Relationship Between Terms - Understanding how terms in an arithmetic progression relate to one another through the common difference.
+
+11. Graphical Representation - The ability to plot an arithmetic progression on a graph to visualize the linear relationship between terms.
+
+12. Word Problems Involving Arithmetic Progression - Solving practical problems that require the application of arithmetic progression concepts to find solutions.
+
+13. Derivation of Formulas - Understanding how to derive the formulas for the n-th term and the sum of the first n terms in an arithmetic progression. 
+
+14. Difference Between Arithmetic and Other Progressions - Recognizing how arithmetic progression differs from geometric progressions and other types of sequences. 
+
+15. Conditional Statements in Arithmetic Progression - Evaluating conditions under which certain terms or sums of an arithmetic progression hold true. 
+
+16. Series vs. Sequence - Distinguishing between a sequence (ordered list of terms) and a series (the sum of terms in a sequence). 
+
+This inventory encapsulates the essential concepts that a student must understand to grasp the content of Class 10 Maths Chapter 5 on Arithmetic Progressions.
+
+Goal:
+Analyze the chapter and decompose it into logically coherent learning steps that together explain the entire chapter in a clear and engaging manner.
+The objective is not to restrict the number of steps, but to ensure that:
+	Pedagogical clarity is preserved
+	The conceptual flow of the chapter is maintained
+	No conceptual dependency is broken
+	The story backbone can naturally carry the explanation
+	The student can follow the story and understand the concepts smoothly
+	The number of learning steps should emerge naturally from the structure and the flow of the chapter and the narrative flow of the story.
+
+Decomposition Rules:
+Each learning step should represent one meaningful stage in the student's understanding of the chapter.
+A concept may require multiple sequential learning steps if that improves clarity and narrative continuity.
+Closely related ideas may remain together only if they can be clearly understood within a single learning step.
+If a concept requires staged explanation, split it into multiple steps instead of compressing it.
+Avoid duplicate learning steps.
+If two steps cover overlapping conceptual ground, merge them or clearly differentiate them.
+Ensure that all concepts from the chapter are covered at least once.
+Do not skip any essential concept.
+Avoid unnecessary repetition of the same concept across multiple steps unless the later step extends or deepens the idea.
+Maintain conceptual progression where appropriate:
+	Intuition
+	Structural understanding
+	Formula derivation (if applicable)
+	Application or reinforcement
+
+Ensure each learning step corresponds to a natural moment in the selected story backbone where the concept can be discovered, observed, or explained.
+Ensure that each learning step logically leads to the next, avoiding conceptual jumps that would break narrative continuity.
+Each learning step should be expandable into multiple scenes later.
+
+Output Format:
+For each learning step provide:
+Learning Step ID
+Learning Step Title
+Concepts Introduced
+Bullet points listing the concepts explained in this step
+
+Narrative Moment:
+A detailed description of minimum 5+ lines covering:
+Story Context
+Trigger Event
+Character Interaction
+Concept Discovery Setup
+Transition to Next Learning Step
+
+Concept Coverage Validation:
+After generating all learning steps, provide a Concept Coverage Table.
+For each concept from the Concept Inventory provide:
+Concept → Learning Step(s) where it appears → Coverage Completeness → Coverage %
+Coverage Completeness Allowed Values:
+	Fully Covered
+	Partially Covered
+	Requires Additional Step
+
+Coverage % indicates how clearly the concept is represented across the learning steps.
+
+Do NOT:
+Create scenes
+Write story dialogue
+Provide detailed teaching explanations
+Solve textbook problems
+
+Focus only on building a clear sequence of learning steps that combines the chapter structure with the story backbone in a natural and understandable flow.

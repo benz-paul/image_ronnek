@@ -160,8 +160,8 @@ class PipelineGraph:
         
         # Create necessary directories
         Path(state.run_folder).mkdir(parents=True, exist_ok=True)
-        Path(state.run_folder) / "learning_steps".mkdir(exist_ok=True)
-        Path(state.run_folder) / "images".mkdir(exist_ok=True)
+        (Path(state.run_folder) / "learning_steps").mkdir(exist_ok=True)
+        (Path(state.run_folder) / "images").mkdir(exist_ok=True)
         
         # Set initial prompt ID
         state.current_prompt_id = "prompt0"
@@ -195,8 +195,8 @@ class PipelineGraph:
         # Save to file
         run_folder = Path(state.run_folder)
         (run_folder / "prompts").mkdir(exist_ok=True)
-        (run_folder / "prompts" / "prompt0_injected.txt").write_text(injected_prompt)
-        (run_folder / "outputs" / "prompt0_output.txt").write_text(response)
+        (run_folder / "prompts" / "prompt0_injected.txt").write_text(injected_prompt, encoding="utf-8")
+        (run_folder / "outputs" / "prompt0_output.txt").write_text(response, encoding="utf-8")
         
         return {"prompt0_output": response, "current_prompt_id": "prompt1"}
     
@@ -225,8 +225,8 @@ class PipelineGraph:
         
         # Save to file
         run_folder = Path(state.run_folder)
-        (run_folder / "prompts" / "prompt1_injected.txt").write_text(injected_prompt)
-        (run_folder / "outputs" / "prompt1_output.txt").write_text(response)
+        (run_folder / "prompts" / "prompt1_injected.txt").write_text(injected_prompt, encoding="utf-8")
+        (run_folder / "outputs" / "prompt1_output.txt").write_text(response, encoding="utf-8")
         
         return {"prompt1_output": response, "selected_story": selected_story, "current_prompt_id": "prompt2"}
     
@@ -255,14 +255,14 @@ class PipelineGraph:
         
         # Save to file
         run_folder = Path(state.run_folder)
-        (run_folder / "prompts" / "prompt2_injected.txt").write_text(injected_prompt)
-        (run_folder / "outputs" / "prompt2_output.txt").write_text(response)
+        (run_folder / "prompts" / "prompt2_injected.txt").write_text(injected_prompt, encoding="utf-8")
+        (run_folder / "outputs" / "prompt2_output.txt").write_text(response, encoding="utf-8")
         
         # Save learning steps JSON
         learning_steps_dir = run_folder / "learning_steps"
         for i, ls in enumerate(learning_steps):
             ls_path = learning_steps_dir / f"LS{i+1}.json"
-            with open(ls_path, "w") as f:
+            with open(ls_path, "w", encoding="utf-8") as f:
                 json.dump(ls, f, indent=2)
             state.learning_step_json_paths.append(str(ls_path))
         
@@ -303,11 +303,11 @@ class PipelineGraph:
         if current_index < len(state.learning_steps_list):
             state.learning_steps_list[current_index]["scenes"] = scenes_json.get("scenes", [])
             
-            with open(ls_path, "w") as f:
+            with open(ls_path, "w", encoding="utf-8") as f:
                 json.dump(scenes_json, f, indent=2)
         
         # Save prompt
-        (run_folder / "prompts" / f"prompt3_LS{current_index + 1}_injected.txt").write_text(injected_prompt)
+        (run_folder / "prompts" / f"prompt3_LS{current_index + 1}_injected.txt").write_text(injected_prompt, encoding="utf-8")
         
         return {
             "learning_steps_list": state.learning_steps_list,
@@ -353,6 +353,7 @@ class PipelineGraph:
         run_folder = Path(state.run_folder)
         (run_folder / "images" / f"LS{ls_index + 1}_{current_scene.get('scene_id', 'S1')}.txt").write_text(
             result.get("image_prompt", "")
+            , encoding="utf-8"
         )
         
         # Track image path
@@ -627,10 +628,10 @@ class PipelineGraph:
         folder_name = f"{class_level}_{subject}_{chapter_name}".lower().replace(" ", "_")
         state.run_folder = f"outputs/{folder_name}"
         Path(state.run_folder).mkdir(parents=True, exist_ok=True)
-        Path(state.run_folder) / "learning_steps".mkdir(exist_ok=True)
-        Path(state.run_folder) / "images".mkdir(exist_ok=True)
-        Path(state.run_folder) / "prompts".mkdir(exist_ok=True)
-        Path(state.run_folder) / "outputs".mkdir(exist_ok=True)
+        (Path(state.run_folder) / "learning_steps").mkdir(exist_ok=True)
+        (Path(state.run_folder) / "images").mkdir(exist_ok=True)
+        (Path(state.run_folder) / "prompts").mkdir(exist_ok=True)
+        (Path(state.run_folder) / "outputs").mkdir(exist_ok=True)
         
         # Run the graph
         config = {"configurable": {"thread_id": "storytelling-pipeline"}}

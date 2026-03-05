@@ -1,0 +1,106 @@
+Title: Backbone Story Possibilities Creator
+
+Context: I am teaching a CBSE Class 10 student who understands concepts better through real-world stories. The goal is to identify story backbones capable of explaining the entire chapter through one continuous narrative.
+
+Input:
+
+Chapter: Class 10 Maths Chapter 5 Arithmetic Progression
+
+Concept Inventory: 1. Sequence - A list of numbers arranged in a specific order based on a pattern.
+
+2. Arithmetic Progression - A sequence in which the difference between consecutive terms remains constant.
+
+3. First Term - The starting value of an arithmetic progression, usually denoted as 'a'.
+
+4. Common Difference - The constant difference between consecutive terms in an arithmetic progression, denoted as 'd'.
+
+5. n-th Term - The term at position 'n' in an arithmetic progression, calculated using the formula: \( a_n = a + (n-1)d \).
+
+6. Sum of First n Terms - The total of the first 'n' terms of an arithmetic progression, calculated using the formula: \( S_n = \frac{n}{2} [2a + (n-1)d] \) or \( S_n = \frac{n}{2} (a + a_n) \).
+
+7. Infinite Arithmetic Progression - A progression that continues indefinitely without a defined last term.
+
+8. Identifying Terms - The process of determining specific terms in an arithmetic progression given certain parameters.
+
+9. Applications of Arithmetic Progression - Various real-life scenarios where arithmetic progression concepts are applicable, such as calculating distances, financial projections, etc.
+
+10. Relationship Between Terms - Understanding how terms in an arithmetic progression relate to one another through the common difference.
+
+11. Graphical Representation - The ability to plot an arithmetic progression on a graph to visualize the linear relationship between terms.
+
+12. Word Problems Involving Arithmetic Progression - Solving practical problems that require the application of arithmetic progression concepts to find solutions.
+
+13. Derivation of Formulas - Understanding how to derive the formulas for the n-th term and the sum of the first n terms in an arithmetic progression. 
+
+14. Difference Between Arithmetic and Other Progressions - Recognizing how arithmetic progression differs from geometric progressions and other types of sequences. 
+
+15. Conditional Statements in Arithmetic Progression - Evaluating conditions under which certain terms or sums of an arithmetic progression hold true. 
+
+16. Series vs. Sequence - Distinguishing between a sequence (ordered list of terms) and a series (the sum of terms in a sequence). 
+
+This inventory encapsulates the essential concepts that a student must understand to grasp the content of Class 10 Maths Chapter 5 on Arithmetic Progressions.
+
+Goal: Generate around 10 different real-world story backbones that can explain the entire chapter intuitively.
+
+Each story backbone must be evaluated against the Concept Inventory to determine whether the story can naturally explain all required concepts. The objective is to identify full-chapter narrative candidates, not partial metaphors.
+
+Constraints:
+
+Each story must be capable of explaining all concepts listed in the Concept Inventory within one continuous narrative.
+
+If a story cannot naturally explain some concepts:
+Clearly indicate which concepts are weakly supported
+Indicate whether combining it with another story backbone could solve the gap
+
+Stories must be structurally rich enough to support:
+Intuition
+Structural understanding
+Formula derivation
+Application
+
+Stories should:
+Map naturally to the chapter concepts
+Be suitable for comics, animation, or visual storytelling
+Emphasize intuition before formulas
+
+Focus only on conceptual storytelling possibilities.
+
+Terms Definition Coverage Completeness
+
+Allowed values:
+
+Fully Covers
+
+Partially Covers
+
+Requires Combination
+
+Coverage % reflects how naturally the concept can be explained within the story.
+
+Output Format (Per Story Backbone):
+
+1. Story Title
+2. Core Narrative Premise - Build a detailed story line with minimum of 10 lines and with proper characters aligning to the story.
+3. Concept Coverage Table
+For every concept in the Concept Inventory, provide:
+Concept → How story explains it → Coverage Completeness → Coverage %
+4. Overall Concept Coverage
+2–3 lines summarizing how well the story explains the entire chapter. Provide Overall Concept Coverage %.
+5. Pedagogical Strength
+2–3 lines explaining why this story is effective for teaching. Provide Pedagogical Strength %.
+6. Ranking
+Sort all identified story backbones:
+By the average of both the
+Overall Concept Coverage %
+Pedagogical Strength %
+
+Final Output Rule:
+Provide detailed output only for the top 5-8 stories after ranking.
+
+Do NOT:
+Solve textbook problems
+Use heavy equations
+Create scenes
+Produce story scripts
+
+Focus only on identifying strong story backbones capable of explaining the entire chapter.

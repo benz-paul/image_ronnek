@@ -1,0 +1,33 @@
+1. Sequence - A list of numbers arranged in a specific order based on a pattern.
+
+2. Arithmetic Progression - A sequence in which the difference between consecutive terms remains constant.
+
+3. First Term - The starting value of an arithmetic progression, usually denoted as 'a'.
+
+4. Common Difference - The constant difference between consecutive terms in an arithmetic progression, denoted as 'd'.
+
+5. n-th Term - The term at position 'n' in an arithmetic progression, calculated using the formula: \( a_n = a + (n-1)d \).
+
+6. Sum of First n Terms - The total of the first 'n' terms of an arithmetic progression, calculated using the formula: \( S_n = \frac{n}{2} [2a + (n-1)d] \) or \( S_n = \frac{n}{2} (a + a_n) \).
+
+7. Infinite Arithmetic Progression - A progression that continues indefinitely without a defined last term.
+
+8. Identifying Terms - The process of determining specific terms in an arithmetic progression given certain parameters.
+
+9. Applications of Arithmetic Progression - Various real-life scenarios where arithmetic progression concepts are applicable, such as calculating distances, financial projections, etc.
+
+10. Relationship Between Terms - Understanding how terms in an arithmetic progression relate to one another through the common difference.
+
+11. Graphical Representation - The ability to plot an arithmetic progression on a graph to visualize the linear relationship between terms.
+
+12. Word Problems Involving Arithmetic Progression - Solving practical problems that require the application of arithmetic progression concepts to find solutions.
+
+13. Derivation of Formulas - Understanding how to derive the formulas for the n-th term and the sum of the first n terms in an arithmetic progression. 
+
+14. Difference Between Arithmetic and Other Progressions - Recognizing how arithmetic progression differs from geometric progressions and other types of sequences. 
+
+15. Conditional Statements in Arithmetic Progression - Evaluating conditions under which certain terms or sums of an arithmetic progression hold true. 
+
+16. Series vs. Sequence - Distinguishing between a sequence (ordered list of terms) and a series (the sum of terms in a sequence). 
+
+This inventory encapsulates the essential concepts that a student must understand to grasp the content of Class 10 Maths Chapter 5 on Arithmetic Progressions.

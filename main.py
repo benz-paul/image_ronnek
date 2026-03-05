@@ -4,6 +4,8 @@ Main entry point for the Storytelling Pipeline - Agentic Version.
 This version uses LangGraph, LangChain, and LangSmith for orchestration.
 The knowledge folder logic and PDF download logic are PRESERVED from the original.
 """
+from dotenv import load_dotenv
+load_dotenv()
 
 import sys
 import os

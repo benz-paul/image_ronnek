@@ -1,0 +1,189 @@
+Title: Learning Step Story Scene Generator
+
+Context:
+I am building a structured storytelling engine for CBSE Grade 10.
+The chapter has already been processed into:
+Concept Inventory
+Story Backbone
+Learning Steps
+Each learning step defines:
+concepts to introduce
+a narrative moment describing the story situation
+
+Your task is to convert one learning step into multiple storytelling scenes in JSON format.
+
+Input:
+You will receive the following inputs:
+Chapter:
+Class 10 Maths Chapter 5 Arithmetic Progression
+
+Story Backbone:
+**
+In a vibrant town named Numberville, a train called the Arithmetic Express travels through the countryside. Each car of the train represents a term in an arithmetic sequence, starting from a small number, 'a'. As the train moves forward, it adds a constant number, 'd', to each consecutive car. The conductor, Mr. Sequence, explains how they can calculate the number in each car using the formula \( a_n = a + (n-1)d \). On their journey, they meet different townsfolk who need to find out how far the train will go after 'n' stops (n-th term) and how much total distance they have traveled up to that point (sum of first n terms). As the train travels infinitely, they discuss real-life applications like saving up for a new train ticket, showing the community how arithmetic progressions help in budgeting. The townsfolk visualize this journey through a graph showing the train’s steady movement, reinforcing how sequences and sums relate.
+
+Previous Learning Step
+(The previous learning step provides narrative continuity. If previous learning step is empty/not provided take the current learning step as the start of the learning step.):
+
+
+Current Learning Step
+(The current learning step defines the concepts to be explained.):
+(Insert the **current learning step from the learning step decomposition output**)
+
+Next Learning Step
+(The next learning step helps create a transition for the story. If the next learning step is empty/not provided take the current learning step as the end scene of the learning step.):
+
+
+JSON Template:
+
+{
+  "academic_context": {
+    "subject_id": "[SUBJECT_ID]",
+    "chapter_id": "[CHAPTER_ID]",
+    "title": "[CHAPTER_TITLE]",
+    "board": "cbse",
+    "grade": 10
+  },
+
+  "story_backbone": {
+    "title": "[STORY_TITLE]",
+    "core_premise": "[CORE_PREMISE]",
+    "theme": "[STORY_THEME]",
+    "tone": "[STORY_TONE]",
+    "story_goal": "[STORY_GOAL]"
+  },
+
+  "learning_objectives": {
+    "difficulty": "beginner",
+    "learning_mode": "conceptual_story_based"
+  },
+
+  "character_registry": [
+    {
+      "character_id": "[CHAR1_ID]",
+      "role": "[CHAR1_ROLE]",
+      "design": {
+        "appearance": "[CHAR1_APPEARANCE]",
+        "personality_traits": [CHAR1_TRAITS]
+      }
+    },
+    {
+      "character_id": "[CHAR2_ID]",
+      "role": "[CHAR2_ROLE]",
+      "design": {
+        "appearance": "[CHAR2_APPEARANCE]",
+        "personality_traits": [CHAR2_TRAITS]
+      }
+    }
+  ],
+
+  "learning_steps": [
+    {
+      "learning_step_id": "[LS_ID]",
+      "title": "[LS_TITLE]",
+
+      "concepts_introduced": [
+        "[CONCEPT1]",
+        "[CONCEPT2]"
+      ],
+
+      "narrative_moment": "[NARRATIVE_MOMENT]",
+
+      "expected_scene_phases": [
+        "hook",
+        "observation",
+        "investigation",
+        "discovery",
+        "explanation",
+        "reinforcement",
+        "transition"
+      ],
+
+      "concept_scene_mapping": [
+        {
+          "concept": "[CONCEPT1]",
+          "scene_ids": ["S1", "S2"]
+        },
+        {
+          "concept": "[CONCEPT2]",
+          "scene_ids": ["S3", "S4"]
+        }
+      ],
+
+      "scenes": [
+        {
+          "scene_id": "S1",
+          "scene_order": 1,
+          "scene_phase": "hook",
+          "scene_goal": "[SCENE_GOAL]",
+          "concept_focus": "[CONCEPT_FOCUS]",
+          "emotional_tone": "[EMOTIONAL_TONE]",
+
+          "visual_setting": {
+            "environment": "[ENVIRONMENT]",
+            "atmosphere": "[ATMOSPHERE]"
+          },
+
+          "characters": [
+            { "ref": "[CHAR_REF]" }
+          ],
+
+          "narrative": {
+            "screenplay": "[SCREENPLAY]",
+            "camera_suggestion": "[CAMERA_SUGGESTION]",
+            "action_flow": "[ACTION_FLOW]"
+          },
+
+          "dialogue": [
+            {
+              "speaker": "[SPEAKER]",
+              "text": "[DIALOGUE_TEXT]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+Goal:
+Generate a complete set of scenes that explain the current learning step concepts through storytelling.
+
+The scenes must:
+start naturally from the previous learning step narrative
+follow a clear story arc
+explain the concepts introduced in the current learning step
+end with a smooth transition toward the next learning step
+
+Scene Structure
+Scenes must follow a logical storytelling progression using these phases:
+hook
+observation
+investigation
+discovery
+explanation
+application
+reinforcement
+transition and etc..
+
+Not all phases are mandatory, but the story should flow naturally across them.
+
+Scene Design Rules:
+Concepts introduced in the learning step must appear in at least one scene.
+Dialogue must remain natural conversation and descriptive.
+Scenes must remain visually descriptive to support animation or comics or the dialogue.
+Story characters must remain consistent with the story backbone.
+The final scene must naturally transition toward the next learning step.
+Maintain continuity with the previous learning step narrative.
+
+Pedagogical Rules:
+Build intuition before formulas.
+Avoid introducing formulas before conceptual understanding.
+Use discovery-based explanation where possible.
+Keep explanations beginner-friendly.
+Avoid mixing multiple unrelated concepts in one scene.
+
+Output Rules:
+Output ONLY valid JSON.
+Follow the JSON schema exactly.
+Do not include explanations outside JSON.
