@@ -7,11 +7,16 @@ env/
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.log
 *.so
 .Python
 *.egg-info/
 dist/
 build/
+
+# Ruff cache
+.ruff_cache/
 
 # IDE
 .vscode/
@@ -23,15 +28,34 @@ build/
 logs/
 
 # Generated runs
+outputs/
 runs/
 
 # Environment
-.env
 .env.local
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Requirements (keep this if you want to include it)
-# requirements.txt
+# Ignore outputs and generated files
+outputs/
+logs/
+*.log
+
+# Ignore run folders
+run_*/
+
+# Ignore images
+*.png
+*.jpg
+*.jpeg
+
+# Ignore env
+.env
+venv/
+
+# Ignore system files
+__pycache__/
+*.pyc.env
+boot.md

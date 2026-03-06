@@ -1,0 +1,770 @@
+Master prompts:
+
+----
+Prompt 0 – Chapter Concept Inventory Extractor
+
+Title: Chapter Concept Inventory Generator
+
+Context: You are analyzing a CBSE Class 10 chapter to extract the complete inventory of concepts that must be understood by a student. This concept inventory will serve as the reference list for validating story coverage and learning step coverage in later stages of a storytelling-based teaching system.
+
+Input:
+1. Chapter: {chapter_name}
+2. Chapter Content:
+{chapter_text}
+
+Goal: Identify and list all the key concepts that the chapter teaches. The objective is to create a complete concept inventory that represents the knowledge a student must acquire from this chapter. This inventory will later be used to ensure that:
+The selected story backbone can explain all concepts
+The learning steps cover all concepts
+The generated scenes do not miss any concept
+
+Extraction Rules: 
+1.Extract concepts directly from the chapter content. Include all concepts necessary for a student to fully understand the chapter. Each concept should represent a distinct learning idea. Avoid combining multiple ideas into a single concept. Avoid duplicate or overlapping concepts. If a concept builds on another concept, keep them as separate entries. Keep concept descriptions concise and clear. The goal is to capture the conceptual coverage of the chapter, not to create teaching modules.
+2. Concepts should represent knowledge ideas (definitions, properties, relationships, formulas, theorems) rather than procedural steps such as solving exercises or performing calculations.
+3. Extract concepts only if they are explicitly present or clearly implied in the chapter content. Do not invent new concepts beyond the chapter scope.
+
+## EXTRACTION DEPTH RULE (CRITICAL)
+
+Extract concepts at ALL levels:
+
+1. Core concepts (definitions, ideas)
+2. Formula concepts (equations, representations)
+3. Problem-solving concepts (methods, procedures)
+4. Real-world applications
+5. Higher-level thinking (patterns, generalizations)
+
+## ANTI-COMPRESSION RULE
+
+* DO NOT merge similar concepts
+* DO NOT generalize multiple ideas into one
+* If two concepts differ slightly → include both
+
+## OUTPUT EXPECTATION
+
+* Minimum 40 concepts expected
+* Prefer over-extraction instead of missing concepts
+
+Output Format: For each concept provide: Concept Name Short description of the concept (1–2 lines) Importance level (high/medium/low) - MUST BE FILLED FOR EVERY CONCEPT
+
+CRITICAL: The "importance" field is REQUIRED for EVERY concept. Do not leave it empty. Assign one of: high, medium, or low based on how essential the concept is for understanding the chapter.
+
+Example Output (Illustrative):
+
+1.Sequence - a list of numbers arranged in a specific order based on a pattern.
+2.Arithmetic Progression - A sequence in which the difference between consecutive terms remains constant.
+3.First Term - The starting value of an arithmetic progression.
+4.Common Difference - The constant difference between consecutive terms in an arithmetic progression.
+5.nth Term Formula - A formula used to calculate any term in the progression without listing all terms.
+
+Do NOT Create stories Create learning steps Group concepts into modules Solve problems
+
+Focus only on extracting the complete concept inventory of the chapter.
+
+----
+
+Prompt 1 – Story Backbone Possibilities Creator
+
+Title: Backbone Story Possibilities Creator
+
+Context: I am teaching a CBSE Class 10 student who understands concepts better through real-world stories. The goal is to identify story backbones capable of explaining the entire chapter through one continuous narrative.
+
+Input:
+
+Chapter: [Chapter Name]
+
+Concept Inventory: [Output from Prompt 0 concept inventories]
+
+Goal: Generate around 10 different real-world story backbones that can explain the entire chapter intuitively.
+
+Each story backbone must be evaluated against the Concept Inventory to determine whether the story can naturally explain all required concepts. The objective is to identify full-chapter narrative candidates, not partial metaphors.
+When explaining concept coverage, briefly describe the mechanism through which the story naturally reveals the concept rather than simply stating that the concept appears.
+
+Constraints:
+
+Each story must be capable of explaining all concepts listed in the Concept Inventory within one continuous narrative.
+
+If a story cannot naturally explain some concepts:
+Clearly indicate which concepts are weakly supported
+Indicate whether combining it with another story backbone could solve the gap
+
+Stories must be structurally rich enough to support:
+Intuition
+Structural understanding
+Formula derivation
+Application
+
+Stories should:
+Map naturally to the chapter concepts
+Be suitable for comics, animation, or visual storytelling
+Emphasize intuition before formulas
+Prefer stories grounded in situations that students naturally relate to such as:
+student life, first job, salary growth, savings goals, gaming progress, sports training, social media growth, travel planning, or daily school experiences.
+
+Stories that reflect aspirations of students (such as earning money, achieving goals, improving skills, or planning for the future) are especially effective for engagement.
+The story should follow a realistic sequence of events where the characters experience situations that naturally lead to discovering the chapter concepts rather than forcing concepts artificially into the story.
+
+The narrative introduction should feel cinematic and immersive, similar to how films begin by establishing the setting and situation before the concept emerges.
+Focus only on conceptual storytelling possibilities.
+
+Terms Definition Coverage Completeness
+
+Allowed values:
+
+Fully Covers
+
+Partially Covers
+
+Requires Combination
+
+Coverage % reflects how naturally the concept can be explained within the story.
+
+Output Format (Per Story Backbone):
+
+1. Story Title
+2. Core Narrative Premise - Build a detailed story line with minimum of 10 lines and with proper characters aligning to the story.
+3. Concept Coverage Table
+For every concept in the Concept Inventory, provide:
+Concept → How story explains it → Coverage Completeness → Coverage %
+4. Overall Concept Coverage
+2–3 lines summarizing how well the story explains the entire chapter. Provide Overall Concept Coverage %.
+5. Pedagogical Strength
+2–3 lines explaining why this story is effective for teaching. Provide Pedagogical Strength %.
+6. Ranking
+Sort all identified story backbones:
+By the average of both the
+Overall Concept Coverage %
+Pedagogical Strength %
+
+Final Output Rule:
+Provide detailed output only for the top 5-8 stories after ranking.
+
+CRITICAL: You MUST output ONLY valid JSON. No text before or after.
+
+JSON Output Format:
+```json
+{
+  "stories": [
+    {
+      "rank": 1,
+      "title": "Story Title",
+      "core_narrative_premise": "Detailed story premise (10+ lines with characters, setting, situation)",
+      "overall_coverage": 95,
+      "pedagogical_strength": 96
+    }
+  ],
+  "selected_story": {
+    "rank": 1,
+    "title": "Top Ranked Story Title",
+    "core_narrative_premise": "The complete story premise for this selected story",
+    "overall_coverage": 95,
+    "pedagogical_strength": 96
+  }
+}
+```
+
+Important:
+- Output ONLY valid JSON
+- Start with { and end with }
+- Do NOT wrap in ``` code blocks in your response
+- selected_story should contain the top-ranked story with full core_narrative_premise
+
+Do NOT:
+Solve textbook problems
+Use heavy equations
+Create scenes
+Produce story scripts
+
+Focus only on identifying strong story backbones capable of explaining the entire chapter.
+
+OUTPUT FORMAT (STRICT JSON)
+
+Return ONLY valid JSON.
+Do NOT include explanations.
+Do NOT include markdown.
+Do NOT wrap JSON in ``` blocks.
+
+JSON rules:
+1. All keys MUST be enclosed in double quotes.
+2. All string values MUST be enclosed in double quotes.
+3. No trailing commas.
+4. Response must start with { and end with }.
+5. Output must be directly parsable using Python json.loads().
+
+Example valid JSON:
+
+{
+  "selected_story": {
+    "title": "Story title",
+    "core_narrative_premise": "Short story premise",
+    "characters": []
+  }
+}
+
+
+----
+
+Prompt 2 – Chapter to Learning Steps Decomposition
+
+Title: Chapter Decomposition Engine for the Selected Story Backbone
+
+Context: I am teaching a CBSE Class 10 student using a selected real-world story as the narrative backbone. The goal is to transform the chapter into a sequence of learning steps that unfold naturally within the chosen story, so that the student experiences the chapter as a smooth and engaging narrative.
+
+Input:
+
+Chapter:
+[Chapter Name]
+
+Selected Story Title:
+[selected_story_title]
+
+Selected Real-World Story Narrative:
+[selected_story_premise]
+
+Character Registry:
+[character_registry]
+
+Concept Inventory:
+{concept_inventory}
+
+Goal:
+Analyze the chapter and decompose it into logically coherent learning steps that together explain the entire chapter in a clear and engaging manner.
+The objective is not to restrict the number of steps, but to ensure that:
+	Pedagogical clarity is preserved
+	The conceptual flow of the chapter is maintained
+	No conceptual dependency is broken
+	The story backbone can naturally carry the explanation
+	The student can follow the story and understand the concepts smoothly
+	The number of learning steps should emerge naturally from the structure and the flow of the chapter and the narrative flow of the story.
+
+Decomposition Rules:
+Each learning step should represent one meaningful stage in the student's understanding of the chapter.
+A concept may require multiple sequential learning steps if that improves clarity and narrative continuity.
+Closely related ideas may remain together only if they can be clearly understood within a single learning step.
+If a concept requires staged explanation, split it into multiple steps instead of compressing it.
+Avoid duplicate learning steps.
+If two steps cover overlapping conceptual ground, merge them or clearly differentiate them.
+Ensure that all concepts from the chapter are covered at least once.
+Do not skip any essential concept.
+Avoid unnecessary repetition of the same concept across multiple steps unless the later step extends or deepens the idea.
+Maintain conceptual progression where appropriate:
+	Intuition
+	Structural understanding
+	Formula derivation (if applicable)
+	Application or reinforcement
+
+Ensure each learning step corresponds to a natural moment in the selected story backbone where the concept can be discovered, observed, or explained.
+Learning steps should preserve narrative continuity so that characters remain in the same evolving situation instead of restarting the story context in each step.
+New characters should only be introduced when the story context naturally requires them, and their introduction should serve a narrative or conceptual purpose.
+Moments where the character reflects on personal goals, decisions, or progress should be used to trigger concept discovery, helping the learner emotionally connect with the situation.
+Ensure that each learning step logically leads to the next, avoiding conceptual jumps that would break narrative continuity.
+Each learning step should be expandable into multiple scenes later.
+
+LEARNING STEP RULES:
+
+1. Learning steps MUST be derived from the concept inventory produced in Prompt0.
+2. Each learning step should focus on teaching or discovering one or more concepts from the concept inventory.
+3. Do NOT generate generic study instructions such as:
+   * "summarize the chapter"
+   * "discuss with peers"
+   * "review the material"
+4. Learning steps should represent the logical progression of understanding the topic.
+5. The sequence of learning steps should move from:
+   observation → investigation → concept discovery → concept explanation → application.
+
+Example guideline (subject independent):
+* LS1: observe a phenomenon or pattern related to the topic
+* LS2: investigate the pattern
+* LS3: discover the underlying concept
+* LS4: explain the concept
+* LS5+: apply or reinforce the concept
+
+IMPORTANT:
+Learning steps must remain educational but story-compatible.
+
+STORY CONTINUITY RULES:
+Learning steps must strictly follow the story backbone.
+Use the same characters, setting, and story premise as defined in the Selected Real-World Story Narrative.
+Do NOT invent a new story, new characters, or new settings.
+All learning moments must happen inside the story defined in Prompt1 (the selected story backbone).
+The narrative flow must be continuous - each learning step should naturally follow from the previous one within the same story context.
+
+Output Format:
+For each learning step provide:
+Learning Step ID
+Learning Step Title
+Concepts Introduced
+Bullet points listing the concepts explained in this step
+
+Narrative Moment:
+A detailed description of minimum 5+ lines covering:
+Story Context
+Trigger Event
+Character Interaction
+Concept Discovery Setup
+Transition to Next Learning Step
+
+Concept Coverage Validation:
+After generating all learning steps, provide a Concept Coverage Table.
+For each concept from the Concept Inventory provide:
+Concept → Learning Step(s) where it appears → Coverage Completeness → Coverage %
+Coverage Completeness Allowed Values:
+	Fully Covered
+	Partially Covered
+	Requires Additional Step
+
+Coverage % indicates how clearly the concept is represented across the learning steps.
+
+CRITICAL: You MUST output ONLY valid JSON. No text before or after.
+
+JSON Output Format:
+```json
+{
+  "learning_steps": [
+    {
+      "learning_step_id": "LS1",
+      "title": "Learning Step Title",
+      "concepts_introduced": ["concept1", "concept2"],
+      "narrative_moment": "Detailed narrative description..."
+    }
+  ],
+  "total_learning_steps": 1
+}
+```
+
+IMPORTANT:
+- Output ONLY valid JSON
+- Start with { and end with }
+- Do NOT include any explanatory text
+- Do NOT wrap in ``` code blocks in your response
+- Every learning step must be in the JSON array
+
+Do NOT:
+Create scenes
+Write story dialogue
+Provide detailed teaching explanations
+Solve textbook problems
+
+Focus only on building a clear sequence of learning steps that combines the chapter structure with the story backbone in a natural and understandable flow.
+
+----
+
+Prompt 3A – Scene Planner for LS1
+
+Title: Scene Planner - Generate Scene Structure for Learning Step 1
+
+Context:
+I am building a storytelling-based educational pipeline. The chapter has been decomposed into learning steps, and now I need to plan how many scenes Learning Step 1 (LS1) will contain and the narrative phase of each scene.
+
+Input:
+Chapter: [CHAPTER]
+Story Backbone: [STORY_BACKBONE]
+Learning Steps: [LEARNING_STEPS]
+Character Registry: [CHARACTER_REGISTRY]
+
+Goal:
+Generate a structured scene plan that defines:
+- How many scenes LS1 should contain (minimum 6, maximum 15)
+- The narrative phase of each scene
+- The sequence of scenes that tells a coherent story
+
+Rules:
+1. Minimum 6 scenes, maximum 15 scenes
+2. First scene MUST be "opening_environment" - cinematic introduction of the environment
+3. Early scenes must introduce characters naturally
+4. Scenes must follow story continuity - each scene leads naturally to the next
+5. Scenes must enable concept discovery through narrative progression
+6. Use phases: opening_environment, character_introduction, observation, investigation, concept_discovery, concept_explanation, reinforcement, transition
+7. First 2-3 scenes should build the narrative foundation
+8. Middle scenes should drive the investigation/discovery
+9. Final scenes should reinforce concepts and transition
+
+Output Format (STRICT JSON):
+```json
+{
+  "learning_step_id": "LS1",
+  "scene_plan": [
+    {"scene_id": "LS1_S1", "phase": "opening_environment"},
+    {"scene_id": "LS1_S2", "phase": "character_introduction"},
+    ...
+  ]
+}
+```
+
+Do NOT generate scene content - only the plan.
+Output ONLY valid JSON. No markdown, no explanations.
+
+----
+
+Prompt 3B – Single Scene Generator
+
+Title: Generate Single Scene for Learning Step 1
+
+Context:
+I am building a scene-by-scene storytelling pipeline. A scene plan has been created, and now I need to generate ONE individual scene that continues the story from the previous scene while introducing the learning concepts.
+
+Input:
+Chapter: [CHAPTER]
+Story Backbone: [STORY_BACKBONE]
+Character Registry: [CHARACTER_REGISTRY]
+Current Learning Step: [LEARNING_STEP_LS1]
+
+Scene to Generate:
+- Scene ID: [SCENE_ID]
+- Scene Phase: [SCENE_PHASE]
+- Story So Far: [STORY_SUMMARY]
+- Previous Scene Summary: [PREVIOUS_SCENE_SUMMARY]
+
+Next Scene Phase: [NEXT_SCENE_PHASE]
+
+Goal:
+Generate ONE scene that:
+- Continues the story from the previous scene
+- Maintains character behavior and personalities
+- Maintains environment continuity
+- Naturally discovers and explains LS1 concepts through story events
+- Ensures cinematic storytelling quality
+
+Scene Structure:
+{
+  "scene_id": "[SCENE_ID]",
+  "scene_phase": "[PHASE]",
+  "scene_goal": "What happens in this scene + Why it matters for learning",
+  "visual_setting": {
+    "environment": "Where the scene takes place",
+    "atmosphere": "Mood/tone of the scene",
+    "time_of_day": "When the scene occurs"
+  },
+  "characters": [
+    {
+      "character_id": "[CHAR_ID]",
+      "emotion": "Character's emotional state",
+      "action": "What the character is doing"
+    }
+  ],
+  "narrative": {
+    "screenplay": "180-250 words of story narration",
+    "camera_suggestion": "How this scene should be visualized",
+    "action_flow": "How characters move through the scene"
+  },
+  "dialogue": [
+    {
+      "speaker": "[CHAR_NAME]",
+      "text": "[DIALOGUE_LINE]",
+      "tone": "How the line is delivered"
+    }
+  ],
+  "concept_moments": [
+    {
+      "concept": "[CONCEPT_NAME]",
+      "how_discovered": "How the concept is revealed in this scene"
+    }
+  ]
+}
+
+Rules:
+1. Each scene MUST contain 180-250 words of screenplay/narration
+2. Each scene MUST include at least 1 dialogue line
+3. First scene must establish environment before characters speak
+4. When a character appears for the first time, visually describe them
+5. Concepts should be discovered through story events, not direct explanation
+6. Scene must connect naturally to previous and next scenes
+7. Maintain visual consistency with the story backbone
+
+Output ONLY valid JSON for ONE scene. No markdown, no explanations.
+Start with { and end with }.
+
+----
+
+Prompt 3 – Learning Step to Story Scenes JSON Generator
+
+Title: Learning Step Story Scene Generator
+
+Context:
+I am building a structured storytelling engine for CBSE Grade 10.
+The chapter has already been processed into:
+Concept Inventory
+Story Backbone
+Learning Steps
+Each learning step defines:
+concepts to introduce
+a narrative moment describing the story situation
+
+Your task is to convert one learning step into multiple storytelling scenes in JSON format.
+
+Input:
+You will receive the following inputs:
+Chapter:
+(Insert the chapter name used in the previous prompts)
+
+Story Backbone:
+(Insert the **selected story backbone output from the story backbone generation prompt**, specifically the **Core Narrative Premise of the chosen story**)
+
+Previous Learning Step
+(The previous learning step provides narrative continuity. If previous learning step is empty/not provided take the current learning step as the start of the learning step.):
+(Insert the **previous learning step output from the learning step decomposition prompt**)
+
+Current Learning Step
+(The current learning step defines the concepts to be explained.):
+(Insert the **current learning step from the learning step decomposition output**)
+
+Next Learning Step
+(The next learning step helps create a transition for the story. If the next learning step is empty/not provided take the current learning step as the end scene of the learning step.):
+(Insert the **next learning step from the learning step decomposition output**)
+
+The first scene should avoid dialogue unless necessary and should primarily establish the environment visually.
+If the scene introduces a new character for the first time, include a brief visual introduction describing the character’s appearance and role in the story.
+
+JSON Template:
+
+```
+{
+  "academic_context": {
+    "subject_id": "[SUBJECT_ID]",
+    "chapter_id": "[CHAPTER_ID]",
+    "title": "[CHAPTER_TITLE]",
+    "board": "cbse",
+    "grade": 10
+  },
+
+  "story_backbone": {
+    "title": "[STORY_TITLE]",
+    "core_premise": "[CORE_PREMISE]",
+    "theme": "[STORY_THEME]",
+    "tone": "[STORY_TONE]",
+    "story_goal": "[STORY_GOAL]"
+  },
+
+  "learning_objectives": {
+    "difficulty": "beginner",
+    "learning_mode": "conceptual_story_based"
+  },
+
+  "character_registry": [
+    {
+      "character_id": "[CHAR1_ID]",
+      "role": "[CHAR1_ROLE]",
+      "design": {
+        "appearance": "[CHAR1_APPEARANCE]",
+        "personality_traits": [CHAR1_TRAITS]
+      }
+    },
+    {
+      "character_id": "[CHAR2_ID]",
+      "role": "[CHAR2_ROLE]",
+      "design": {
+        "appearance": "[CHAR2_APPEARANCE]",
+        "personality_traits": [CHAR2_TRAITS]
+      }
+    }
+  ],
+
+  "learning_steps": [
+    {
+      "learning_step_id": "[LS_ID]",
+      "title": "[LS_TITLE]",
+
+      "concepts_introduced": [
+        "[CONCEPT1]",
+        "[CONCEPT2]"
+      ],
+
+      "narrative_moment": "[NARRATIVE_MOMENT]",
+
+      "expected_scene_phases": [
+        "hook",
+        "observation",
+        "investigation",
+        "discovery",
+        "explanation",
+        "reinforcement",
+        "transition"
+      ],
+
+      "concept_scene_mapping": [
+        {
+          "concept": "[CONCEPT1]",
+          "scene_ids": ["LS1_S1", "LS1_S2"],
+          "coverage": "introduction"
+        },
+        {
+          "concept": "[CONCEPT2]",
+          "scene_ids": ["LS1_S3", "LS1_S4"],
+          "coverage": "exploration"
+        }
+      ],
+
+      "scenes": [
+        {
+          "scene_id": "LS1_S1",
+          "scene_order": 1,
+          "scene_phase": "hook",
+          "scene_goal": "[SCENE_GOAL]",
+          "concept_focus": "[CONCEPT_FOCUS]",
+          "emotional_tone": "[EMOTIONAL_TONE]",
+
+          "visual_setting": {
+            "environment": "[ENVIRONMENT]",
+            "atmosphere": "[ATMOSPHERE]",
+            "time_of_day": "[TIME_OF_DAY]"
+          },
+
+          "characters": [
+            {
+              "ref": "[CHAR_REF]",
+              "emotion": "[CHARACTER_EMOTION]"
+            }
+          ],
+
+          "narrative": {
+            "screenplay": "[SCREENPLAY]",
+            "camera_suggestion": "[CAMERA_SUGGESTION]",
+            "action_flow": "[ACTION_FLOW]",
+            "visual_elements": "[KEY_VISIBLE_OBJECTS]"
+          },
+
+          "dialogue": [
+            {
+              "speaker": "[SPEAKER]",
+              "text": "[DIALOGUE_TEXT]",
+              "tone": "[DIALOGUE_TONE]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+
+
+Goal:
+Generate a complete set of scenes that explain the current learning step concepts through storytelling.
+
+Scene Count Rule:
+Generate AT LEAST 3-5 SCENES per learning step minimum.
+Do NOT generate only 1 scene - that is insufficient.
+Generate as many scenes as required for the learning step to naturally explain ALL concepts and complete the story progression.
+Each concept in the learning step should have its own scene for proper explanation.
+Scene count should emerge naturally from the teaching and storytelling requirements.
+The number of scenes is NOT fixed.
+Generate as many scenes as required for the learning step to be clearly understood.
+Multiple scenes may belong to the same narrative phase.
+Typical learning steps may produce between 6 and 15 scenes depending on complexity.
+
+The scenes must:
+start naturally from the previous learning step narrative
+follow a clear story arc
+explain the concepts introduced in the current learning step
+end with a smooth transition toward the next learning step
+
+STORY DISCOVERY RULES:
+
+1. Concepts should NOT be introduced immediately in the opening scene.
+2. Early scenes must build curiosity through environment, characters, or observations.
+3. Concepts should be discovered naturally through story events.
+4. The main concept discovery should occur in scenes labeled:
+   * concept_discovery
+   * concept_explanation
+5. Characters should explore ideas through dialogue, observation, or investigation rather than direct narration.
+6. Scenes must maintain continuity with previous scenes and gradually advance the story toward the learning goal.
+
+Scene Structure
+Scenes must follow a logical storytelling progression using these phases:
+hook
+observation
+investigation
+discovery
+explanation
+application
+reinforcement
+transition and etc..
+
+Not all phases are mandatory, but the story should flow naturally across them.
+
+Scene Design Rules:
+SCENE RICHNESS REQUIREMENTS (MANDATORY):
+- Each scene MUST contain 180-250 words of narration/screenplay
+- Each scene MUST include at least 1 dialogue line
+- Strong continuity is REQUIRED between scenes - the ending of one scene must naturally lead to the beginning of the next
+- Use transition phrases to connect scenes (e.g., "Meanwhile...", "Back at...", "Later that day...", "Suddenly...")
+
+Concepts introduced in the learning step must appear in at least one scene.
+Each scene_goal should clearly state both the narrative action occurring in the scene and the specific learning purpose of that moment.
+Dialogue must remain natural conversation and descriptive.
+Screenplay descriptions should include character actions, movements, and visible changes that help illustrate the concept being discovered.
+Scenes must remain visually descriptive to support animation or comics or the dialogue.
+Each scene should clearly describe the physical environment, character positions, and visible objects that help visually communicate the concept.
+Story characters must remain consistent with the story backbone.
+When a character appears for the first time in the story, the scene should visually introduce the character by describing their appearance, role, and position in the environment.
+The final scene must naturally transition toward the next learning step.
+Maintain continuity with the previous learning step narrative.
+Scenes should connect smoothly so that the ending action or observation in one scene naturally leads into the beginning of the next scene.
+
+SCENE PROGRESSION RULES:
+
+1. Each scene must introduce a NEW idea or deepen the previous concept.
+2. Do NOT repeat the same explanation across multiple scenes.
+3. Each scene should move the story forward logically.
+4. Scenes must follow the progression:
+   observation → investigation → discovery → explanation → application.
+
+CONCEPT DISCOVERY RULES:
+
+Characters should NOT immediately state formal mathematical/scientific terms.
+Instead:
+• Characters observe a pattern.
+• Characters discuss the pattern.
+• The concept is gradually recognized.
+• The formal concept name appears later during explanation.
+
+Example progression:
+Observation: "Every week we're adding five dollars."
+Investigation: "So the numbers become 20, 25, 30..."
+Discovery: "That's a repeating pattern."
+Explanation: "This pattern is called an arithmetic progression."
+
+Introduction Rule:
+If the Previous Learning Step is empty or not provided, the first scene of the current learning step must begin with an environmental introduction before characters begin interacting.
+The introduction should feel cinematic and immersive, similar to an opening scene in a film, allowing the learner to visually experience the environment and situation before the story dialogue begins.
+The scene should first establish:
+- the environment
+- the atmosphere
+- the situation the student is entering
+Characters should appear naturally after this environment introduction, similar to how films first show the setting before dialogue begins.
+Dialogue should not start immediately at the beginning of the scene.
+The first scene should behave like the opening shot of a film, slowly revealing the environment before focusing on characters or actions.
+
+Pedagogical Rules:
+Build intuition before formulas.
+Avoid introducing formulas before conceptual understanding.
+Use discovery-based explanation where possible.
+Keep explanations beginner-friendly.
+Avoid mixing multiple unrelated concepts in one scene.
+
+Output Rules:
+Output ONLY valid JSON. No markdown, no explanations, no text before or after.
+The JSON must start with { and end with }
+Do not wrap JSON in ```json code blocks
+Follow the JSON schema exactly.
+
+----
+
+Prompt 4 – JSON to Scene Creation
+Create an image for the scene with:
+Image Generation Guidance:
+The image should visually represent the moment described in the scene_goal and Teaching Narrative.
+The composition should include the characters involved, the environment where the scene takes place, and any visible elements that help illustrate the concept.
+The image should look like a frame from an educational animated film or comic panel.
+Character appearance should remain consistent with the character_registry in the JSON so that the same character looks visually consistent across different scenes.
+
+scene_goal: [SCENE_GOAL]
+Teaching Narrative: [TEACHING_NARRATIVE]
+Concept Focus: [CONCEPT_FOCUS]
+Character dialogues: [CHARACTER_DIALOGUES]
+
+Scene ID: [SCENE_ID]
+
+JSON Structure Used:
+[JSON_GENERATED]
+
+----

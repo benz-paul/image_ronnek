@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l agents/*.py core/*.py graph/*.py services/*.py state/*.py main.py 2>/dev/null | tail -1)",
+      "Bash(find brain:*)",
+      "Bash(find tests:*)",
+      "Bash(wc:*)",
+      "Bash(tree:*)",
+      "Bash(/tmp/file_classification.txt:*)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
