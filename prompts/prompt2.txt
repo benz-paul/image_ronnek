@@ -69,6 +69,30 @@ Coverage Completeness Allowed Values:
 
 Coverage % indicates how clearly the concept is represented across the learning steps.
 
+CRITICAL: You MUST output ONLY valid JSON. No text before or after.
+
+JSON Output Format:
+```json
+{
+  "learning_steps": [
+    {
+      "learning_step_id": "LS1",
+      "title": "Learning Step Title",
+      "concepts_introduced": ["concept1", "concept2"],
+      "narrative_moment": "Detailed narrative description..."
+    }
+  ],
+  "total_learning_steps": 1
+}
+```
+
+IMPORTANT:
+- Output ONLY valid JSON
+- Start with { and end with }
+- Do NOT include any explanatory text
+- Do NOT wrap in ``` code blocks in your response
+- Every learning step must be in the JSON array
+
 Do NOT:
 Create scenes
 Write story dialogue

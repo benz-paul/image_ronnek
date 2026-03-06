@@ -65,6 +65,36 @@ Pedagogical Strength %
 Final Output Rule:
 Provide detailed output only for the top 5-8 stories after ranking.
 
+CRITICAL: You MUST output ONLY valid JSON. No text before or after.
+
+JSON Output Format:
+```json
+{
+  "stories": [
+    {
+      "rank": 1,
+      "title": "Story Title",
+      "core_narrative_premise": "Detailed story premise (10+ lines with characters, setting, situation)",
+      "overall_coverage": 95,
+      "pedagogical_strength": 96
+    }
+  ],
+  "selected_story": {
+    "rank": 1,
+    "title": "Top Ranked Story Title",
+    "core_narrative_premise": "The complete story premise for this selected story",
+    "overall_coverage": 95,
+    "pedagogical_strength": 96
+  }
+}
+```
+
+Important:
+- Output ONLY valid JSON
+- Start with { and end with }
+- Do NOT wrap in ``` code blocks in your response
+- selected_story should contain the top-ranked story with full core_narrative_premise
+
 Do NOT:
 Solve textbook problems
 Use heavy equations

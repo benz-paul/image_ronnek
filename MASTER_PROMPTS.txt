@@ -389,6 +389,17 @@ JSON Template:
 Goal:
 Generate a complete set of scenes that explain the current learning step concepts through storytelling.
 
+Scene Count Rule:
+Do NOT restrict the number of scenes.
+
+Generate as many scenes as required for the learning step to naturally explain the concepts and complete the story progression.
+
+A learning step may contain:
+- a small number of scenes if the concept is simple
+- many scenes if the concept requires gradual discovery
+
+Scene count should emerge naturally from the teaching and storytelling requirements rather than being fixed.
+
 The scenes must:
 start naturally from the previous learning step narrative
 follow a clear story arc
@@ -415,6 +426,16 @@ Scenes must remain visually descriptive to support animation or comics or the di
 Story characters must remain consistent with the story backbone.
 The final scene must naturally transition toward the next learning step.
 Maintain continuity with the previous learning step narrative.
+Introduction Rule:
+If the Previous Learning Step is empty or not provided, the first scene of the current learning step must begin with an environmental introduction before characters begin interacting.
+
+The scene should first establish:
+- the environment
+- the atmosphere
+- the situation the student is entering
+
+Characters should appear naturally after this environment introduction, similar to how films first show the setting before dialogue begins.
+Dialogue should not start immediately at the beginning of the scene.
 
 Pedagogical Rules:
 Build intuition before formulas.

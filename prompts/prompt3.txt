@@ -148,6 +148,13 @@ JSON Template:
 Goal:
 Generate a complete set of scenes that explain the current learning step concepts through storytelling.
 
+Scene Count Rule:
+Generate AT LEAST 3-5 SCENES per learning step minimum.
+Do NOT generate only 1 scene - that is insufficient.
+Generate as many scenes as required for the learning step to naturally explain ALL concepts and complete the story progression.
+Each concept in the learning step should have its own scene for proper explanation.
+Scene count should emerge naturally from the teaching and storytelling requirements.
+
 The scenes must:
 start naturally from the previous learning step narrative
 follow a clear story arc
@@ -175,6 +182,15 @@ Story characters must remain consistent with the story backbone.
 The final scene must naturally transition toward the next learning step.
 Maintain continuity with the previous learning step narrative.
 
+Introduction Rule:
+If the Previous Learning Step is empty or not provided, the first scene of the current learning step must begin with an environmental introduction before characters begin interacting.
+The scene should first establish:
+- the environment
+- the atmosphere
+- the situation the student is entering
+Characters should appear naturally after this environment introduction, similar to how films first show the setting before dialogue begins.
+Dialogue should not start immediately at the beginning of the scene.
+
 Pedagogical Rules:
 Build intuition before formulas.
 Avoid introducing formulas before conceptual understanding.
@@ -183,6 +199,7 @@ Keep explanations beginner-friendly.
 Avoid mixing multiple unrelated concepts in one scene.
 
 Output Rules:
-Output ONLY valid JSON.
+Output ONLY valid JSON. No markdown, no explanations, no text before or after.
+The JSON must start with { and end with }
+Do not wrap JSON in ```json code blocks
 Follow the JSON schema exactly.
-Do not include explanations outside JSON.

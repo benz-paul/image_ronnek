@@ -8,7 +8,11 @@ from pydantic import BaseModel, Field
 
 class UserInputs(BaseModel):
     """User-provided chapter information."""
-    chapter_name: str = ""
+
+    chapter_name: str = (
+        ""  # Full name like "Class 10 Maths Chapter 5 Arithmetic Progression"
+    )
+    chapter_title: str = ""  # Just "Arithmetic Progression"
     chapter_number: str = ""
     class_level: str = ""
     subject: str = ""
@@ -20,42 +24,46 @@ class PipelineState(BaseModel):
     Centralized pipeline state that persists across all LangGraph nodes.
     This state tracks the entire pipeline execution.
     """
-    
+
     # User inputs
     user_inputs: UserInputs = Field(default_factory=UserInputs)
-    
+
     # Current execution state
     current_prompt_id: str = "prompt0"  # prompt0, prompt1, prompt2, prompt3, prompt4
     current_learning_step_index: int = 0
     current_scene_index: int = 0
-    
+
     # Prompt outputs storage
     prompt0_output: Optional[str] = None
     prompt1_output: Optional[str] = None
     prompt2_output: Optional[str] = None
-    
+
     # Learning steps
     learning_steps_list: List[Dict[str, Any]] = Field(default_factory=list)
     learning_step_json_paths: List[str] = Field(default_factory=list)
-    
+
     # Scene images
     image_paths: List[str] = Field(default_factory=list)
-    
+
+    # User decision for image generation
+    generate_images: bool = False
+    generate_ppt: bool = False
+
     # PDF handling (preserved from original)
     pdf_path: Optional[str] = None
     pdf_source: str = "local"  # "local" or "downloaded"
-    
+
     # Output paths
     ppt_output_path: Optional[str] = None
     run_folder: str = ""
-    
+
     # Execution tracking
     is_complete: bool = False
     error_message: Optional[str] = None
-    
+
     # Story backbone (selected)
     selected_story: Optional[Dict[str, Any]] = None
-    
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -65,33 +73,33 @@ def create_initial_state(
     class_level: str,
     subject: str,
     chapter_number: str = "",
-    medium: str = "English"
+    chapter_title: str = "",
+    medium: str = "English",
 ) -> PipelineState:
     """
     Create initial pipeline state with user inputs.
-    
+
     Args:
-        chapter_name: Name of the chapter
+        chapter_name: Full name of the chapter (e.g., "Class 10 Maths Chapter 5 Arithmetic Progression")
+        chapter_title: Short title (e.g., "Arithmetic Progression")
         class_level: Class (e.g., "10")
         subject: Subject (e.g., "Physics")
         chapter_number: Chapter number
         medium: Language medium
-    
+
     Returns:
         Initialized PipelineState
     """
     user_inputs = UserInputs(
         chapter_name=chapter_name,
+        chapter_title=chapter_title,
         chapter_number=chapter_number,
         class_level=class_level,
         subject=subject,
-        medium=medium
+        medium=medium,
     )
-    
-    return PipelineState(
-        user_inputs=user_inputs,
-        current_prompt_id="prompt0"
-    )
+
+    return PipelineState(user_inputs=user_inputs, current_prompt_id="prompt0")
 
 
 def get_learning_step(state: PipelineState, index: int) -> Optional[Dict[str, Any]]:
