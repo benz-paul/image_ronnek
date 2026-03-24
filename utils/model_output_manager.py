@@ -1,42 +1,69 @@
 """
 Model Output Manager - Handles run-based output directory management.
 
-New simplified structure:
 outputs/
-run_{timestamp}/
-  inputs/
-    config.json       # Model used, generation mode, user choices
-  prompts/
-    prompt0.txt     # Concept extraction
-    prompt1.txt     # Story backbone
-    prompt2.txt     # Learning steps
-    prompt3_LS1.txt # Scenes for LS1
-    prompt3_LS2.txt # Scenes for LS2, etc.
-  raw_outputs/
-    prompt0.txt     # Raw LLM response
-    prompt1.txt
-    prompt2.txt
-  parsed/
-    concepts.json    # Parsed concept inventory
-    story.json       # Parsed story backbone
-    learning_steps.json  # Parsed learning steps
-  scenes/
-    LS1.json        # Scenes for Learning Step 1
-    LS2.json
-    ...
-  images/
-    LS1_S1.png      # Generated images
-    LS1_S2.png
-    ...
-  ppt/
-    lesson.pptx     # Generated PowerPoint
-  summary.json     # Run statistics
+  run_{YYYYMMDD_HHMMSS}/
+    inputs/
+      config.json              ← chapter metadata, model choices, flags
+      chapter_text.txt         ← extracted PDF text (for debugging)
+    prompts/
+      prompt0.txt              ← injected prompt sent to LLM
+      prompt1.txt
+      prompt2.txt
+      prompt3a_LS1.txt         ← scene plan prompt per LS
+      prompt3b_LS1_S1.txt      ← individual scene gen prompt per scene
+      prompt4_LS1_S1.txt       ← image prompt per scene
+      ...
+    raw_outputs/
+      prompt0.txt              ← raw LLM response (before JSON parsing)
+      prompt1.txt
+      prompt3b_LS1_S1.txt
+      ...
+    parsed/
+      concept_inventory.json   ← parsed Prompt 0 output
+      story_backbone.json      ← parsed Prompt 1 output
+      learning_steps.json      ← parsed Prompt 2 output
+      scene_plan_LS1.json      ← parsed Prompt 3A output per LS
+      scenes_LS1.json          ← all scenes for LS1 (combined)
+      scenes_full.json         ← all scenes across all LS (master)
+      image_prompts.json       ← all image prompts (Prompt 4)
+    scenes/
+      LS1/
+        LS1_S1.json            ← individual scene JSON (includes narrator_audio_text)
+        LS1_S2.json
+      LS2/
+        LS2_S1.json
+        ...
+    images/
+      LS1/
+        LS1_S1.png             ← generated scene image
+        LS1_S2.png
+      LS2/
+        LS2_S1.png
+        ...
+    audio/
+      LS1/
+        LS1_S1/
+          narrator.mp3         ← Polly TTS for narrator_audio_text
+          char_arjun.mp3       ← Polly TTS per character dialogue
+          char_priya.mp3
+        LS1_S2/
+          ...
+      LS2/
+        ...
+      manifest.json            ← maps scene_id → { narrator: path, characters: {id: path} }
+    ppt/
+      lesson.pptx              ← final PowerPoint
+    logs/
+      pipeline.log             ← all console + debug output for this run
+    summary.json               ← run stats: LS count, scene count, image count, audio count, duration
 """
 
 import os
 import json
+import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 
@@ -56,40 +83,26 @@ def create_run_folder(
     image_model: str = "",
     image_mode: str = "dialogue",
 ) -> Path:
-    """
-    Create a new run folder with timestamp.
-
-    Creates: outputs/run_YYYYMMDD_HHMMSS/
-
-    Args:
-        model_name: Name of the model
-        chapter: Chapter name
-        class_level: Class level
-        subject: Subject
-        generation_mode: "ls1" or "full"
-        generate_images: Whether images were generated
-        text_model: Text model used
-        image_model: Image model used
-        image_mode: Image mode ("dialogue" or "overlay")
-
-    Returns:
-        Path to the newly created run folder
-    """
+    """Create a new timestamped run folder under outputs/ with full subdirectory layout."""
     base_dir = get_base_output_dir()
-
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_folder_name = f"run_{timestamp}"
-    run_folder = base_dir / run_folder_name
-
-    # Create main run folder
+    run_folder = base_dir / f"run_{timestamp}"
     run_folder.mkdir(parents=True, exist_ok=True)
 
-    # Create subdirectories
-    subdirs = ["inputs", "prompts", "raw_outputs", "parsed", "scenes", "images", "ppt"]
-    for subdir in subdirs:
+    # Create all subdirectories
+    for subdir in [
+        "inputs",
+        "prompts",
+        "raw_outputs",
+        "parsed",
+        "scenes",
+        "images",
+        "audio",
+        "ppt",
+        "logs",
+    ]:
         (run_folder / subdir).mkdir(exist_ok=True)
 
-    # Save configuration
     config = {
         "timestamp": timestamp,
         "chapter": chapter,
@@ -101,255 +114,316 @@ def create_run_folder(
         "image_model": image_model,
         "image_mode": image_mode,
     }
-
-    config_path = run_folder / "inputs" / "config.json"
-    with open(config_path, "w") as f:
+    with open(run_folder / "inputs" / "config.json", "w") as f:
         json.dump(config, f, indent=2)
 
     return run_folder
 
 
+def save_chapter_text(run_folder: Path, text: str) -> None:
+    """Save extracted PDF chapter text to inputs/ for debugging."""
+    inputs_dir = run_folder / "inputs"
+    inputs_dir.mkdir(parents=True, exist_ok=True)
+    (inputs_dir / "chapter_text.txt").write_text(text, encoding="utf-8")
+
+
 def save_prompt(
-    run_folder: Path, prompt_num: int, content: str, ls_index: int = None
+    run_folder: Path,
+    prompt_num: int,
+    content: str,
+    ls_index: int = None,
+    scene_index: int = None,
+    prompt_variant: str = None,
 ) -> None:
     """
-    Save injected prompt to prompts folder.
+    Save injected prompt to prompts/ folder.
 
-    Args:
-        run_folder: Path to run folder
-        prompt_num: Prompt number (0-4)
-        content: Prompt content
-        ls_index: For prompt3, the learning step index
+    Naming scheme:
+      prompt0.txt
+      prompt1.txt
+      prompt2.txt
+      prompt3a_LS1.txt         (3A scene plan, ls_index given)
+      prompt3b_LS1_S1.txt      (3B single scene, ls_index + scene_index given)
+      prompt4_LS1_S1.txt       (4 image prompt, ls_index + scene_index given)
     """
     prompts_dir = run_folder / "prompts"
+    prompts_dir.mkdir(parents=True, exist_ok=True)
 
-    if prompt_num == 3 and ls_index is not None:
+    if prompt_num == 3 and prompt_variant == "a" and ls_index is not None:
+        filename = f"prompt3a_LS{ls_index + 1}.txt"
+    elif prompt_num == 3 and prompt_variant == "b" and ls_index is not None and scene_index is not None:
+        filename = f"prompt3b_LS{ls_index + 1}_S{scene_index + 1}.txt"
+    elif prompt_num == 3 and ls_index is not None:
+        # Legacy fallback
         filename = f"prompt3_LS{ls_index + 1}.txt"
+    elif prompt_num == 4 and ls_index is not None and scene_index is not None:
+        filename = f"prompt4_LS{ls_index + 1}_S{scene_index + 1}.txt"
     else:
         filename = f"prompt{prompt_num}.txt"
 
-    filepath = prompts_dir / filename
-    filepath.write_text(content, encoding="utf-8")
+    (prompts_dir / filename).write_text(content, encoding="utf-8")
 
 
-def save_raw_output(run_folder: Path, prompt_num: int, content: str) -> None:
+def save_raw_output(
+    run_folder: Path,
+    prompt_num: int,
+    content: str,
+    ls_index: int = None,
+    scene_index: int = None,
+    prompt_variant: str = None,
+) -> None:
     """
-    Save raw LLM output to raw_outputs folder.
-
-    Args:
-        run_folder: Path to run folder
-        prompt_num: Prompt number (0-4)
-        content: Raw LLM response
+    Save raw LLM output to raw_outputs/ folder.
+    Uses the same naming scheme as save_prompt().
     """
-    raw_dir = run_folder / "raw_outputs"
-    filepath = raw_dir / f"prompt{prompt_num}.txt"
-    filepath.write_text(content, encoding="utf-8")
+    raw_output_dir = run_folder / "raw_outputs"
+    raw_output_dir.mkdir(parents=True, exist_ok=True)
+
+    if prompt_num == 3 and prompt_variant == "a" and ls_index is not None:
+        filename = f"prompt3a_LS{ls_index + 1}.txt"
+    elif prompt_num == 3 and prompt_variant == "b" and ls_index is not None and scene_index is not None:
+        filename = f"prompt3b_LS{ls_index + 1}_S{scene_index + 1}.txt"
+    elif prompt_num == 3 and ls_index is not None:
+        filename = f"prompt3_LS{ls_index + 1}.txt"
+    elif prompt_num == 4 and ls_index is not None and scene_index is not None:
+        filename = f"prompt4_LS{ls_index + 1}_S{scene_index + 1}.txt"
+    else:
+        filename = f"prompt{prompt_num}.txt"
+
+    (raw_output_dir / filename).write_text(content, encoding="utf-8")
 
 
 def save_parsed(run_folder: Path, data_type: str, data: Any) -> None:
     """
-    Save parsed data to parsed folder.
+    Save parsed JSON data to parsed/ folder.
 
-    Args:
-        run_folder: Path to run folder
-        data_type: Type of data ("concepts", "story", "learning_steps")
-        data: Parsed data (dict or list)
+    data_type examples:
+      "concept_inventory", "story_backbone", "learning_steps",
+      "scene_plan_LS1", "scenes_LS1", "scenes_full", "image_prompts"
     """
     parsed_dir = run_folder / "parsed"
-    filepath = parsed_dir / f"{data_type}.json"
-
-    with open(filepath, "w", encoding="utf-8") as f:
+    parsed_dir.mkdir(parents=True, exist_ok=True)
+    with open(parsed_dir / f"{data_type}.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 def save_scenes(run_folder: Path, ls_index: int, scenes_data: Any) -> None:
     """
-    Save scenes for a learning step with per-scene files.
+    Save scenes for a learning step.
 
-    Structure:
-    scenes/LS1_S1.json
-    scenes/LS1_S2.json
-    ...
-
-    Args:
-        run_folder: Path to run folder
-        ls_index: Learning step index (0-based)
-        scenes_data: Scenes data (dict with "scenes" key or list)
+    Each scene gets its own file under scenes/LS{n}/.
+    Also saves the combined LS scenes to parsed/scenes_LS{n}.json.
     """
-    import os
-
-    scenes_dir = run_folder / "scenes"
-    scenes_dir.mkdir(parents=True, exist_ok=True)
-
-    # Handle both dict and list formats
-    if isinstance(scenes_data, dict):
-        scenes = scenes_data.get("scenes", [])
-    else:
-        scenes = scenes_data
-
     ls_key = f"LS{ls_index + 1}"
+
+    # Per-scene files under scenes/LS{n}/
+    ls_scenes_dir = run_folder / "scenes" / ls_key
+    ls_scenes_dir.mkdir(parents=True, exist_ok=True)
+
+    scenes = (
+        scenes_data.get("scenes", []) if isinstance(scenes_data, dict) else scenes_data
+    )
+
     for i, scene in enumerate(scenes):
         scene_id = scene.get("scene_id", f"S{i + 1}")
-        scene_filename = f"{ls_key}_{scene_id}.json"
-        scene_filepath = scenes_dir / scene_filename
-
-        with open(scene_filepath, "w", encoding="utf-8") as f:
+        # Normalise scene_id to have LS prefix if missing
+        if not scene_id.startswith(ls_key):
+            scene_id = f"{ls_key}_{scene_id}"
+        scene_filename = f"{scene_id}.json"
+        with open(ls_scenes_dir / scene_filename, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=2, ensure_ascii=False)
+        print(f"[SCENE STORAGE] {scene_id} saved to scenes/{ls_key}/{scene_filename}")
 
-        print(f"[SCENE STORAGE] {ls_key}_{scene_id} saved to scenes/{scene_filename}")
+    # Combined LS scenes in parsed/
+    save_parsed(run_folder, f"scenes_{ls_key}", scenes)
 
 
 def save_image(
     run_folder: Path,
     ls_index: int,
     scene_index: int,
-    image_data: bytes = None,
-    image_path: str = None,
+    source_image_path: str,
     image_prompt: str = None,
 ) -> str:
     """
-    Save generated image.
+    Copy a generated image into images/LS{n}/ for this run.
 
     Args:
-        run_folder: Path to run folder
-        ls_index: Learning step index (0-based)
-        scene_index: Scene index (0-based)
-        image_data: Image binary data (if generating)
-        image_path: Path to existing image (if copying)
-        image_prompt: Prompt used for generation
+        run_folder:        Path to the run folder
+        ls_index:          0-based learning step index
+        scene_index:       0-based scene index
+        source_image_path: Path returned by image_generator.generate()
+        image_prompt:      Optional prompt text — saved as a companion .txt file
 
     Returns:
-        Path to saved image
+        Path to the saved image in images/LS{n}/
     """
-    images_dir = run_folder / "images"
+    ls_key = f"LS{ls_index + 1}"
+    images_ls_dir = run_folder / "images" / ls_key
+    images_ls_dir.mkdir(parents=True, exist_ok=True)
+
     image_filename = f"LS{ls_index + 1}_S{scene_index + 1}.png"
-    image_filepath = images_dir / image_filename
+    image_filepath = images_ls_dir / image_filename
 
-    if image_data:
-        image_filepath.write_bytes(image_data)
-    elif image_path and Path(image_path).exists():
-        import shutil
+    src = Path(source_image_path)
+    if src.exists():
+        shutil.copy2(src, image_filepath)
+    else:
+        print(f"[WARNING] save_image: source not found: {source_image_path}")
 
-        shutil.copy(image_path, image_filepath)
-
-    # Save image prompt
     if image_prompt:
-        prompt_filepath = images_dir / f"LS{ls_index + 1}_S{scene_index + 1}.txt"
+        prompt_filepath = images_ls_dir / f"LS{ls_index + 1}_S{scene_index + 1}.txt"
         prompt_filepath.write_text(image_prompt, encoding="utf-8")
 
-    print(f"[IMAGE] Saved LS{ls_index + 1}_S{scene_index + 1}.png")
-
+    print(f"[IMAGE] Saved {ls_key}_S{scene_index + 1}.png → images/{ls_key}/")
     return str(image_filepath)
 
 
-def save_ppt(run_folder: Path, ppt_path: str) -> None:
+def save_audio(
+    run_folder: Path,
+    ls_index: int,
+    scene_id: str,
+    audio_data: bytes,
+    audio_type: str,
+    char_id: str = None,
+) -> str:
     """
-    Save generated PowerPoint.
+    Save a Polly-generated audio file to audio/LS{n}/{scene_id}/.
 
     Args:
-        run_folder: Path to run folder
-        ppt_path: Path to PPT file
+        run_folder:  Path to the run folder
+        ls_index:    0-based learning step index
+        scene_id:    Scene ID string (e.g. "LS1_S1")
+        audio_data:  Raw MP3 bytes from Polly AudioStream
+        audio_type:  "narrator" or "character"
+        char_id:     Character ID (required when audio_type == "character")
+
+    Returns:
+        Path to the saved .mp3 file
     """
-    import shutil
+    ls_key = f"LS{ls_index + 1}"
+    audio_scene_dir = run_folder / "audio" / ls_key / scene_id
+    audio_scene_dir.mkdir(parents=True, exist_ok=True)
 
+    if audio_type == "narrator":
+        filename = "narrator.mp3"
+    elif audio_type == "character" and char_id:
+        safe_id = char_id.lower().replace(" ", "_")
+        filename = f"char_{safe_id}.mp3"
+    else:
+        filename = f"{audio_type}.mp3"
+
+    filepath = audio_scene_dir / filename
+    filepath.write_bytes(audio_data)
+    print(f"[AUDIO] Saved {audio_type} audio → audio/{ls_key}/{scene_id}/{filename}")
+    return str(filepath)
+
+
+def save_audio_manifest(run_folder: Path, manifest: Dict[str, Any]) -> None:
+    """Save the audio manifest mapping scene_id → audio file paths."""
+    audio_dir = run_folder / "audio"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    with open(audio_dir / "manifest.json", "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    print(f"[AUDIO] Manifest saved → audio/manifest.json")
+
+
+def save_ppt(run_folder: Path, ppt_path: str) -> None:
+    """Copy generated PowerPoint into ppt/ subfolder."""
     ppt_dir = run_folder / "ppt"
-    output_path = ppt_dir / "lesson.pptx"
-
+    ppt_dir.mkdir(exist_ok=True)
     if Path(ppt_path).exists():
-        shutil.copy(ppt_path, output_path)
+        shutil.copy2(ppt_path, ppt_dir / "lesson.pptx")
 
 
 def save_summary(run_folder: Path, summary: Dict[str, Any]) -> None:
-    """
-    Save run summary statistics.
-
-    Args:
-        run_folder: Path to run folder
-        summary: Summary data
-    """
-    summary_path = run_folder / "summary.json"
-
-    with open(summary_path, "w", encoding="utf-8") as f:
+    """Save run summary statistics to summary.json."""
+    with open(run_folder / "summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
 
 def update_run_metadata(run_folder: Path, updates: Dict[str, Any]) -> None:
-    """
-    Update config.json with new values.
-
-    Args:
-        run_folder: Path to run folder
-        updates: Dictionary of fields to update
-    """
+    """Update config.json with new values."""
     config_path = run_folder / "inputs" / "config.json"
-
+    config = {}
     if config_path.exists():
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             config = json.load(f)
-    else:
-        config = {}
-
     config.update(updates)
-
     with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
 
 
+def get_images_for_run(run_folder: Path) -> List[str]:
+    """Return sorted list of all image paths in images/ for this run."""
+    images_dir = run_folder / "images"
+    if not images_dir.exists():
+        return []
+    paths = []
+    for ls_dir in sorted(images_dir.iterdir()):
+        if ls_dir.is_dir():
+            for img in sorted(ls_dir.glob("*.png")):
+                paths.append(str(img))
+    return paths
+
+
+def get_audio_manifest(run_folder: Path) -> Optional[Dict]:
+    """Load and return the audio manifest for this run, or None if not generated yet."""
+    manifest_path = run_folder / "audio" / "manifest.json"
+    if not manifest_path.exists():
+        return None
+    with open(manifest_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 # ============================================================================
-# LEGACY FUNCTIONS - For backward compatibility
+# LEGACY / COMPATIBILITY FUNCTIONS
+# Keep these intact so existing callers don't break.
 # ============================================================================
+
+
+def get_base_output_dir() -> Path:
+    """Get the base output directory."""
+    return Path("outputs")
 
 
 def get_model_output_dir(model_name: str) -> Path:
-    """Legacy function - returns base output dir."""
     return get_base_output_dir()
 
 
 def get_image_quality_folder(model_name: str, quality: str = "low") -> Path:
-    """Legacy function - returns images folder."""
     return get_base_output_dir() / "images"
 
 
 def get_current_run_folder(model_name: str = None) -> Optional[Path]:
-    """Get the most recent run folder."""
+    """Return the most recent run_ folder."""
     base_dir = get_base_output_dir()
-
     if not base_dir.exists():
         return None
-
-    run_folders = []
-    for item in base_dir.iterdir():
-        if item.is_dir() and item.name.startswith("run_"):
-            run_folders.append(item)
-
-    if not run_folders:
-        return None
-
-    # Sort by name (timestamp)
-    run_folders.sort(key=lambda x: x.name, reverse=True)
-    return run_folders[0]
+    run_folders = sorted(
+        [d for d in base_dir.iterdir() if d.is_dir() and d.name.startswith("run_")],
+        key=lambda x: x.name,
+        reverse=True,
+    )
+    return run_folders[0] if run_folders else None
 
 
 def get_images_dir(run_folder: Path) -> Path:
-    """Get images directory."""
+    """Legacy: returns images/ root. New code should use images/LS{n}/ subfolders."""
     return run_folder / "images"
 
 
 def get_model_type(model_name: str) -> str:
-    """Legacy function."""
     return "text_models"
 
 
 def sanitize_folder_name(name: str) -> str:
-    """Legacy function."""
     return name.replace("/", "_").replace(".", "_").replace(" ", "_").lower()
 
 
 def get_existing_run_numbers(model_name: str) -> list:
-    """Legacy function."""
     return []
 
 
 def get_model_run_folder(model_name: str) -> Path:
-    """Legacy function - returns base output dir."""
     return get_base_output_dir()

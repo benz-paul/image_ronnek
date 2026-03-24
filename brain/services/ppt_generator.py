@@ -1,10 +1,5 @@
 """
 PPT Generator Service - Creates PowerPoint presentations from learning steps and scenes.
-
-This service generates a final PPT file with:
-- Title slide
-- Learning step slides
-- Scene slides for each learning step
 """
 
 import os
@@ -21,18 +16,28 @@ from pptx.enum.text import PP_ALIGN
 from brain.pipeline.state.pipeline_state import PipelineState
 
 
-def parse_scene_numbers(filename: str) -> Tuple[int, int]:
+def parse_ls_number(ls_id: str) -> int:
     """
-    Extract lesson number and scene number from filename.
-    Example: 'LS10_S1.png' -> (10, 1)
+    Extract learning step number from a learning_step_id string.
+    Example: 'LS1' -> 1,  'LS10' -> 10
     """
-    ls_match = re.search(r"LS(\d+)", filename)
-    scene_match = re.search(r"_S(\d+)", filename)
+    match = re.search(r"LS(\d+)", ls_id, re.IGNORECASE)
+    return int(match.group(1)) if match else 0
 
-    ls_num = int(ls_match.group(1)) if ls_match else 0
-    scene_num = int(scene_match.group(1)) if scene_match else 0
 
-    return (ls_num, scene_num)
+def parse_scene_number(scene_id: str) -> int:
+    """
+    Extract scene number from a scene_id string.
+    Handles formats: 'S1', 'S10', 'LS1_S3', 'scene_1', etc.
+
+    FIX: the original regex r'_S(\\d+)' required an underscore prefix,
+    so bare scene IDs like 'S1' always returned 0 and scenes sorted
+    incorrectly.  This version matches the trailing digits after any
+    leading non-digit characters.
+    """
+    # Try "S<digits>" anywhere in the string (covers S1, LS1_S3, scene_S5)
+    match = re.search(r"S(\d+)", scene_id, re.IGNORECASE)
+    return int(match.group(1)) if match else 0
 
 
 class PPTGeneratorService:
@@ -43,17 +48,8 @@ class PPTGeneratorService:
     def __init__(
         self, output_dir: str = "outputs/ppt", width: int = 10, height: int = 7.5
     ):
-        """
-        Initialize the PPT Generator Service.
-
-        Args:
-            output_dir: Directory to save generated PPTs
-            width: Slide width in inches
-            height: Slide height in inches
-        """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-
         self.width = width
         self.height = height
 
@@ -145,8 +141,10 @@ class PPTGeneratorService:
         slide = prs.slides.add_slide(slide_layout)
 
         scene_id = scene_data.get("scene_id", f"S{scene_index + 1}")
-        scene_phase = scene_data.get("scene_phase", "")
-        scene_goal = scene_data.get("scene_goal", "")
+        scene_goal = scene_data.get(
+            "scene_goal",
+            scene_data.get("learning_moment", scene_data.get("phase", "")),
+        )
 
         header_height = self.height * 0.14
         image_top = header_height
@@ -184,6 +182,17 @@ class PPTGeneratorService:
                 width=Inches(image_width),
                 height=Inches(image_height),
             )
+        else:
+            # FIX: add a visible placeholder so slides aren't silently blank
+            placeholder_box = slide.shapes.add_textbox(
+                Inches(1), Inches(image_top + 1), Inches(8), Inches(1)
+            )
+            placeholder_frame = placeholder_box.text_frame
+            placeholder_frame.text = f"[Image not found: {image_path}]"
+            placeholder_para = placeholder_frame.paragraphs[0]
+            placeholder_para.font.size = Pt(16)
+            placeholder_para.font.color.rgb = RGBColor(200, 0, 0)
+            placeholder_para.alignment = PP_ALIGN.CENTER
 
     def generate_ppt(
         self,
@@ -202,9 +211,11 @@ class PPTGeneratorService:
 
         learning_steps = state.learning_steps_list
 
+        # FIX: use parse_ls_number for LS sorting (original used parse_scene_numbers
+        # which looked for _S(\d+) pattern — never matched LS IDs like "LS1").
         sorted_learning_steps = sorted(
             learning_steps,
-            key=lambda ls: parse_scene_numbers(ls.get("learning_step_id", "LS0")),
+            key=lambda ls: parse_ls_number(ls.get("learning_step_id", "LS0")),
         )
 
         for ls_index, learning_step in enumerate(sorted_learning_steps):
@@ -218,8 +229,10 @@ class PPTGeneratorService:
 
             scenes = learning_step.get("scenes", [])
 
+            # FIX: use parse_scene_number which correctly handles bare "S1", "S2", etc.
             sorted_scenes = sorted(
-                scenes, key=lambda s: parse_scene_numbers(s.get("scene_id", "S0"))
+                scenes,
+                key=lambda s: parse_scene_number(s.get("scene_id", "S0")),
             )
 
             for scene_index, scene in enumerate(sorted_scenes):
@@ -238,6 +251,7 @@ class PPTGeneratorService:
         output_path = Path(learning_steps_dir).parent / output_filename
         prs.save(str(output_path))
 
+        print(f"[PPT] Saved: {output_path}  ({len(sorted_learning_steps)} learning steps)")
         return str(output_path)
 
 

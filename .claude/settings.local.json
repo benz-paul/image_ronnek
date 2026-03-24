@@ -1,13 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc -l agents/*.py core/*.py graph/*.py services/*.py state/*.py main.py 2>/dev/null | tail -1)",
-      "Bash(find brain:*)",
-      "Bash(find tests:*)",
-      "Bash(wc:*)",
-      "Bash(tree:*)",
-      "Bash(/tmp/file_classification.txt:*)",
-      "Read(//tmp/**)"
+      "Bash(mkdir -p \"c:/Users/gvpra/Downloads/Jushwanth/BIA INTERNSHIP/Final_Automation/Automation_prompt_json_generator/tools\")",
+      "Bash(mkdir -p \"c:/Users/gvpra/Downloads/Jushwanth/BIA INTERNSHIP/Final_Automation/Automation_prompt_json_generator/workflows\")",
+      "Bash(mkdir -p \"c:/Users/gvpra/Downloads/Jushwanth/BIA INTERNSHIP/Final_Automation/Automation_prompt_json_generator/.tmp\")",
+      "Bash(python -c \":*)"
     ]
   }
 }

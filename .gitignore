@@ -1,61 +1,68 @@
-# Virtual Environment
-venv/
-env/
-.venv/
+# =============================================================================
+# SECRETS & ENVIRONMENT
+# =============================================================================
 .env
-# Python
+.env.local
+.env.*.local
+
+# =============================================================================
+# GENERATED OUTPUTS (never commit run data)
+# =============================================================================
+outputs/
+logs/
+.tmp/
+
+# Stray Windows null-device file created by shell redirects
+nul
+
+# =============================================================================
+# PYTHON
+# =============================================================================
 __pycache__/
 *.py[cod]
-*$py.class
 *.pyc
-*.log
+*.pyo
+*.pyd
 *.so
-.Python
 *.egg-info/
 dist/
 build/
+.Python
 
-# Ruff cache
+# =============================================================================
+# VIRTUAL ENVIRONMENT
+# =============================================================================
+venv/
+env/
+.venv/
+
+# =============================================================================
+# TOOLS & CACHES
+# =============================================================================
 .ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
-# IDE
+# =============================================================================
+# FRONTEND (Node)
+# =============================================================================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# =============================================================================
+# IDE & OS
+# =============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Logs
-logs/
-
-# Generated runs
-outputs/
-runs/
-
-# Environment
-.env.local
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Ignore outputs and generated files
-outputs/
-logs/
-*.log
-
-# Ignore run folders
-run_*/
-
-# Ignore images
-*.png
-*.jpg
-*.jpeg
-
-# Ignore env
-.env
-venv/
-
-# Ignore system files
-__pycache__/
-*.pyc.env
-boot.md
+# =============================================================================
+# CLAUDE CODE INTERNAL
+# =============================================================================
+.claude/settings.local.json

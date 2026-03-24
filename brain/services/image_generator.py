@@ -3,7 +3,7 @@ Image Generator Service - Generates images from scene data using various image m
 
 Supports:
 - OpenAI GPT-image-1.5
-- fal.ai Flux Pro
+- fal.ai Flux 2 Pro
 - fal.ai Juggernaut
 - Dialogue overlay mode for speech bubbles
 """
@@ -46,19 +46,23 @@ class ImageGeneratorService:
         size: str = IMAGE_SIZE,
         background: str = "auto",
         image_mode: str = "dialogue",
+        run_folder: Optional[str] = None,
     ):
         """
         Initialize the Image Generator Service.
 
         Args:
             model: Image generation model (default: gpt-image-1.5)
-                   Other options: "fal-flux", "fal-juggernaut"
+                   Other options: "fal-flux2pro", "fal-juggernaut"
             temperature: Sampling temperature
-            output_dir: Legacy parameter (ignored, uses model-based storage)
-            quality: Image quality setting (default: high)
+            output_dir: Legacy parameter (kept for compatibility)
+            quality: Image quality setting (default: low)
             size: Image size - 1024x1024, 1536x1024, or 2048x2048 (default: 1536x1024)
             background: Background setting (default: auto)
             image_mode: "dialogue" (text inside image) or "overlay" (text overlay)
+            run_folder: Path to the pipeline's current run folder. When provided,
+                        ALL models (including Juggernaut) save images here under
+                        images/LS{n}/ — prevents wrong-folder bugs.
         """
         self.model = model
         self.temperature = temperature
@@ -67,6 +71,9 @@ class ImageGeneratorService:
         self.background = background
         self.image_mode = image_mode
         self.use_fal = model.startswith("fal-")
+
+        # Store the pipeline run folder so _get_image_path() always saves to the right place
+        self._pipeline_run_folder: Optional[Path] = Path(run_folder) if run_folder else None
 
         if self.use_fal:
             fal_key = os.getenv("FAL_KEY") or os.getenv("FAL_API_KEY")
@@ -88,15 +95,16 @@ class ImageGeneratorService:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        self._ensure_run_folder()
+        if self._pipeline_run_folder is None:
+            self._ensure_run_folder()
 
     def _get_fal_endpoint(self, model: str) -> str:
         """Get the fal.ai endpoint for the given model."""
         endpoints = {
-            "fal-flux": "fal-ai/flux-pro",
+            "fal-flux2pro": "fal-ai/flux-pro/v2",
             "fal-juggernaut": "fal-ai/juggernaut-xl",
         }
-        return endpoints.get(model, "fal-ai/flux-pro")
+        return endpoints.get(model, "fal-ai/flux-pro/v2")
 
     def _ensure_run_folder(self) -> None:
         """Ensure the run folder exists for this model."""
@@ -122,28 +130,40 @@ class ImageGeneratorService:
         """
         Get the path to save an image with proper folder structure.
 
+        When a pipeline run_folder is set (recommended), images are saved to:
+          run_folder/images/{learning_step_id}/{scene_id}.png
+
+        Legacy fallback (no run_folder): saves under the model run folder with
+        mode/quality subfolders.
+
         Args:
             learning_step_id: Learning step ID (e.g., 'LS1')
-            scene_id: Scene ID (e.g., 'S1')
+            scene_id: Scene ID (e.g., 'S1' or 'LS1_S1')
 
         Returns:
             Path to save the image
         """
-        run_folder = self._get_model_run_folder()
+        if self._pipeline_run_folder is not None:
+            # New canonical path: run_folder/images/LS1/LS1_S1.png
+            ls_folder = self._pipeline_run_folder / "images" / learning_step_id
+            ls_folder.mkdir(parents=True, exist_ok=True)
+            # Normalise scene_id to avoid double prefix (LS1_LS1_S1)
+            if scene_id.startswith(learning_step_id + "_"):
+                filename = f"{scene_id}.png"
+            else:
+                filename = f"{learning_step_id}_{scene_id}.png"
+            return ls_folder / filename
 
-        # For overlay mode, save base images separately
+        # Legacy fallback — keep old behaviour for backwards compat
+        run_folder = self._get_model_run_folder()
         if self.image_mode == "overlay":
-            # Base images go to: images/overlay_dialogue/<quality>/<learning_step_id>/
             images_dir = run_folder / "images" / "overlay_dialogue" / self.quality
         else:
-            # For dialogue mode (AI renders text inside): images/dialogue_rendered/<quality>/
             images_dir = run_folder / "images" / "dialogue_rendered" / self.quality
 
         images_dir.mkdir(parents=True, exist_ok=True)
-
         ls_folder = images_dir / learning_step_id
         ls_folder.mkdir(exist_ok=True)
-
         return ls_folder / f"{scene_id}.png"
 
     def _generate_openai_image(self, prompt: str) -> Optional[bytes]:
@@ -268,6 +288,55 @@ class ImageGeneratorService:
             f"       WARNING: Fal.ai polling timed out after {max_attempts * 2} seconds"
         )
         return None
+
+    def generate(
+        self,
+        prompt: str,
+        learning_step_id: Optional[str] = None,
+        scene_id: Optional[str] = None,
+    ) -> str:
+        """
+        Generate an image from a text prompt.
+
+        Args:
+            prompt: Image generation prompt text
+            learning_step_id: Learning step ID (e.g. 'LS1'). If not provided,
+                              defaults to 'LS1'.
+            scene_id: Scene ID (e.g. 'S1' or 'LS1_S1'). If not provided,
+                      a timestamp-based ID is generated.
+
+        Returns:
+            Path to the generated image
+        """
+        import time
+        import uuid
+
+        if scene_id is None:
+            scene_id = f"gen_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+        if learning_step_id is None:
+            learning_step_id = "LS1"
+
+        filepath = self._get_image_path(learning_step_id, scene_id)
+
+        try:
+            if self.use_fal:
+                image_data = self._generate_fal_image(prompt)
+            else:
+                image_data = self._generate_openai_image(prompt)
+
+            if not image_data:
+                print(f"WARNING: No image data returned.")
+                return str(filepath)
+
+            with open(filepath, "wb") as f:
+                f.write(image_data)
+
+            print(f"Image saved: {filepath}")
+            return str(filepath)
+
+        except Exception as e:
+            print(f"Error generating image: {e}")
+            return str(filepath)
 
     def generate_image_prompt_text(self, scene_data: Dict[str, Any]) -> str:
         """

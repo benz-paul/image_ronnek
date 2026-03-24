@@ -12,7 +12,16 @@ import os
 import json
 import re
 from pathlib import Path
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
+
+# ============================================================================
+# DEBUG MODE CONFIGURATION
+# ============================================================================
+DEBUG_MODE = True
+DEBUG_MAX_LS = 1        # Limit to 1 learning step per run (all scenes within it)
+DEBUG_OUTPUT_DIR = "outputs/debug_run"
+# ============================================================================
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
@@ -29,6 +38,7 @@ from brain.agents.flow_tracker_agent import FlowTrackerAgent, PipelineStage
 
 from brain.services.image_generator import ImageGeneratorService
 from brain.services.ppt_generator import PPTGeneratorService
+from brain.services.prompt_builder import PromptBuilder
 from utils.model_output_manager import (
     create_run_folder,
     get_current_run_folder,
@@ -40,8 +50,97 @@ from utils.model_output_manager import (
     save_ppt,
     save_summary,
     update_run_metadata,
+    save_audio_manifest,
 )
-from utils.json_utils import safe_parse
+from utils.json_utils import safe_parse, safe_parse_with_retry
+
+
+# =============================================================================
+# DEBUG CAPTURE HELPERS
+# =============================================================================
+
+
+def _ensure_debug_dir():
+    """Create debug output directory if it doesn't exist."""
+    if DEBUG_MODE:
+        Path(DEBUG_OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+        print(f"[DEBUG] Debug output directory: {DEBUG_OUTPUT_DIR}")
+
+
+def _save_debug_json(filename: str, data: Any) -> None:
+    """Save data to debug JSON file."""
+    if DEBUG_MODE:
+        filepath = Path(DEBUG_OUTPUT_DIR) / filename
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, default=str)
+        print(f"[DEBUG] Saved: {filepath}")
+
+
+def _capture_state(state: PipelineState, label: str) -> None:
+    """Capture current state to debug file."""
+    if DEBUG_MODE:
+        state_dict = {
+            "timestamp": datetime.now().isoformat(),
+            "label": label,
+            "learning_steps_list": state.learning_steps_list,
+            "active_learning_steps": getattr(state, "active_learning_steps", []),
+            "scenes": state.scenes,
+            "scene_plans": state.scene_plans,
+            "current_learning_step_index": state.current_learning_step_index,
+            "current_scene_index": state.current_scene_index,
+            "generate_images": state.generate_images,
+            "generation_mode": state.generation_mode,
+            "image_model": state.image_model,
+            "run_folder": state.run_folder,
+        }
+        _save_debug_json(f"state_{label}.json", state_dict)
+
+
+# Debug storage for image prompts
+_image_debug_data = []
+
+
+def _capture_image_prompt(
+    ls_key: str, scene_idx: int, image_prompt: str, scene_data: dict = None
+) -> None:
+    """Capture image prompt during generation."""
+    if DEBUG_MODE:
+        _image_debug_data.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "learning_step": ls_key,
+                "scene_index": scene_idx,
+                "image_prompt": image_prompt,
+                "scene_data": scene_data,
+            }
+        )
+
+
+def _save_image_debug() -> None:
+    """Save captured image prompts to file."""
+    if DEBUG_MODE and _image_debug_data:
+        _save_debug_json("image_prompts.json", _image_debug_data)
+        print(f"[DEBUG] Saved {len(_image_debug_data)} image prompts")
+
+
+def _debug_print_state(label: str, state: PipelineState) -> None:
+    """Print formatted debug state."""
+    if DEBUG_MODE:
+        print(f"\n{'=' * 60}")
+        print(f"[DEBUG STATE] {label}")
+        print(f"{'=' * 60}")
+        print(f"  LS count: {len(state.learning_steps_list)}")
+        print(
+            f"  LS IDs: {[ls.get('learning_step_id', f'LS{i}') for i, ls in enumerate(state.learning_steps_list)]}"
+        )
+        print(f"  Scenes keys: {list(state.scenes.keys())}")
+        print(f"  Scene counts: {[(k, len(v)) for k, v in state.scenes.items()]}")
+        print(f"  Current LS index: {state.current_learning_step_index}")
+        print(f"  Current Scene index: {state.current_scene_index}")
+        print(f"  Generate images: {state.generate_images}")
+        print(f"  Generation mode: {state.generation_mode}")
+        print(f"  Image model: {state.image_model}")
+        print(f"{'=' * 60}\n")
 
 
 # =============================================================================
@@ -109,6 +208,14 @@ def validate_prompt(prompt: str) -> None:
         "screenplay",
         "concept",
         "concepts",
+        "narrator",
+        "voice",
+        "audio",
+        "text",
+        "type",
+        "brackets",
+        "parentheses",
+        "speaker",
     }
 
     # Pattern 1: [something] - square brackets
@@ -127,6 +234,7 @@ def validate_prompt(prompt: str) -> None:
     actual_placeholders = []
     for match in all_matches:
         match_lower = match.strip().lower()
+
         # Skip if it's a safe word
         if match_lower in safe_words:
             continue
@@ -422,16 +530,31 @@ class LLMService:
             "max_tokens": tokens,
         }
 
-        # Make request
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": "Bearer " + api_key,
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=120,
-        )
+        # Make request with retry logic for timeouts
+        max_retries = 3
+        response = None
+
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    url="https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": "Bearer " + api_key,
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=120,
+                )
+                break
+            except requests.exceptions.Timeout as e:
+                if attempt < max_retries - 1:
+                    print(
+                        f"[RETRY] Timeout attempt {attempt + 1}/{max_retries}, retrying..."
+                    )
+                    continue
+                else:
+                    print(f"[ERROR] Timeout after {max_retries} attempts")
+                    raise Exception(f"LLM timeout after {max_retries} attempts: {e}")
 
         # Handle errors
         if response.status_code != 200:
@@ -532,8 +655,9 @@ class PipelineGraph:
         # Initialize services
         self.llm_service = LLMService()
         self.flow_tracker = FlowTrackerAgent()
-        self.image_generator = ImageGeneratorService()
+        self.image_generator = None  # Initialized in run()
         self.ppt_generator = PPTGeneratorService()
+        self.prompt_builder = PromptBuilder()
 
         # Create the graph
         self.graph = self._create_graph()
@@ -549,41 +673,34 @@ class PipelineGraph:
         graph = StateGraph(PipelineState)
 
         # Add nodes - SIMPLIFIED LINEAR FLOW
+        # FIX #6: _node_user_input removed from graph entirely.
+        # main.py already asks all questions before pipeline.run() is called,
+        # so adding it here would make the user answer the same questions twice.
         graph.add_node("initialize", self._node_initialize)
-        graph.add_node(
-            "user_input", self._node_user_input
-        )  # NEW: Simple 3-question input
         graph.add_node("execute_prompt0", self._node_execute_prompt0)
         graph.add_node("execute_prompt1", self._node_execute_prompt1)
         graph.add_node("execute_prompt2", self._node_execute_prompt2)
         graph.add_node("execute_prompt3a", self._node_execute_prompt3a)
         graph.add_node("execute_prompt3b", self._node_execute_prompt3b)
-        graph.add_node("execute_prompt3", self._node_execute_prompt3)
+        # FIX #16: _node_execute_prompt3 is NOT registered as a graph node because
+        # no edge connects to it. It still exists as a helper method.
         graph.add_node("execute_prompt4", self._node_execute_prompt4)
+        graph.add_node("build_audio_manifest", self._node_build_audio_manifest)
         graph.add_node("generate_ppt", self._node_generate_ppt)
 
         # Set entry point
         graph.set_entry_point("initialize")
 
-        # SCENE GENERATION FLOW: 3A (planning) → 3B (generation) → loops
-        graph.add_edge("initialize", "user_input")
-        graph.add_edge("user_input", "execute_prompt0")
+        # SCENE GENERATION FLOW: initialize → p0 → p1 → p2 → 3A (planning) → 3B (generation) → loops
+        graph.add_edge("initialize", "execute_prompt0")
         graph.add_edge("execute_prompt0", "execute_prompt1")
         graph.add_edge("execute_prompt1", "execute_prompt2")
         graph.add_edge("execute_prompt2", "execute_prompt3a")
 
-        # Router for scene planning (3A) - decides whether to plan next LS or go to 3B
+        # Router for scene planning (3A) - always goes to 3B
         def router_prompt3a(state: PipelineState) -> str:
             """Router for prompt3a - go to prompt3b for scene generation."""
-            next_node = "execute_prompt3b"
-            # Safety check
-            if next_node not in ["execute_prompt3b"]:
-                print(
-                    f"[WARNING] Invalid node: {next_node}, falling back to execute_prompt3b"
-                )
-                next_node = "execute_prompt3b"
-            print(f"[DEBUG] Next node: {next_node}")
-            return next_node
+            return "execute_prompt3b"
 
         # Router for scene generation (3B) - loops through scenes
         def router_prompt3b(state: PipelineState) -> str:
@@ -592,49 +709,63 @@ class PipelineGraph:
             current_ls_idx = state.current_learning_step_index
             current_scene_idx = state.current_scene_index
 
-            ls_key = f"LS{current_ls_idx + 1}"
-            scene_plan = state.scene_plans.get(ls_key, [])
-
-            print(
-                f"[DEBUG] Router: {ls_key} scene {current_scene_idx + 1}/{len(scene_plan)}"
-            )
-
-            # LOOP THROUGH SCENES
-            if current_scene_idx < len(scene_plan):
-                next_node = "execute_prompt3b"
-                print(f"[DEBUG] Next node: {next_node}")
-                return next_node
-
-            # LS1 MODE → STOP AFTER FIRST LS
-            if state.generation_mode == "ls1":
-                next_node = "execute_prompt4"
-
-            else:
-                total_ls = len(state.learning_steps_list)
-
-                # FULL MODE → CONTINUE OR END
-                if current_ls_idx + 1 >= total_ls:
-                    next_node = "execute_prompt4"
-                else:
-                    next_node = "execute_prompt3a"
-
-            # SAFETY GUARD (CLEAN)
-            valid_nodes = ["execute_prompt3b", "execute_prompt3a", "execute_prompt4"]
-
-            if next_node not in valid_nodes:
-                print(
-                    f"[WARNING] Invalid node: {next_node}, fallback to execute_prompt4"
+            # Use actual learning_step_id
+            if current_ls_idx < len(state.learning_steps_list):
+                ls_key = state.learning_steps_list[current_ls_idx].get(
+                    "learning_step_id", f"LS{current_ls_idx + 1}"
                 )
-                next_node = "execute_prompt4"
+            else:
+                ls_key = f"LS{current_ls_idx + 1}"
 
-            print(f"[DEBUG] Next node: {next_node}")
-            return next_node
+            scene_plan = state.scene_plans.get(ls_key, [])
+            total_scenes = len(scene_plan)
+
+            # HARD STOP - bounds check BEFORE logging
+            if total_scenes == 0:
+                print(f"[ROUTER] {ls_key} has no scenes planned → go to prompt4")
+                return "execute_prompt4"
+
+            # Guard: only log when index is in bounds
+            if current_scene_idx < total_scenes:
+                print(f"[ROUTER] {ls_key} scene {current_scene_idx + 1}/{total_scenes}")
+
+            # HARD STOP - scene index out of bounds means this LS is done
+            if current_scene_idx >= total_scenes:
+                print(f"[ROUTER] All {total_scenes} scenes generated for {ls_key}")
+
+                # LS1 MODE → STOP AFTER FIRST LS
+                if state.generation_mode == "ls1":
+                    return "execute_prompt4"
+
+                # Move to next LS or end
+                if current_ls_idx + 1 >= len(state.learning_steps_list):
+                    return "execute_prompt4"
+                else:
+                    return "execute_prompt3a"
+
+            # SINGLE SCENE MODE - fast testing
+            # FIX #10: Do NOT mutate state inside a router - LangGraph discards it.
+            # Index reset is handled via single_scene_done flag in _node_execute_prompt3b.
+            if (
+                state.test_mode
+                and getattr(state, "scene_generation_scope", None) == "single"
+            ):
+                if current_scene_idx >= 1:
+                    print("[DEBUG] Single scene mode → END scene gen, go to prompt4")
+                    return "execute_prompt4"
+                else:
+                    print("[DEBUG] Single scene mode → generate first scene")
+                    return "execute_prompt3b"
+
+            # LOOP THROUGH SCENES (full mode)
+            return "execute_prompt3b"
 
         graph.add_conditional_edges(
             "execute_prompt3a",
             router_prompt3a,
             {
                 "execute_prompt3b": "execute_prompt3b",
+                END: END,
             },
         )
 
@@ -648,24 +779,68 @@ class PipelineGraph:
             },
         )
 
-        # Router for prompt4 loop (if images requested)
-        def router_prompt4(state: PipelineState):
+        def router_after_prompt4(state: PipelineState) -> str:
+            """Pure router - decides whether to loop back to prompt4 or generate_ppt."""
+
+            # No images → go directly to generate_ppt
             if not state.generate_images:
-                print("[DEBUG] Next node: END")
-                return END
+                print("[ROUTER] Image generation disabled → generate_ppt")
+                return "generate_ppt"
 
-            total_scenes = sum(len(scenes) for scenes in state.scenes.values())
+            # Check bounds
+            ls_index = state.current_learning_step_index
+            scene_index = state.current_scene_index
 
-            if state.current_image_index >= total_scenes:
-                print("[DEBUG] Next node: END")
-                return END
+            if ls_index >= len(state.learning_steps_list):
+                print("[ROUTER] All learning steps processed → generate_ppt")
+                return "generate_ppt"
 
-            print("[DEBUG] Next node: execute_prompt4")
+            # Use actual learning_step_id
+            if ls_index < len(state.learning_steps_list):
+                ls_key = state.learning_steps_list[ls_index].get(
+                    "learning_step_id", f"LS{ls_index + 1}"
+                )
+            else:
+                ls_key = f"LS{ls_index + 1}"
+
+            scene_plan = state.scene_plans.get(ls_key, [])
+
+            # LS1-only mode → only process LS1 scenes
+            if state.generation_mode == "ls1":
+                total_scenes = len(scene_plan)
+                if scene_index >= total_scenes:
+                    print("[ROUTER] LS1-only: all scenes done → generate_ppt")
+                    return "generate_ppt"
+                print(f"[ROUTER] LS1-only: scene {scene_index + 1}/{total_scenes}")
+                return "execute_prompt4"
+
+            # Full mode - continue through all scenes and LS
+            if scene_index < len(scene_plan):
+                print(f"[ROUTER] Scene {scene_index + 1}/{len(scene_plan)}")
+                return "execute_prompt4"
+
+            # Move to next LS
+            next_ls = ls_index + 1
+            if next_ls >= len(state.learning_steps_list):
+                print("[ROUTER] All LS complete → generate_ppt")
+                return "generate_ppt"
+
+            print(f"[ROUTER] Moving to LS{next_ls + 1}")
             return "execute_prompt4"
 
         graph.add_conditional_edges(
-            "execute_prompt4", router_prompt4, {"execute_prompt4": "execute_prompt4"}
+            "execute_prompt4",
+            router_after_prompt4,
+            {
+                "execute_prompt4": "execute_prompt4",
+                "generate_ppt": "build_audio_manifest",
+                END: END,
+            },
         )
+
+        # audio manifest → ppt → end
+        graph.add_edge("build_audio_manifest", "generate_ppt")
+        graph.add_edge("generate_ppt", END)
 
         # Compile with checkpointer
         checkpointer = MemorySaver()
@@ -678,118 +853,25 @@ class PipelineGraph:
         """
         Initialize node - set up run folder.
 
+        FIX #7: Only ONE run folder is created here. The second create_run_folder()
+        call that existed inside _node_initialize is removed; the folder created
+        in run() is the authoritative one and is already in state when this node fires.
+
         Args:
             state: Current pipeline state
 
         Returns:
             State updates
         """
-        # Create simple run folder with timestamp
-        run_folder = create_run_folder(
-            chapter=state.user_inputs.chapter_name,
-            class_level=state.user_inputs.class_level,
-            subject=state.user_inputs.subject,
-        )
-
-        # Store run folder in state
-        state.run_folder = str(run_folder)
-        state.model_run_folder = str(run_folder)
-
-        # Set initial prompt ID
-        state.current_prompt_id = "prompt0"
-
-        print(f"\n[INIT] Run folder created: {run_folder.name}")
-
-        return {"current_prompt_id": "prompt0", "run_folder": str(run_folder)}
-
-    def _node_user_input(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        SIMPLIFIED: Get user input for pipeline flow.
-
-        Asks only 3 simple questions:
-        1. Generate (1) One learning step or (2) All?
-        2. Generate scenes? (y/n)
-        3. Generate images? (y/n)
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates with generation_mode and flags
-        """
-        print("\n" + "=" * 60)
-        print("  PIPELINE CONFIGURATION")
-        print("=" * 60)
-
-        # Question 1: Learning Steps
-        print("\n[1/3] Learning Steps:")
-        print("  (1) Generate ONE learning step (LS1)")
-        print("  (2) Generate ALL learning steps")
-
-        while True:
-            ls_choice = input("  Enter choice (1/2): ").strip()
-            if ls_choice in ["1", "2"]:
-                break
-            print("  Please enter 1 or 2")
-
-        if ls_choice == "1":
-            generation_mode = "ls1"
-            print("  → Mode: LS1 only")
-        else:
-            generation_mode = "full"
-            print("  → Mode: All Learning Steps")
-
-        # Question 2: Scenes
-        print("\n[2/3] Scene Generation:")
-        print("  Generate scenes for learning steps? (y/n)")
-
-        while True:
-            scenes_choice = input("  Enter choice (y/n): ").strip().lower()
-            if scenes_choice in ["y", "n", "yes", "no"]:
-                break
-            print("  Please enter y or n")
-
-        generate_scenes = scenes_choice in ["y", "yes"]
-        if generate_scenes:
-            print("  → Yes, generate scenes")
-        else:
-            print("  → No, skip scene generation")
-
-        # Question 3: Images
-        print("\n[3/3] Image Generation:")
-        print("  Generate images for scenes? (y/n)")
-
-        while True:
-            images_choice = input("  Enter choice (y/n): ").strip().lower()
-            if images_choice in ["y", "n", "yes", "no"]:
-                break
-            print("  Please enter y or n")
-
-        generate_images = images_choice in ["y", "yes"]
-        if generate_images:
-            print("  → Yes, generate images")
-        else:
-            print("  → No, skip image generation")
-
-        print("\n" + "=" * 60)
-        print("  Starting pipeline...")
-        print("=" * 60 + "\n")
-
-        # Update config with user choices
-        if state.run_folder:
-            update_run_metadata(
-                Path(state.run_folder),
-                {
-                    "generation_mode": generation_mode,
-                    "generate_images": generate_images,
-                    "generate_scenes": generate_scenes,
-                },
-            )
+        # run_folder and model_run_folder are already set by run() before the graph
+        # starts. Just propagate them so LangGraph persists the values.
+        active_folder = state.model_run_folder or state.run_folder
+        print(f"\n[INIT] Run folder: {active_folder}")
 
         return {
-            "generation_mode": generation_mode,
-            "generate_images": generate_images,
-            "generate_scenes": generate_scenes,
+            "current_prompt_id": "prompt0",
+            "run_folder": state.run_folder,
+            "model_run_folder": state.model_run_folder,
         }
 
     def _node_execute_prompt0(self, state: PipelineState) -> Dict[str, Any]:
@@ -805,7 +887,7 @@ class PipelineGraph:
         """
         import json
 
-        run_folder = Path(state.run_folder)
+        run_folder = Path(state.model_run_folder or state.run_folder)
         chapter_name = state.user_inputs.chapter_name
 
         # Get full chapter text from PDF
@@ -828,108 +910,25 @@ class PipelineGraph:
         print(f"[DEBUG] Full text length: {len(full_text)}")
 
         # STEP 1 — First pass (extract concept titles only)
-        prompt1 = f"""
-Extract a COMPLETE list of concepts from this chapter.
-
-IMPORTANT:
-- Return ONLY concept TITLES (short)
-- DO NOT explain
-- DO NOT add long descriptions
-- Keep each concept 3-6 words max
-
-RULES:
-- Do NOT miss any concept
-- Prefer over-extraction
-- Include formulas, ideas, problem types
-
-STRICT FILTERING RULE:
-
-Do NOT include:
-
-* examples
-* case studies
-* word problems
-* story-based scenarios
-* application-specific situations (e.g., taxi fare, rabbits, salary cases)
-
-ONLY include:
-
-* definitions
-* formulas
-* properties
-* relationships between concepts
-* mathematical structures
-
-If an item is an example of a concept, DO NOT include it.
-
-OUTPUT:
-
-Return ONLY JSON:
-{{
-  "concepts": [
-    "Concept 1",
-    "Concept 2",
-    "Concept 3"
-  ]
-}}
-
-TEXT:
-{full_text[:12000]}
-"""
+        prompt1 = self.prompt_builder.get_prompt(
+            "prompt0a",
+            CHAPTER_TEXT=full_text[:12000],
+        )
         print("  First pass: Full extraction...")
         result1 = self.llm_service.invoke(prompt1, max_tokens=2000, temperature=0.2)
         response1 = result1["content"]
-        concepts_pass1 = safe_parse(response1)
+        concepts_pass1 = safe_parse(response1, prompt_type="concepts")
         print("[DEBUG] Prompt0 response length:", len(str(response1)))
 
         # STEP 2 — Second pass (gap detection)
-        prompt2 = f"""
-You already extracted concepts.
-
-Here is the current list:
-
-{json.dumps(concepts_pass1)}
-
-Find IMPORTANT missing concepts.
-Return ONLY concept TITLES (short), 3-6 words max.
-
-RULES:
-- Only add missing ones
-- Do NOT repeat
-- Focus on gaps
-
-STRICT FILTERING RULE:
-
-Do NOT include:
-
-* examples
-* case studies
-* word problems
-* story-based scenarios
-* application-specific situations (e.g., taxi fare, rabbits, salary cases)
-
-ONLY include:
-
-* definitions
-* formulas
-* properties
-* relationships between concepts
-* mathematical structures
-
-If an item is an example of a concept, DO NOT include it.
-
-Return ONLY JSON:
-{{
-  "concept_titles": [
-    "Missing Concept 1",
-    "Missing Concept 2"
-  ]
-}}
-"""
+        prompt2 = self.prompt_builder.get_prompt(
+            "prompt0b",
+            EXISTING_CONCEPTS=json.dumps(concepts_pass1),
+        )
         print("  Second pass: Gap detection...")
         result2 = self.llm_service.invoke(prompt2, max_tokens=1000, temperature=0.2)
         response2 = result2["content"]
-        concepts_pass2 = safe_parse(response2)
+        concepts_pass2 = safe_parse(response2, prompt_type="concepts")
 
         # STEP 3 — Merge (both are now lists of concept titles)
         concepts_list1 = concepts_pass1.get("concepts", [])
@@ -970,49 +969,20 @@ Return ONLY JSON:
         """
         import json
 
-        run_folder = Path(state.run_folder)
+        run_folder = Path(state.model_run_folder or state.run_folder)
 
         chapter_name = state.user_inputs.chapter_name
         concepts = json.dumps(state.prompt0_output)
 
-        prompt = f"""
-Chapter: {chapter_name}
-Concepts: {concepts}
-
-IMPORTANT: You must create a story with MINIMUM 2 MAIN CHARACTERS.
-
-Character Requirements:
-- Each character must have: name, role, personality, visual_description
-- Characters must interact in scenes through dialogue
-- Story must be visual and cinematic
-- Characters should be relatable to students (e.g., student, teacher, friend, family)
-
-Return ONLY JSON:
-{{
-  "title": "...",
-  "core_premise": "...",
-  "characters": [
-    {{
-      "name": "...",
-      "role": "...",
-      "personality": "...",
-      "visual_description": "..."
-    }},
-    {{
-      "name": "...",
-      "role": "...",
-      "personality": "...",
-      "visual_description": "..."
-    }}
-  ]
-}}
-
-CRITICAL: characters array must have at least 2 entries.
-"""
+        prompt = self.prompt_builder.get_prompt(
+            "prompt1",
+            CHAPTER_NAME=chapter_name,
+            CONCEPTS=concepts,
+        )
 
         result = self.llm_service.invoke(prompt, temperature=0.7)
         response = result["content"]
-        story = safe_parse(response)
+        story = safe_parse(response, prompt_type="story")
 
         state.prompt1_output = story
         state.selected_story = story
@@ -1041,68 +1011,30 @@ CRITICAL: characters array must have at least 2 entries.
         """
         import json
 
-        run_folder = Path(state.run_folder)
+        run_folder = Path(state.model_run_folder or state.run_folder)
 
         story = json.dumps(state.prompt1_output)
         concepts = json.dumps(state.prompt0_output)
 
-        prompt = f"""
-Story: {story}
-Concepts: {concepts}
-
-Return ONLY JSON:
-{{
-  "learning_steps": [...]
-}}
-
-STRICT OUTPUT ENFORCEMENT:
-
-You MUST follow the exact JSON schema.
-
-Each learning step MUST contain:
-
-* "learning_step_id"
-* "title"
-* "concepts_introduced"
-* "narrative_moment"
-
-DO NOT use:
-
-* step_number
-* description
-* concepts_covered
-
-If any of these incorrect keys are used, the output is INVALID.
-
----
-
-SELF-CHECK BEFORE OUTPUT:
-
-Before returning the final JSON:
-
-1. Ensure every learning step contains:
-
-   * learning_step_id (LS1, LS2, ...)
-   * title (non-empty)
-   * concepts_introduced (must NOT be empty)
-   * narrative_moment (minimum 5 lines)
-
-2. If ANY field is missing or empty:
-   REGENERATE the entire output.
-
-3. Ensure JSON is valid and parsable.
-
----
-
-Output ONLY valid JSON
-"""
+        prompt = self.prompt_builder.get_prompt(
+            "prompt2",
+            STORY_BACKBONE=story,
+            CONCEPTS=concepts,
+        )
 
         result = self.llm_service.invoke(prompt, temperature=0.4)
         response = result["content"]
-        learning_steps = safe_parse(response)
+        learning_steps = safe_parse(response, prompt_type="learning_steps")
 
         state.prompt2_output = learning_steps
         state.learning_steps_list = learning_steps.get("learning_steps", [])
+
+        # FAIL FAST if learning steps extraction failed
+        if len(state.learning_steps_list) == 0:
+            if "_error" in learning_steps or "_invalid" in learning_steps:
+                reason = learning_steps.get("_reason") or learning_steps.get("message") or "unknown error"
+                raise Exception(f"Learning steps extraction failed: {reason}")
+            raise Exception("Learning steps extraction returned empty list")
 
         save_prompt(run_folder, 2, prompt)
         save_raw_output(run_folder, 2, response)
@@ -1115,8 +1047,13 @@ Output ONLY valid JSON
             print(f"[MODE] LS1-only mode: Processing only first learning step")
             print(f"[MODE] Only LS1.json will be saved in learning_steps/")
 
+        # UPDATE STATE - critical synchronization
+        state.learning_steps_list = learning_steps_list
+        state.active_learning_steps = learning_steps_list
+
+        print(f"[DEBUG] Total learning steps: {len(state.learning_steps_list)}")
         print(
-            f"[DEBUG] LS after filter: {[ls.get('learning_step_id', f'LS{i + 1}') for i, ls in enumerate(learning_steps_list)]}"
+            f"[DEBUG] LS list: {[ls.get('learning_step_id', f'LS{i + 1}') for i, ls in enumerate(state.learning_steps_list)]}"
         )
 
         # Save individual learning step files
@@ -1194,517 +1131,22 @@ Output ONLY valid JSON
             f"  ✓ Saved {len(validated_learning_steps)} individual learning step files"
         )
 
+        # DEBUG MODE: Limit to DEBUG_MAX_LS learning steps
+        if DEBUG_MODE:
+            _ensure_debug_dir()
+            print(f"\n[DEBUG] Limiting to {DEBUG_MAX_LS} learning step(s)")
+            validated_learning_steps = validated_learning_steps[:DEBUG_MAX_LS]
+            _save_debug_json(
+                "learning_steps_after_prompt2.json", validated_learning_steps
+            )
+            _debug_print_state("After Prompt2 (LS Limited)", state)
+
         return {
             "prompt2_output": learning_steps,
             "learning_steps_list": validated_learning_steps,
+            "active_learning_steps": validated_learning_steps,
             "current_prompt_id": "prompt3",
         }
-
-    def _node_ls_selection(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        Human-in-the-loop checkpoint: Select learning steps to process.
-
-        When TEST_MODE=True: Displays all learning steps and asks user to select.
-        When TEST_MODE=False: Automatically selects all learning steps.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates with selected_learning_steps list
-        """
-        learning_steps = state.learning_steps_list
-
-        # PRODUCTION MODE: Auto-select all learning steps
-        if not state.test_mode:
-            print("\n[CHECKPOINT] Production Mode - Auto-selecting all learning steps")
-            selected = list(range(len(learning_steps)))
-            state.checkpoint_history.append(
-                f"LS Selection (AUTO): All {len(learning_steps)} steps selected"
-            )
-
-            return {
-                "selected_learning_steps": selected,
-                "ls_selection_made": True,
-                "current_learning_step_index": selected[0] if selected else 0,
-                "current_scene_index": 0,
-                "checkpoint_history": state.checkpoint_history,
-            }
-
-        # TEST_MODE: Show interactive selection
-        print("\n" + "=" * 60)
-        print("  CHECKPOINT: Learning Step Selection")
-        print("  " + "=" * 58)
-
-        print(f"\n  Total Learning Steps Generated: {len(learning_steps)}")
-        print("\n  Available Learning Steps:")
-        print("-" * 60)
-
-        for i, ls in enumerate(learning_steps):
-            ls_id = ls.get("learning_step_id", f"LS{i + 1}")
-            title = ls.get(
-                "title", ls.get("learning_step_title", f"Learning Step {i + 1}")
-            )
-            print(f"  {i + 1}. [{ls_id}] {title}")
-
-        print("-" * 60)
-        print("\n  Select learning steps to process:")
-        print("    a) One learning step")
-        print("    b) Multiple learning steps")
-        print("    c) All learning steps")
-
-        while True:
-            choice = input("\n  Enter choice (a/b/c): ").strip().lower()
-
-            if choice == "a":
-                # Single learning step
-                while True:
-                    try:
-                        ls_num = int(input("  Enter learning step number: ").strip())
-                        if 1 <= ls_num <= len(learning_steps):
-                            selected = [ls_num - 1]  # Convert to 0-based index
-                            break
-                        else:
-                            print(
-                                f"    Please enter a number between 1 and {len(learning_steps)}"
-                            )
-                    except ValueError:
-                        print("    Please enter a valid number")
-
-                print(f"\n  ✓ Selected Learning Step {ls_num}")
-                state.checkpoint_history.append(f"LS Selection: Step {ls_num} selected")
-                break
-
-            elif choice == "b":
-                # Multiple learning steps
-                while True:
-                    try:
-                        ls_nums = input(
-                            "  Enter learning step numbers (e.g., 1,3,5): "
-                        ).strip()
-                        selected = []
-                        for num_str in ls_nums.split(","):
-                            num = int(num_str.strip())
-                            if 1 <= num <= len(learning_steps):
-                                selected.append(num - 1)  # Convert to 0-based
-                            else:
-                                print(f"    Invalid number {num}, skipping")
-
-                        if selected:
-                            break
-                        else:
-                            print("    Please enter at least one valid number")
-                    except ValueError:
-                        print("    Please enter valid numbers")
-
-                selected_display = [f"LS{i + 1}" for i in sorted(set(selected))]
-                print(f"\n  ✓ Selected Learning Steps: {', '.join(selected_display)}")
-                state.checkpoint_history.append(
-                    f"LS Selection: Steps {', '.join(selected_display)} selected"
-                )
-                break
-
-            elif choice == "c":
-                # All learning steps
-                selected = list(range(len(learning_steps)))
-                print(f"\n  ✓ Selected ALL {len(learning_steps)} Learning Steps")
-                state.checkpoint_history.append(
-                    f"LS Selection: All {len(learning_steps)} steps selected"
-                )
-                break
-
-            else:
-                print("    Invalid choice. Please enter a, b, or c.")
-
-        print(f"\n  Selected Learning Steps: {selected}")
-
-        # Store selection in state
-        state.selected_learning_steps = selected
-        state.ls_selection_made = True
-
-        # Reset indices for processing selected steps
-        state.current_learning_step_index = selected[0] if selected else 0
-        state.current_scene_index = 0
-
-        print(f"\n  Proceeding to scene generation for selected learning steps...")
-
-        return {
-            "selected_learning_steps": selected,
-            "ls_selection_made": True,
-            "current_learning_step_index": state.current_learning_step_index,
-            "current_scene_index": 0,
-            "checkpoint_history": state.checkpoint_history,
-        }
-
-    def _node_scene_selection(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        Human-in-the-loop checkpoint: Select scenes to generate images for.
-
-        When TEST_MODE=True: Displays scenes and asks user to select.
-        When TEST_MODE=False: Automatically selects all scenes.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates with selected_scenes list
-        """
-        learning_steps = state.learning_steps_list
-
-        # PRODUCTION MODE: Auto-select all scenes
-        if not state.test_mode:
-            print("\n[CHECKPOINT] Production Mode - Auto-selecting all scenes")
-            selected = []
-            for ls_idx, ls in enumerate(learning_steps):
-                scenes = ls.get("scenes", [])
-                for s_idx in range(len(scenes)):
-                    selected.append(
-                        SceneSelection(
-                            ls_index=ls_idx,
-                            scene_index=s_idx,
-                            scene_id=scenes[s_idx].get("scene_id", f"S{s_idx + 1}"),
-                            scene_goal=scenes[s_idx].get("scene_goal", ""),
-                        )
-                    )
-
-            state.checkpoint_history.append(
-                f"Scene Selection (AUTO): All {len(selected)} scenes selected"
-            )
-
-            # Set default image generation mode for production
-            state.image_generation_scope = "multiple"
-            state.overlay_mode = "overlay"
-            state.image_mode = "overlay"
-
-            return {
-                "selected_scenes": selected,
-                "scene_selection_made": True,
-                "image_generation_scope": "multiple",
-                "overlay_mode": "overlay",
-                "image_mode": "overlay",
-                "current_learning_step_index": selected[0].ls_index if selected else 0,
-                "current_scene_index": selected[0].scene_index if selected else 0,
-                "checkpoint_history": state.checkpoint_history,
-            }
-
-        # TEST_MODE: Show interactive selection
-        print("\n" + "=" * 60)
-        print("  CHECKPOINT: Scene Selection")
-        print("  " + "=" * 58)
-
-        # Display scenes grouped by learning step
-        print("\n  Scenes by Learning Step:")
-        print("-" * 60)
-
-        scene_count = 0
-        for ls_idx, ls in enumerate(learning_steps):
-            ls_id = ls.get("learning_step_id", f"LS{ls_idx + 1}")
-            title = ls.get("title", f"Learning Step {ls_idx + 1}")
-            scenes = ls.get("scenes", [])
-
-            print(f"\n  [{ls_id}] {title}")
-            print(f"      Scenes: {len(scenes)}")
-
-            for s_idx, scene in enumerate(scenes):
-                scene_count += 1
-                scene_id = scene.get("scene_id", f"S{s_idx + 1}")
-                scene_goal = scene.get("scene_goal", scene.get("scene_phase", ""))
-                print(f"        {scene_count}. [{scene_id}] {scene_goal[:50]}...")
-
-        print("\n" + "-" * 60)
-        print(f"  Total Scenes: {scene_count}")
-        print("\n  Select scenes to generate images for:")
-        print("    a) One scene")
-        print("    b) Multiple scenes")
-        print("    c) All scenes")
-
-        while True:
-            choice = input("\n  Enter choice (a/b/c): ").strip().lower()
-
-            if choice == "a":
-                # Single scene
-                while True:
-                    try:
-                        scene_num = int(input("  Enter scene number: ").strip())
-                        if 1 <= scene_num <= scene_count:
-                            break
-                        else:
-                            print(
-                                f"    Please enter a number between 1 and {scene_count}"
-                            )
-                    except ValueError:
-                        print("    Please enter a valid number")
-
-                # Convert to LS index and scene index and wrap in list
-                selected_scene = self._convert_scene_number_to_selection(
-                    scene_num, learning_steps
-                )
-                selected = [selected_scene]
-                print(f"\n  ✓ Selected Scene {scene_num}")
-                state.checkpoint_history.append(
-                    f"Scene Selection: Scene {scene_num} selected"
-                )
-                break
-
-            elif choice == "b":
-                # Multiple scenes
-                while True:
-                    try:
-                        scene_nums = input(
-                            "  Enter scene numbers (e.g., 1,3,5): "
-                        ).strip()
-                        selected = []
-                        for num_str in scene_nums.split(","):
-                            num = int(num_str.strip())
-                            if 1 <= num <= scene_count:
-                                sel = self._convert_scene_number_to_selection(
-                                    num, learning_steps
-                                )
-                                selected.append(sel)
-                            else:
-                                print(f"    Invalid number {num}, skipping")
-
-                        if selected:
-                            break
-                        else:
-                            print("    Please enter at least one valid number")
-                    except ValueError:
-                        print("    Please enter valid numbers")
-
-                # Deduplicate and sort
-                seen = set()
-                unique_selected = []
-                for sel in selected:
-                    key = (sel.ls_index, sel.scene_index)
-                    if key not in seen:
-                        seen.add(key)
-                        unique_selected.append(sel)
-                selected = unique_selected
-
-                selected_display = [
-                    f"LS{sel.ls_index + 1}-S{sel.scene_index + 1}" for sel in selected
-                ]
-                print(f"\n  ✓ Selected Scenes: {', '.join(selected_display)}")
-                state.checkpoint_history.append(
-                    f"Scene Selection: Scenes {', '.join(selected_display)} selected"
-                )
-                break
-
-            elif choice == "c":
-                # All scenes
-                selected = []
-                for ls_idx, ls in enumerate(learning_steps):
-                    scenes = ls.get("scenes", [])
-                    for s_idx in range(len(scenes)):
-                        selected.append(
-                            SceneSelection(
-                                ls_index=ls_idx,
-                                scene_index=s_idx,
-                                scene_id=scenes[s_idx].get("scene_id", f"S{s_idx + 1}"),
-                                scene_goal=scenes[s_idx].get("scene_goal", ""),
-                            )
-                        )
-
-                print(f"\n  ✓ Selected ALL {len(selected)} Scenes")
-                state.checkpoint_history.append(
-                    f"Scene Selection: All {len(selected)} scenes selected"
-                )
-                break
-
-            else:
-                print("    Invalid choice. Please enter a, b, or c.")
-
-        print(f"\n  Selected Scenes: {len(selected)}")
-
-        # Store selection in state
-        state.selected_scenes = selected
-        state.scene_selection_made = True
-
-        # Set initial indices
-        if selected:
-            state.current_learning_step_index = selected[0].ls_index
-            state.current_scene_index = selected[0].scene_index
-        else:
-            state.current_learning_step_index = 0
-            state.current_scene_index = 0
-
-        # Ask about image generation mode
-        print("\n" + "-" * 60)
-        print("  Image Generation Options:")
-        print("    a) Generate image for single scene")
-        print("    b) Generate images for multiple scenes")
-
-        while True:
-            img_choice = input("\n  Enter choice (a/b): ").strip().lower()
-
-            if img_choice == "a":
-                state.image_generation_scope = "single"
-                print("    ✓ Mode: Single scene")
-                break
-            elif img_choice == "b":
-                state.image_generation_scope = "multiple"
-                print("    ✓ Mode: Multiple scenes")
-                break
-            else:
-                print("    Invalid choice. Please enter a or b.")
-
-        # Ask about dialogue overlay mode
-        print("\n  Dialogue Rendering:")
-        print("    a) Overlay dialogue on image (add speech bubbles)")
-        print("    b) Generate dialogue directly in image prompt")
-
-        while True:
-            overlay_choice = input("\n  Enter choice (a/b): ").strip().lower()
-
-            if overlay_choice == "a":
-                state.overlay_mode = "overlay"
-                print("    ✓ Mode: Speech bubble overlay")
-                break
-            elif overlay_choice == "b":
-                state.overlay_mode = "dialogue_in_image"
-                print("    ✓ Mode: Dialogue in image")
-                break
-            else:
-                print("    Invalid choice. Please enter a or b.")
-
-        # Update image_mode based on overlay_mode
-        state.image_mode = state.overlay_mode
-
-        print("\n  Proceeding to image generation...")
-
-        return {
-            "selected_scenes": selected,
-            "scene_selection_made": True,
-            "image_generation_scope": state.image_generation_scope,
-            "overlay_mode": state.overlay_mode,
-            "image_mode": state.image_mode,
-            "current_learning_step_index": state.current_learning_step_index,
-            "current_scene_index": state.current_scene_index,
-            "checkpoint_history": state.checkpoint_history,
-        }
-
-    def _convert_scene_number_to_selection(
-        self, scene_num: int, learning_steps: List[Dict[str, Any]]
-    ) -> SceneSelection:
-        """Convert a 1-based scene number to SceneSelection object."""
-        current_count = 0
-        for ls_idx, ls in enumerate(learning_steps):
-            scenes = ls.get("scenes", [])
-            for s_idx, scene in enumerate(scenes):
-                current_count += 1
-                if current_count == scene_num:
-                    return SceneSelection(
-                        ls_index=ls_idx,
-                        scene_index=s_idx,
-                        scene_id=scene.get("scene_id", f"S{s_idx + 1}"),
-                        scene_goal=scene.get("scene_goal", ""),
-                    )
-        # Fallback to first scene
-        return SceneSelection(ls_index=0, scene_index=0, scene_id="S1", scene_goal="")
-
-    def _node_image_check(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        Ask user if they want to generate images.
-
-        When TEST_MODE=True: Shows interactive prompt.
-        When TEST_MODE=False: Automatically proceeds with image generation.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates with generate_images flag
-        """
-        print("\n" + "=" * 50)
-        print("  Scene Generation Complete!")
-        print(
-            f"  Selected scenes: {len(state.selected_scenes) if state.scene_selection_made else 'All'}"
-        )
-        print("=" * 50)
-
-        # PRODUCTION MODE: Auto-proceed to image generation
-        if not state.test_mode:
-            print(
-                "\n[CHECKPOINT] Production Mode - Auto-proceeding to image generation"
-            )
-            generate_images = True
-
-            # Set indices to start from selected scenes
-            if state.scene_selection_made and state.selected_scenes:
-                first_sel = state.selected_scenes[0]
-                state.current_learning_step_index = first_sel.ls_index
-                state.current_scene_index = first_sel.scene_index
-            else:
-                state.current_learning_step_index = 0
-                state.current_scene_index = 0
-
-            state.checkpoint_history.append("Image Generation (AUTO): Yes")
-
-            return {
-                "generate_images": generate_images,
-                "checkpoint_history": state.checkpoint_history,
-            }
-
-        # TEST_MODE: Show interactive prompt
-        print("\nProceed to image generation?")
-        print("  y - Yes, generate images")
-        print("  n - No, skip image generation")
-
-        response = input("\nEnter choice (y/n): ").strip().lower()
-
-        if response == "y":
-            generate_images = True
-            print("\n✓ Proceeding to image generation...")
-        else:
-            generate_images = False
-            print("\n✗ Skipping image generation.")
-            print("Pipeline will end here. No PPT will be generated.")
-
-        if generate_images:
-            # Set indices to start from selected scenes
-            if state.scene_selection_made and state.selected_scenes:
-                first_sel = state.selected_scenes[0]
-                state.current_learning_step_index = first_sel.ls_index
-                state.current_scene_index = first_sel.scene_index
-            else:
-                state.current_learning_step_index = 0
-                state.current_scene_index = 0
-
-        # Log checkpoint decision
-        state.checkpoint_history.append(
-            f"Image Generation: {'Yes' if generate_images else 'No'}"
-        )
-
-        return {
-            "generate_images": generate_images,
-            "checkpoint_history": state.checkpoint_history,
-        }
-
-    def _node_ppt_check(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        Ask user if they want to generate PPT.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates with generate_ppt flag
-        """
-        print("\n" + "=" * 50)
-        print("  Image Generation Complete!")
-        print(f"  Generated {len(state.image_paths)} images")
-        print("=" * 50)
-
-        response = input("\nDo you want to generate PPT? (y/n): ").strip().lower()
-        generate_ppt = response in ["y", "yes"]
-
-        if generate_ppt:
-            print("\nProceeding to PPT generation...")
-        else:
-            print("\nSkipping PPT generation.")
-            print("Pipeline will end here.")
-
-        return {"generate_ppt": generate_ppt}
 
     def _node_execute_prompt3a(self, state: PipelineState) -> Dict[str, Any]:
         """
@@ -1738,7 +1180,9 @@ Output ONLY valid JSON
 
         learning_step = state.learning_steps_list[current_index]
         ls_id = learning_step.get("learning_step_id", f"LS{current_index + 1}")
-        ls_key = f"LS{current_index + 1}"
+
+        # Use actual learning_step_id as ls_key for consistency
+        ls_key = ls_id
 
         print(f"\n{'=' * 60}")
         print(
@@ -1746,7 +1190,7 @@ Output ONLY valid JSON
         )
         print(f"{'=' * 60}")
 
-        run_folder = Path(state.run_folder)
+        run_folder = Path(state.model_run_folder or state.run_folder)
 
         story_data = state.prompt1_output or {}
         story_context = {
@@ -1763,131 +1207,84 @@ Output ONLY valid JSON
                     prev_step["scenes"][-1] if prev_step["scenes"] else None
                 )
 
-        plan_prompt = f"""
-You are generating a SCENE PLAN for a learning step.
+        prev_scene_str = (
+            json.dumps(previous_step_last_scene)
+            if previous_step_last_scene
+            else "None (this is the first step)"
+        )
+        plan_prompt = self.prompt_builder.get_prompt(
+            "prompt3a",
+            STORY_TITLE=story_context.get("title", ""),
+            STORY_PREMISE=story_context.get("core_premise", ""),
+            CHARACTER_REGISTRY=json.dumps(story_context.get("characters", [])),
+            PREVIOUS_STEP_LAST_SCENE=prev_scene_str,
+            LS_ID=ls_id,
+            LS_TITLE=learning_step.get("title", ""),
+            LS_CONCEPTS=json.dumps(learning_step.get("concepts_introduced", [])),
+            LS_NARRATIVE=learning_step.get("narrative_moment", ""),
+        )
+        # SKIP IF EXISTS - prevent re-planning
+        if ls_key in state.scene_plans and len(state.scene_plans[ls_key]) > 0:
+            print(f"[DEBUG] Using existing scene plan for {ls_key}")
+            scene_plan = state.scene_plans[ls_key]
+        else:
+            # Retry logic for scene planning
+            max_retries = 3
+            retry_count = 0
+            scene_plan = []
 
-----------------------------------------
-STORY CONTEXT:
-Title: {story_context.get("title", "")}
-Premise: {story_context.get("core_premise", "")}
-Characters: {json.dumps(story_context.get("characters", []))}
+            while retry_count < max_retries:
+                result = self.llm_service.invoke(
+                    plan_prompt, temperature=0.4, max_tokens=3000
+                )
+                response = result["content"]
 
-PREVIOUS LEARNING STEP LAST SCENE:
-{json.dumps(previous_step_last_scene) if previous_step_last_scene else "None (this is the first step)"}
+                # Trust the parser, not string endings
+                try:
+                    parsed = safe_parse(response, prompt_type="scene_plan")
 
-CURRENT LEARNING STEP:
-- ID: {ls_id}
-- Title: {learning_step.get("title", "")}
-- Concepts: {json.dumps(learning_step.get("concepts_introduced", []))}
-- Narrative: {learning_step.get("narrative_moment", "")}
+                    if "_error" in parsed or "_invalid" in parsed:
+                        print(
+                            f"[ERROR] Scene plan parse failed: {parsed.get('_reason', 'unknown')}"
+                        )
+                        retry_count += 1
+                        continue
 
-----------------------------------------
-SCENE PLAN RULES:
+                    scene_plan = parsed.get("scene_plan", [])
 
-1. Generate between 6-15 scenes
-2. Each scene must have a PURPOSE:
-   - HOOK: Grab attention
-   - SETUP: Introduce situation
-   - DISCOVERY: Reveal something
-   - CONFUSION: Create tension/mystery
-   - GUIDANCE: Show direction
-   - MICRO_LEARN: Teach micro concept
-   - VALIDATION: Confirm understanding
-   - APPLICATION: Real-world use
-   - TWIST: Surprise element
-   - ESCALATION: Increase stakes
-   - PAYOFF: Satisfying resolution
-   - REFLECTION: Personal insight
-   - TRANSITION: Bridge to next step
-   - CLIFFHANGER: Leave wanting more
+                    # Minimum 8 scenes, more is okay
+                    if len(scene_plan) < 8:
+                        print(
+                            f"[VALIDATION] Only {len(scene_plan)} scenes (need 8+). Retrying..."
+                        )
+                        retry_count += 1
+                        continue
 
-3. STRICT REQUIREMENTS:
-   - First scene MUST be HOOK
-   - DO NOT repeat same type consecutively
-   - Use tension/confusion every 2-3 scenes
-   - Delay full explanations (build curiosity first)
-   - Include at least one APPLICATION scene
-   - Final scene should have PAYOFF or set up next step
-
-4. Scene plan format:
-   - scene_id: "S1", "S2", etc.
-   - phase: scene type (HOOK, SETUP, etc.)
-   - summary: what happens (2-3 sentences)
-   - concept_focus: what concept is taught
-
-----------------------------------------
-STRICT SCENE COUNT RULE:
-
-You MUST generate:
-
-* Minimum 6 scenes
-* Maximum 15 scenes
-
-If fewer than 6 scenes are generated:
-REGENERATE the output.
-
-----------------------------------------
-OUTPUT JSON:
-
-{{
-  "scene_plan": [
-    {{
-      "scene_id": "S1",
-      "phase": "HOOK",
-      "summary": "...",
-      "concept_focus": "..."
-    }},
-    ...
-  ]
-}}
-
-Generate 6-15 scenes following the rules above.
-"""
-        # Retry logic for scene count validation
-        max_retries = 3
-        retry_count = 0
-        scene_plan = []
-
-        while retry_count < max_retries:
-            result = self.llm_service.invoke(
-                plan_prompt, temperature=0.4, max_tokens=1500
-            )
-            response = result["content"]
-
-            try:
-                parsed = safe_parse(response)
-                scene_plan = parsed.get("scene_plan", [])
-
-                # Validate scene count
-                if len(scene_plan) < 6:
                     print(
-                        f"[VALIDATION] Only {len(scene_plan)} scenes generated (minimum: 6). Retrying..."
+                        f"[SCENE PLAN] Generated {len(scene_plan)} scenes for {ls_key}"
                     )
+                    break
+
+                except Exception as e:
+                    print(f"[WARNING] Failed to parse scene plan: {e}")
                     retry_count += 1
                     continue
 
-                print(f"[SCENE PLAN] Generated {len(scene_plan)} scenes for {ls_key}")
-                break
-
-            except Exception as e:
-                print(f"[WARNING] Failed to parse scene plan: {e}")
-                scene_plan = []
-                retry_count += 1
-
-        # Final validation
-        if len(scene_plan) < 6:
-            print(
-                f"[WARNING] Scene plan still has only {len(scene_plan)} scenes. Using default plan."
-            )
-            scene_plan = [
-                {
-                    "scene_id": f"S{i + 1}",
-                    "phase": "MICRO_LEARN",
-                    "summary": f"Scene {i + 1}",
-                    "concept_focus": "",
-                }
-                for i in range(6)
-            ]
+            # If all retries failed, create minimal plan and continue
+            if len(scene_plan) < 8:
+                print(
+                    f"[WARNING] Scene planning failed after {max_retries} retries for {ls_key}"
+                )
+                print(f"[WARNING] Creating minimal plan and continuing to next LS")
+                scene_plan = [
+                    {
+                        "scene_id": f"S{i + 1}",
+                        "phase": "MICRO_LEARN",
+                        "summary": f"Scene {i + 1} - explanation",
+                        "concept_focus": "core concept",
+                    }
+                    for i in range(10)
+                ]
 
         state.scene_plans[ls_key] = scene_plan
         state.learning_steps_list[current_index]["scene_plan"] = scene_plan
@@ -1904,7 +1301,7 @@ Generate 6-15 scenes following the rules above.
         return {
             "learning_steps_list": state.learning_steps_list,
             "scene_plans": state.scene_plans,
-            "current_scene_index": 0,
+            "current_scene_index": 0,  # Reset scene counter for this new LS
         }
 
     def _node_execute_prompt3b(self, state: PipelineState) -> Dict[str, Any]:
@@ -1938,28 +1335,31 @@ Generate 6-15 scenes following the rules above.
 
         learning_step = state.learning_steps_list[current_ls_index]
         ls_id = learning_step.get("learning_step_id", f"LS{current_ls_index + 1}")
-        ls_key = f"LS{current_ls_index + 1}"
 
+        # Use actual learning_step_id for scene_plans lookup
+        ls_key = ls_id
         scene_plan = state.scene_plans.get(ls_key, [])
+
+        # Fallback: try index-based key if actual key not found
+        if not scene_plan:
+            index_key = f"LS{current_ls_index + 1}"
+            scene_plan = state.scene_plans.get(index_key, [])
+            if scene_plan:
+                ls_key = index_key
 
         print(f"[DEBUG] Scene plan count: {len(scene_plan)}")
         print(f"[DEBUG] Generating scenes for LS: {ls_id}")
 
         if not scene_plan:
-            print(f"[WARNING] No scene plan for {ls_key}, generating default plan")
-            scene_plan = [
-                {
-                    "scene_id": f"S{i + 1}",
-                    "phase": "MICRO_LEARN",
-                    "summary": "Generate scene",
-                    "concept_focus": "",
-                }
-                for i in range(6)
-            ]
-            state.scene_plans[ls_key] = scene_plan
+            print(f"[ERROR] No scene plan for {ls_key} → skipping to next LS")
+            return {
+                "learning_steps_list": state.learning_steps_list,
+                "current_learning_step_index": current_ls_index + 1,
+                "current_scene_index": 0,
+            }
 
         if current_scene_index >= len(scene_plan):
-            print(f"\n[PROMPT3B] Completed all scenes for {ls_key}")
+            print(f"[PROMPT3B] All {len(scene_plan)} scenes completed for {ls_key}")
             return {
                 "learning_steps_list": state.learning_steps_list,
                 "current_learning_step_index": current_ls_index + 1,
@@ -1974,7 +1374,7 @@ Generate 6-15 scenes following the rules above.
             f"\n  Generating {ls_key}_{scene_id} ({current_scene_index + 1}/{len(scene_plan)})"
         )
 
-        run_folder = Path(state.run_folder)
+        run_folder = Path(state.model_run_folder or state.run_folder)
 
         story_data = state.prompt1_output or {}
         story_context = {
@@ -1988,149 +1388,46 @@ Generate 6-15 scenes following the rules above.
 
         previous_step_last_scene = None
         if current_ls_index > 0:
-            prev_ls_key = f"LS{current_ls_index}"
+            # FIX #15: Use actual learning_step_id not hardcoded f"LS{current_ls_index}"
+            prev_ls = state.learning_steps_list[current_ls_index - 1]
+            prev_ls_key = prev_ls.get(
+                "learning_step_id", f"LS{current_ls_index}"
+            )
             prev_scenes = state.scenes.get(prev_ls_key, [])
             if prev_scenes:
                 previous_step_last_scene = prev_scenes[-1]
 
-        scene_prompt = f"""
-You are generating a CINEMATIC, VIRAL learning scene.
-
-----------------------------------------
-SCENE PLAN:
-- Scene ID: {scene_id}
-- Phase: {current_plan.get("phase", "MICRO_LEARN")}
-- Summary: {current_plan.get("summary", "")}
-- Concept Focus: {current_plan.get("concept_focus", "")}
-
-----------------------------------------
-STORY CONTEXT:
-Title: {story_context.get("title", "")}
-Premise: {story_context.get("core_premise", "")}
-Characters: {json.dumps(story_context.get("characters", []))}
-
-----------------------------------------
-LEARNING STEP:
-- ID: {ls_id}
-- Title: {learning_step.get("title", "")}
-- Concepts: {json.dumps(learning_step.get("concepts_introduced", []))}
-
-----------------------------------------
-PREVIOUS SCENE (for continuity):
-{json.dumps(previous_scene) if previous_scene else "This is the first scene."}
-
-----------------------------------------
-SCENE GENERATION RULES:
-
-1. Based on the scene plan, generate a full scene
-2. Phase: {current_plan.get("phase", "MICRO_LEARN")} - follow its purpose
-3. Setting: Create a vivid, engaging location
-4. Characters: Use story characters naturally
-5. Action: Show, don't tell
-6. Dialogue: 2-4 lines, realistic and sharp
-7. Learning: Teach the concept subtly within the narrative
-8. Continuity: Connect naturally to previous scene
-
-----------------------------------------
-SCENE COMPLETENESS RULE:
-
-This scene is part of a sequence of {len(scene_plan)} scenes.
-Ensure the story is not prematurely concluded.
-
-- DO NOT rush to a final resolution in early scenes
-- Build tension and curiosity progressively
-- Leave room for the story to develop
-- Each scene should set up the next
-
-----------------------------------------
-11. HOOK SCENE RULE (CRITICAL):
-
-* If phase == HOOK:
-
-  * DO NOT explain any concept
-  * DO NOT define arithmetic progression
-  * Only show confusion, frustration, or curiosity
-  * End scene with a question or hint, not an answer
-
-12. DISCOVERY PACING RULE:
-
-* Discovery must feel gradual, not instant
-* Characters should:
-  observe → doubt → test → realize
-* Avoid immediate correct conclusions
-
-13. DIALOGUE NATURALNESS RULE:
-
-* Avoid perfect or teacher-like dialogue
-* Add hesitation, partial thoughts, interruptions
-* Use phrases like:
-  "wait...", "maybe...", "that means...", "hold on..."
-
-14. EXPLANATION DELAY RULE:
-
-* Do NOT fully explain concepts in early scenes
-* Spread explanation across:
-  S3 → S6 gradually
-* Each scene should reveal only 1 small idea
-
-15. SCENE VARIETY RULE:
-
-* Avoid repeating same structure:
-  explanation → confirmation
-* Mix:
-  confusion scenes
-  silent realization moments
-  visual thinking (drawing, observing)
-
-16. MICRO-TENSION RULE:
-
-* Each scene must include:
-
-  * a question OR
-  * a doubt OR
-  * a small problem
-* Never allow smooth uninterrupted understanding
-
-17. STRICT HOOK ENFORCEMENT:
-
-* If phase contains "HOOK" (case-insensitive):
-
-  * Absolutely NO explanation allowed
-  * If any explanation appears, it is INVALID
-  * Scene must end with unresolved curiosity
-
-18. NO EARLY RESOLUTION RULE:
-
-* The first 30–40% of scenes must NOT:
-
-  * fully explain the concept
-  * resolve the main idea
-* If resolved too early → regenerate internally
-
-----------------------------------------
-OUTPUT JSON:
-
-{{
-  "scene_id": "{scene_id}",
-  "phase": "{current_plan.get("phase", "MICRO_LEARN")}",
-  "setting": "...",
-  "characters": ["..."],
-  "action": "...",
-  "dialogue": ["...", "..."],
-  "learning_moment": "...",
-  "transition_hint": "..."
-}}
-
-Generate the complete scene now.
-"""
+        scene_phase = current_plan.get("phase", "MICRO_LEARN")
+        prev_scene_str = (
+            json.dumps(previous_scene) if previous_scene else "This is the first scene."
+        )
+        story_summary_str = state.story_summary if state.story_summary else "No scenes generated yet."
+        scene_prompt = self.prompt_builder.get_prompt(
+            "prompt3b",
+            SCENE_ID=scene_id,
+            SCENE_PHASE=scene_phase,
+            SCENE_SUMMARY=current_plan.get("summary", ""),
+            CONCEPT_FOCUS=current_plan.get("concept_focus", ""),
+            STORY_TITLE=story_context.get("title", ""),
+            STORY_PREMISE=story_context.get("core_premise", ""),
+            CHARACTER_REGISTRY=json.dumps(story_context.get("characters", [])),
+            LS_ID=ls_id,
+            LS_TITLE=learning_step.get("title", ""),
+            LS_CONCEPTS=json.dumps(learning_step.get("concepts_introduced", [])),
+            STORY_SUMMARY=story_summary_str,
+            PREVIOUS_SCENE=prev_scene_str,
+            TOTAL_SCENES=str(len(scene_plan)),
+        )
 
         temp = 0.7 if current_plan.get("phase") == "HOOK" else 0.6
 
-        result = self.llm_service.invoke(scene_prompt, temperature=temp, max_tokens=600)
+        result = self.llm_service.invoke(
+            scene_prompt, temperature=temp, max_tokens=1500
+        )
         response = result["content"]
 
         try:
-            parsed = safe_parse(response)
+            parsed = safe_parse(response, prompt_type="scene")
             scene = parsed if isinstance(parsed, dict) else parsed.get("scene", parsed)
             scene["scene_id"] = scene_id
             scene["phase"] = current_plan.get("phase", "MICRO_LEARN")
@@ -2145,6 +1442,8 @@ Generate the complete scene now.
                 "dialogue": [],
                 "learning_moment": "",
                 "transition_hint": "",
+                "narrator_audio_text": "",
+                "character_dialogues": [],
             }
 
         if ls_key not in state.scenes:
@@ -2155,28 +1454,47 @@ Generate the complete scene now.
 
         import os
 
-        scenes_dir = os.path.join(str(run_folder), "scenes")
-        os.makedirs(scenes_dir, exist_ok=True)
+        # Save to new per-LS subfolder: scenes/LS{n}/LS{n}_{scene_id}.json
+        scenes_ls_dir = os.path.join(str(run_folder), "scenes", ls_key)
+        os.makedirs(scenes_ls_dir, exist_ok=True)
 
         scene_filename = f"{ls_key}_{scene_id}.json"
-        scene_path = os.path.join(scenes_dir, scene_filename)
+        scene_path = os.path.join(scenes_ls_dir, scene_filename)
         with open(scene_path, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=2, ensure_ascii=False)
 
-        print(f"[SCENE GEN] {ls_key}_{scene_id} saved to scenes/{scene_filename}")
+        print(f"[SCENE GEN] {ls_key}_{scene_id} saved to scenes/{ls_key}/{scene_filename}")
+
+        # STORY SUMMARY — append 1-sentence summary, keep last 5 for continuity injection
+        narration = scene.get("narrator_audio_text", "") or scene.get("action", "")
+        short_narration = narration[:120] + "..." if len(narration) > 120 else narration
+        scene_summary_line = f"- {ls_key}_{scene_id} ({scene.get('phase', '')}): {short_narration}"
+        existing_summaries = [s for s in state.story_summary.split("\n") if s.strip()]
+        existing_summaries.append(scene_summary_line)
+        state.story_summary = "\n".join(existing_summaries[-5:])
 
         next_scene_index = current_scene_index + 1
+
+        # FIX #10: routers cannot mutate state — set flag here so prompt4 resets
+        # indices to 0 when entering from single-scene mode.
+        single_scene_mode = (
+            state.test_mode
+            and getattr(state, "scene_generation_scope", None) == "single"
+        )
+        single_scene_done = single_scene_mode and (next_scene_index == 1)
 
         return {
             "learning_steps_list": state.learning_steps_list,
             "scenes": state.scenes,
             "current_scene_index": next_scene_index,
+            "single_scene_done": single_scene_done,
+            "story_summary": state.story_summary,
         }
 
     def _node_execute_prompt3(self, state: PipelineState) -> Dict[str, Any]:
         """
         Execute Prompt 3 - Wrapper that calls 3A then 3B in sequence.
-        Kept for backward compatibility.
+        Kept as a helper method for backward compatibility; NOT registered as a graph node.
 
         Args:
             state: Current pipeline state
@@ -2197,138 +1515,328 @@ Generate the complete scene now.
         return result_3b
 
     def _node_execute_prompt4(self, state: PipelineState) -> Dict[str, Any]:
-        """
-        Execute Prompt 4 - Scene Image Generation.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates
-        """
+        """Pure node - generates ONE image per call. Router handles loop/termination."""
         import json
 
+        # DEBUG: Print state before image generation
+        print(f"[DEBUG] Prompt4 entry:")
+        print(f"  - generate_images: {state.generate_images}")
+        print(f"  - image_model: {state.image_model}")
+        print(f"  - learning_steps_list: {len(state.learning_steps_list)} steps")
+        print(f"  - current_ls_index: {state.current_learning_step_index}")
+        print(f"  - current_scene_index: {state.current_scene_index}")
+
+        # FIX #9: Do NOT force generate_images to True here. Respect the user's
+        # choice that was set in run() and passed through state. The router already
+        # short-circuits to generate_ppt when generate_images is False, so this
+        # node is only reached when the user actually wants images.
         if not state.generate_images:
-            print("\n[PROMPT4] Image generation skipped by user")
-            return {"image_paths": state.image_paths}
+            print("[DEBUG] generate_images=False → skipping image generation")
+            return {"is_complete": True}
 
-        run_folder = Path(state.run_folder)
+        # RECOVERY FIX: Inject scenes from state.scenes into state.learning_steps_list
+        if state.scenes and not any(
+            ls.get("scenes") for ls in state.learning_steps_list
+        ):
+            print("[RECOVERY] Injecting scenes into learning_steps_list...")
+            for i, ls in enumerate(state.learning_steps_list):
+                # FIX #15: use actual learning_step_id instead of hardcoded index
+                ls_key = ls.get("learning_step_id", f"LS{i + 1}")
+                if ls_key in state.scenes:
+                    ls["scenes"] = state.scenes[ls_key]
+                    print(
+                        f"[RECOVERY] Injected {len(state.scenes[ls_key])} scenes into {ls_key}"
+                    )
 
-        ls_index = state.current_learning_step_index
-        scene_index = state.current_scene_index
+        # FAIL FAST: Check learning_steps_list is not empty
+        if not state.learning_steps_list:
+            print("[ERROR] learning_steps_list is empty before image stage!")
+            return {"skip_image_generation": True, "is_complete": True}
 
-        if ls_index >= len(state.learning_steps_list):
-            print(f"\n[PROMPT4] Completed all learning steps")
-            return {"image_paths": state.image_paths}
-
-        current_ls = state.learning_steps_list[ls_index]
-        scenes = current_ls.get("scenes", [])
-
-        if scene_index >= len(scenes):
-            next_ls = ls_index + 1
-            if next_ls >= len(state.learning_steps_list):
-                print(f"\n[PROMPT4] Completed all scenes")
-                return {
-                    "image_paths": state.image_paths,
-                    "current_learning_step_index": next_ls,
-                }
-            return {
-                "current_learning_step_index": next_ls,
-                "current_scene_index": 0,
-            }
-
-        scene = scenes[scene_index]
-        scene_id = scene.get("scene_id", f"LS{ls_index + 1}_S{scene_index + 1}")
-
-        print(f"\n  [IMAGE] Generating for {scene_id}")
-
-        prompt = f"""
-Scene:
-{json.dumps(scene)}
-
-Generate a detailed image prompt.
-Return only the text prompt.
-"""
-
-        result = self.llm_service.invoke(prompt)
-        image_prompt = result["content"].strip()
-
-        image_path = self.image_generator.generate(image_prompt)
-
-        save_image(run_folder, ls_index, scene_index, image_path)
-
-        state.image_paths.append(image_path)
-        state.current_image_index += 1
-
-        print(f"  ✓ Generated image {state.current_image_index}: {scene_id}")
-
-        next_scene_index = scene_index + 1
-        next_ls_index = ls_index
-
-        if next_scene_index >= len(scenes):
-            next_ls_index = ls_index + 1
-            next_scene_index = 0
-            print(f"  → Moving to LS{next_ls_index + 1}")
-
-        return {
-            "image_paths": state.image_paths,
-            "current_scene_index": next_scene_index,
-            "current_learning_step_index": next_ls_index,
-        }
-
-    def _node_check_continuation(self, state: PipelineState) -> str:
-        """
-        Check if we should continue loops or move to next stage.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            Next node name
-        """
-        current_prompt = state.current_prompt_id
-
-        if current_prompt == "prompt3":
-            # Check if more learning steps to process
-            if state.current_learning_step_index < len(state.learning_steps_list):
-                # Continue with next learning step - use new 3A/3B flow
-                return "execute_prompt3a"
+        # DEFENSIVE FILTER: Only process LS with scenes
+        valid_ls = []
+        for ls in state.learning_steps_list:
+            scenes = ls.get("scenes", [])
+            ls_id = ls.get("learning_step_id", "UNKNOWN")
+            if scenes:
+                valid_ls.append(ls)
             else:
-                # Move to image generation
-                state.current_learning_step_index = 0
-                state.current_scene_index = 0
-                state.current_prompt_id = "prompt4"
-                return "execute_prompt4"
+                print(f"[WARNING] Skipping LS without scenes: {ls_id}")
 
-        elif current_prompt == "prompt4":
-            # Check if more scenes to process
-            if not state.generate_images:
-                return END
+        if valid_ls:
+            state.learning_steps_list = valid_ls
+            print(f"[DEBUG] Filtered to {len(valid_ls)} LS with scenes")
+        else:
+            print("[ERROR] No LS with scenes found!")
+            return {"skip_image_generation": True, "is_complete": True}
 
+        run_folder = Path(state.model_run_folder or state.run_folder)
+
+        # FIX #10: honor single_scene_done flag set by _node_execute_prompt3b.
+        # Routers cannot mutate state, so the flag signals that image gen
+        # should start from index 0 even though the counter says otherwise.
+        if getattr(state, "single_scene_done", False):
+            ls_index = 0
+            scene_index = 0
+            print(
+                "[DEBUG] single_scene_done=True → resetting ls_index=0, scene_index=0"
+            )
+        else:
             ls_index = state.current_learning_step_index
             scene_index = state.current_scene_index
 
-            if ls_index < len(state.learning_steps_list):
-                current_ls = state.learning_steps_list[ls_index]
-                scenes = current_ls.get("scenes", [])
+        # Use actual learning_step_id, not hardcoded index
+        if ls_index < len(state.learning_steps_list):
+            ls_key = state.learning_steps_list[ls_index].get(
+                "learning_step_id", f"LS{ls_index + 1}"
+            )
+        else:
+            ls_key = f"LS{ls_index + 1}"
 
-                if scene_index < len(scenes):
-                    # Continue with next scene
-                    return "execute_prompt4"
+        scene_plan = state.scene_plans.get(ls_key, [])
+
+        # FIX #12: TRANSITION FIX: when all scenes have just been generated,
+        # scene_index lands at len(scene_plan) (e.g. 10 for a 10-scene plan).
+        # This is not an error - it means scene-generation just finished and
+        # image generation should start from scene 0.
+        if scene_plan and scene_index >= len(scene_plan):
+            print(
+                f"[DEBUG] scene_index {scene_index} >= plan length {len(scene_plan)}"
+                f" - entering image generation from scratch, resetting to 0"
+            )
+            scene_index = 0
+            ls_index = 0
+
+        # HARD SAFETY GUARD - only bail if there is genuinely no plan
+        if not scene_plan:
+            print(f"[ERROR] No scene plan found for {ls_key} - skipping safely")
+            return {"skip_image_generation": True, "is_complete": True}
+
+        # Get current learning step with scenes injected
+        if ls_index >= len(state.learning_steps_list):
+            print(
+                f"[ERROR] ls_index {ls_index} out of bounds (max: {len(state.learning_steps_list) - 1})"
+            )
+            return {"skip_image_generation": True, "is_complete": True}
+
+        current_ls = state.learning_steps_list[ls_index]
+        parsed_scenes = current_ls.get("scenes", [])
+
+        # Fallback: Use scenes from state.scenes if not in learning step
+        if not parsed_scenes:
+            # Try multiple key formats (LS1, LS_1, etc.)
+            for key_format in [ls_key, f"LS{ls_index + 1}", f"LS_{ls_index + 1}"]:
+                if key_format in state.scenes:
+                    print(f"[RECOVERY] Using scenes from state.scenes[{key_format}]")
+                    parsed_scenes = state.scenes[key_format]
+                    state.learning_steps_list[ls_index]["scenes"] = parsed_scenes
+                    break
+
+        scene_plan_entry = scene_plan[scene_index]
+        scene_id = scene_plan_entry.get(
+            "scene_id", f"LS{ls_index + 1}_S{scene_index + 1}"
+        )
+
+        scene = None
+        for s in parsed_scenes:
+            if s.get("scene_id") == scene_id:
+                scene = s
+                break
+
+        if not scene:
+            print(f"[WARNING] No parsed scene for {scene_id}, using plan data")
+            scene = scene_plan_entry
+
+        print(
+            f"[PROMPT4] Processing scene {scene_index + 1}/{len(scene_plan)} for {ls_key}"
+        )
+
+        story_data = state.prompt1_output or {}
+        characters = story_data.get("characters", [])
+
+        character_map = {}
+        for char in characters:
+            name = char.get("name", "")
+            visual_desc = char.get("visual_description", "")
+            if name:
+                character_map[name.lower()] = visual_desc
+
+        scene_characters = scene.get("characters", [])
+        character_details = []
+        for char_name in scene_characters:
+            if isinstance(char_name, str):
+                char_lower = char_name.lower()
+                if char_lower in character_map:
+                    character_details.append(
+                        f"{char_name}: {character_map[char_lower]}"
+                    )
                 else:
-                    # Move to next learning step
-                    state.current_learning_step_index += 1
-                    state.current_scene_index = 0
+                    character_details.append(char_name)
 
-                    if state.current_learning_step_index < len(
-                        state.learning_steps_list
-                    ):
-                        return "execute_prompt4"
+        scene_action = scene.get("action", scene.get("narrative", ""))
+        scene_setting = scene.get("setting", "")
+        scene_dialogue = scene.get("dialogue", [])
+        scene_learning = scene.get("learning_moment", scene.get("concept_focus", ""))
+        ls_concepts = current_ls.get("concepts_introduced", [])
 
-            # All done
-            return END
+        scene_data = {
+            "scene_id": scene_id,
+            "setting": scene_setting,
+            "action": scene_action,
+            "characters": character_details if character_details else scene_characters,
+            "dialogue": scene_dialogue,
+            "learning": scene_learning,
+            "concepts": ls_concepts,
+        }
 
-        return END
+        image_mode = getattr(state, "image_mode", "dialogue")
+
+        input_data = {
+            "setting": scene_setting,
+            "characters": character_details if character_details else scene_characters,
+            "action": scene_action,
+            "dialogue": scene_dialogue,
+        }
+
+        if image_mode == "overlay":
+            dialogue_instruction = (
+                "OVERLAY MODE - NO TEXT IN IMAGE:\n"
+                "DO NOT include ANY text, speech bubbles, or labels in the image.\n"
+                "Leave visual space clear for dialogue overlay later."
+            )
+        else:
+            dialogue_lines = []
+            for d in scene_dialogue:
+                if isinstance(d, dict):
+                    speaker = d.get("speaker", "Character")
+                    text = d.get("text", "")
+                    dialogue_lines.append(f"{speaker}: {text}")
+                elif isinstance(d, str):
+                    dialogue_lines.append(d)
+            dialogue_text = "\n".join(dialogue_lines)
+            dialogue_instruction = (
+                f"DIALOGUE MODE - Include speech bubbles:\n"
+                f"Use EXACT dialogue below in speech bubbles:\n{dialogue_text}"
+            )
+
+        prompt = self.prompt_builder.get_prompt(
+            "prompt4",
+            SCENE_DATA=json.dumps(input_data, indent=2),
+            DIALOGUE_INSTRUCTION=dialogue_instruction,
+        )
+
+        result = self.llm_service.invoke(prompt)
+        response_content = result["content"].strip()
+
+        parsed, attempts, success = safe_parse_with_retry(
+            response_content, max_retries=2, prompt_type="prompt4"
+        )
+
+        if not success or "_fatal_error" in parsed:
+            print(
+                f"[FATAL] Scene generation failed for {scene_id} after {attempts} attempts"
+            )
+            print(
+                f"[FATAL] Preview: {parsed.get('_raw_preview', response_content)[:200]}..."
+            )
+            raise Exception(f"Scene generation failed for {scene_id}")
+
+        if "_error" in parsed or "_invalid" in parsed:
+            print(
+                f"[WARNING] Parse issue for {scene_id}: {parsed.get('_reason', 'unknown')}"
+            )
+            visual_prompt = response_content
+        else:
+            # FIX #11: LLM returns "visual_prompt" key, not "prompt".
+            # Try "visual_prompt" first, then fall back to "prompt" for safety.
+            visual_prompt = (
+                parsed.get("visual_prompt") or parsed.get("prompt") or response_content
+            )
+
+        print(f"[PROMPT4] Image mode: {image_mode}, prompt: {visual_prompt[:100]}...")
+
+        # DEBUG MODE: Capture image prompts
+        if DEBUG_MODE:
+            _capture_image_prompt(ls_key, scene_index, visual_prompt, parsed)
+
+        # Simple flow: pass LLM-generated prompt directly to image model
+        # FIX #21: pipeline_graph always calls generate(prompt_str) which returns
+        # a str path. The old generate_image(scene_data) method expects a dict and
+        # would crash with AttributeError. generate() is the correct call here.
+        image_path = self.image_generator.generate(
+            prompt=visual_prompt,
+            learning_step_id=ls_key,
+            scene_id=scene_id,
+        )
+        save_image(
+            run_folder, ls_index, scene_index, image_path, image_prompt=visual_prompt
+        )
+
+        # Calculate next indices with proper bounds checking
+        next_scene = scene_index + 1
+        next_ls = ls_index
+
+        if next_scene >= len(scene_plan):
+            # Finished all scenes for this LS
+            next_ls = ls_index + 1
+            next_scene = 0
+            if next_ls < len(state.learning_steps_list):
+                print(f"→ Moving to LS{next_ls + 1}")
+
+        return {
+            "learning_steps_list": state.learning_steps_list,  # persist filtered+injected list
+            "image_paths": state.image_paths + [image_path],
+            "current_image_index": state.current_image_index + 1,
+            "current_scene_index": next_scene,
+            "current_learning_step_index": next_ls,
+            "single_scene_done": False,  # clear flag after first use
+        }
+
+    def _node_build_audio_manifest(self, state: PipelineState) -> Dict[str, Any]:
+        """
+        Build audio_manifest.json after all scenes are generated.
+        Records narrator text and character dialogue voice assignments per scene.
+        No actual audio generation — this is consumed by tools/generate_audio.py.
+        """
+        run_folder = Path(state.model_run_folder or state.run_folder)
+        narrator_voice = state.narrator_voice_id or "Matthew"
+
+        manifest: Dict[str, Any] = {
+            "run_id": run_folder.name,
+            "narrator_voice_id": narrator_voice,
+            "scenes": {},
+        }
+
+        for ls_key, scenes in state.scenes.items():
+            for scene in scenes:
+                scene_id = scene.get("scene_id", "")
+                full_scene_id = f"{ls_key}_{scene_id}" if not scene_id.startswith(ls_key) else scene_id
+
+                narrator_text = scene.get("narrator_audio_text", "")
+                char_dialogues = scene.get("character_dialogues", [])
+
+                char_entries = []
+                for cd in char_dialogues:
+                    char_entries.append({
+                        "character_id": cd.get("character_id", ""),
+                        "voice_id": cd.get("voice_id", ""),
+                        "text": cd.get("audio_text", cd.get("dialogue", "")),
+                        "audio_file": f"audio/{ls_key}/{full_scene_id}/char_{cd.get('character_id', '')}.mp3",
+                    })
+
+                manifest["scenes"][full_scene_id] = {
+                    "narrator": {
+                        "text": narrator_text,
+                        "voice_id": narrator_voice,
+                        "audio_file": f"audio/{ls_key}/{full_scene_id}/narrator.mp3",
+                    },
+                    "characters": char_entries,
+                }
+
+        save_audio_manifest(run_folder, manifest)
+        print(f"  ✓ Audio manifest saved: {len(manifest['scenes'])} scenes → audio/audio_manifest.json")
+
+        return {"audio_manifest": manifest}
 
     def _node_generate_ppt(self, state: PipelineState) -> Dict[str, Any]:
         """
@@ -2341,9 +1849,10 @@ Return only the text prompt.
             State updates
         """
         # Generate PPT
+        active_folder = state.model_run_folder or state.run_folder
         output_path = self.ppt_generator.generate_ppt(
             state=state,
-            learning_steps_dir=str(Path(state.run_folder) / "learning_steps"),
+            learning_steps_dir=str(Path(active_folder) / "learning_steps"),
             output_filename="lesson_output.pptx",
         )
 
@@ -2352,17 +1861,13 @@ Return only the text prompt.
 
         return {"ppt_output_path": output_path, "is_complete": True}
 
+    # -------------------------------------------------------------------------
+    # Private parse helpers – kept for backward compatibility but not used by
+    # the graph nodes directly (nodes use safe_parse / safe_parse_with_retry).
+    # -------------------------------------------------------------------------
+
     def _parse_concepts(self, response: str) -> List[Dict[str, Any]]:
-        """
-        Parse the concept inventory response.
-
-        Args:
-            response: Raw LLM response
-
-        Returns:
-            List of concepts
-        """
-        # Try to parse as JSON
+        """Parse the concept inventory response."""
         try:
             response = response.strip()
             if response.startswith("```json"):
@@ -2374,7 +1879,6 @@ Return only the text prompt.
 
             data = json.loads(response.strip())
 
-            # Handle different JSON structures
             if isinstance(data, list):
                 return data
             elif isinstance(data, dict):
@@ -2386,20 +1890,10 @@ Return only the text prompt.
         except json.JSONDecodeError:
             pass
 
-        # If not JSON, return as text list
         return [{"raw_text": response}]
 
     def _parse_story_backbone(self, response: str) -> Dict[str, Any]:
-        """
-        Parse the story backbone response to extract selected story (JSON format).
-
-        Args:
-            response: Raw LLM response (JSON)
-
-        Returns:
-            Selected story dictionary
-        """
-        # Clean the response - remove markdown code blocks if present
+        """Parse the story backbone response to extract selected story."""
         response = response.strip()
         if response.startswith("```json"):
             response = response[7:]
@@ -2411,24 +1905,18 @@ Return only the text prompt.
 
         try:
             data = json.loads(response)
-            # Try to get selected_story first
             selected = data.get("selected_story", {})
             if selected:
                 title = selected.get("title", "Selected Story")
-                # Check both possible key names
                 core_premise = selected.get(
                     "core_narrative_premise", ""
                 ) or selected.get("core_premise", "")
-                print(
-                    f"  DEBUG: JSON Parsed - title: {title}, premise length: {len(core_premise)}"
-                )
                 return {
                     "title": title,
                     "core_premise": core_premise,
                     "raw_response": response,
                 }
 
-            # Fallback to first story in stories array
             stories = data.get("stories", [])
             if stories:
                 first_story = stories[0]
@@ -2436,16 +1924,12 @@ Return only the text prompt.
                 core_premise = first_story.get(
                     "core_narrative_premise", ""
                 ) or first_story.get("core_premise", "")
-                print(
-                    f"  DEBUG: JSON Parsed (fallback) - title: {title}, premise length: {len(core_premise)}"
-                )
                 return {
                     "title": title,
                     "core_premise": core_premise,
                     "raw_response": response,
                 }
 
-            print(f"  DEBUG: JSON Parsed - No selected_story or stories found")
             return {
                 "title": "Selected Story",
                 "core_premise": "",
@@ -2454,10 +1938,6 @@ Return only the text prompt.
 
         except json.JSONDecodeError as e:
             print(f"  DEBUG: JSON parsing failed: {e}")
-            # Fallback: parse text format
-            print("  DEBUG: Trying text format fallback...")
-
-            # Try to find story title - fix to remove prefixes like "Overview:", "Story Overview:"
             title = "Selected Story"
             title_match = re.search(
                 r"(?:Title|Story)[:\s]+\*?(.+?)(?:\n|$|\*\*)", response, re.IGNORECASE
@@ -2465,7 +1945,6 @@ Return only the text prompt.
             if title_match:
                 title = title_match.group(1).strip()
                 title = re.sub(r"^\*+|\*+$", "", title).strip()
-                # Remove prefixes like "Overview:", "Story Overview:"
                 title = re.sub(
                     r"^(?:Overview|Story Overview)[:\s]*",
                     "",
@@ -2473,9 +1952,7 @@ Return only the text prompt.
                     flags=re.IGNORECASE,
                 ).strip()
 
-            # Try to find core premise - get FULL text, not truncated
             core_premise = ""
-            # Look for "Core Narrative Premise:" or "Core Premise:" followed by content
             premise_match = re.search(
                 r"(?:Core Narrative Premise|Core Premise)[:\s]*\n?(.+?)(?=\n\n|\n###|\n---|$)",
                 response,
@@ -2483,11 +1960,6 @@ Return only the text prompt.
             )
             if premise_match:
                 core_premise = premise_match.group(1).strip()
-                # Don't truncate - get full story
-
-            print(
-                f"  DEBUG: Text fallback - title: {title}, premise length: {len(core_premise)}"
-            )
 
             return {
                 "title": title,
@@ -2496,16 +1968,7 @@ Return only the text prompt.
             }
 
     def _parse_learning_steps(self, response: str) -> list:
-        """
-        Parse learning steps from prompt 2 output (JSON format).
-
-        Args:
-            response: Raw LLM response (JSON)
-
-        Returns:
-            List of learning step dictionaries
-        """
-        # Clean the response - remove markdown code blocks if present
+        """Parse learning steps from prompt 2 output."""
         response = response.strip()
         if response.startswith("```json"):
             response = response[7:]
@@ -2522,71 +1985,40 @@ Return only the text prompt.
             return learning_steps
         except json.JSONDecodeError as e:
             print(f"  DEBUG: JSON parsing failed: {e}")
-            print("  DEBUG: Falling back to text learning-step extraction")
 
-        # If we get here, JSON parsing failed - use text fallback
-        # Add text fallback
-        print("  DEBUG: JSON returned empty, trying text fallback...")
-
-        # Parse text format - improved to extract more details
         learning_steps = []
-
-        # Look for numbered learning steps with more context
-        # Pattern: "1. Title" or "LS1 - Title" or "**Title**"
         ls_pattern = r"(?:\d+[.\s]+|LS\d+[.\s-]+)\*?([^\n]+)\*?"
         matches = list(re.finditer(ls_pattern, response, re.IGNORECASE))
 
         for i, match in enumerate(matches):
             title = match.group(1).strip()[:100]
-
-            # Try to find narrative/description after the title
-            # Look for text between this match and the next numbered item
             start_pos = match.end()
             next_pos = matches[i + 1].start() if i + 1 < len(matches) else len(response)
             between_text = response[start_pos:next_pos].strip()
-
-            # Clean up the description - remove bullets, get first paragraph
             narrative = (
                 between_text[:500]
                 if between_text
                 else f"Learning step {i + 1}: {title}"
             )
-            # Remove bullet points and numbering
             narrative = re.sub(r"^[\s\d\.\-\*]+", "", narrative, flags=re.MULTILINE)
-            narrative = narrative.split("\n\n")[0][:500]  # First paragraph only
+            narrative = narrative.split("\n\n")[0][:500]
 
             learning_steps.append(
                 {
                     "learning_step_id": f"LS{i + 1}",
                     "title": title,
-                    "concepts_introduced": [],  # Keep empty if not found
+                    "concepts_introduced": [],
                     "narrative_moment": narrative,
                     "scenes": [],
                 }
             )
 
-        if learning_steps:
-            print(f"  DEBUG: Text fallback found {len(learning_steps)} learning steps")
-            for i, ls in enumerate(learning_steps[:3]):
-                print(f"    LS{i + 1}: {ls.get('title', 'NO TITLE')[:50]}")
-                print(f"    Narrative: {ls.get('narrative_moment', '')[:50]}...")
-
         return learning_steps
 
     def _parse_scenes_json(self, response: str) -> Dict[str, Any]:
-        """
-        Parse scenes JSON from prompt 3 response.
-
-        Args:
-            response: Raw LLM response
-
-        Returns:
-            Scenes dictionary
-        """
-        # Try to extract JSON
+        """Parse scenes JSON from prompt 3 response."""
         response = response.strip()
 
-        # Remove markdown code blocks if present
         if response.startswith("```json"):
             response = response[7:]
         elif response.startswith("```"):
@@ -2600,7 +2032,6 @@ Return only the text prompt.
         try:
             parsed_json = json.loads(response)
 
-            # Normalize DeepSeek/OpenRouter wrapper responses
             if "response" in parsed_json:
                 parsed_json = parsed_json["response"]
                 print("[SCENE JSON NORMALIZED] Unwrapped 'response' field")
@@ -2613,7 +2044,6 @@ Return only the text prompt.
 
             return parsed_json
         except json.JSONDecodeError:
-            # If parsing fails, return a minimal structure
             return {
                 "scenes": [
                     {
@@ -2647,27 +2077,31 @@ Return only the text prompt.
         text_model: str = "deepseek",
         image_model: str = "gpt-image-1.5",
         image_mode: str = "dialogue",
+        generate_images: bool = False,
         test_mode: bool = False,
-    ) -> PipelineState:
+        scene_generation_scope: str = "multiple",
+    ) -> dict:
         """
         Run the complete pipeline.
 
         Args:
-            chapter_name: Full name of the chapter (e.g., "Class 10 Maths Chapter 5 Arithmetic Progression")
-            chapter_title: Short title (e.g., "Arithmetic Progression")
+            chapter_name: Full name of the chapter
+            chapter_title: Short title
             class_level: Class level
             subject: Subject
             chapter_number: Chapter number
             medium: Language medium
             pdf_path: Path to PDF file (if already available)
             generation_mode: "full" or "ls1" for LS1-only generation
-            text_model: Text model to use (currently only "deepseek" supported)
-            image_model: Image model to use ("gpt-image-1.5", "fal-flux", or "fal-juggernaut")
+            text_model: Text model to use
+            image_model: Image model to use
             image_mode: "dialogue" or "overlay"
+            generate_images: Whether to generate images (asked in main.py before run())
             test_mode: If True, enable human-in-the-loop checkpoints
+            scene_generation_scope: "single" or "multiple" (for fast testing)
 
         Returns:
-            Final pipeline state
+            Final pipeline result dict
         """
         # Use chapter_title for folder naming, fallback to chapter_name if not provided
         folder_title = chapter_title if chapter_title else chapter_name
@@ -2694,30 +2128,35 @@ Return only the text prompt.
         # Set default image mode (dialogue inside image)
         state.image_mode = image_mode
 
+        # FIX #4/#5/#18: generate_images is now a proper parameter accepted here
+        # and passed from main.py after asking the user. Honour it exactly as given.
+        state.generate_images = generate_images
+
         # Set test_mode for human-in-the-loop checkpoints
         state.test_mode = test_mode
         if test_mode:
             print(f"[MODE] Test Mode: Human-in-the-loop checkpoints ENABLED")
 
+        # Set scene generation scope
+        state.scene_generation_scope = scene_generation_scope
+
         # Debug logs
         print(f"[MODEL] Text model: {text_model}")
         print(f"[MODEL] Image model: {image_model}")
         print(f"[MODE] Image rendering: {state.image_mode}")
+        print(f"[MODE] Generate images: {state.generate_images}")
 
         # Reinitialize LLM service with selected model
         self.llm_service = LLMService(model=text_model)
-
-        # Reinitialize image generator with selected model and mode
-        self.image_generator = ImageGeneratorService(
-            model=image_model, image_mode=state.image_mode
-        )
 
         # Set PDF path if provided
         if pdf_path:
             state.pdf_path = pdf_path
             state.pdf_source = "provided"
 
-        # Create run folder
+        # Create run folder FIRST so we can pass its path to ImageGeneratorService.
+        # This ensures ALL models (including Juggernaut) save images to the correct
+        # run-scoped location: run_folder/images/LS{n}/
         chapter = (
             f"Class {class_level} {subject} Chapter {chapter_number} {chapter_title}"
         )
@@ -2741,34 +2180,70 @@ Return only the text prompt.
         (Path(state.run_folder) / "prompts").mkdir(exist_ok=True)
         (Path(state.run_folder) / "outputs").mkdir(exist_ok=True)
 
-        # Run the graph
-        config = {"configurable": {"thread_id": "storytelling-pipeline"}}
-
-        final_state = None
-        for state_update in self.graph.stream(state, config):
-            final_state = state_update
-
-        # Extract the actual state from the final state dict
-        actual_state = (
-            final_state.get("__root__", state)
-            if isinstance(final_state, dict)
-            else state
+        # Initialize ImageGeneratorService AFTER run folder is created.
+        # Pass model_run_folder so _get_image_path() always resolves to the
+        # correct per-run location — fixes the Juggernaut wrong-folder bug.
+        self.image_generator = ImageGeneratorService(
+            model=image_model,
+            image_mode=state.image_mode,
+            run_folder=str(model_run_folder),
         )
 
-        # Update metadata with learning steps count
-        if actual_state.model_run_folder:
-            model_run_path = Path(actual_state.model_run_folder)
+        # Run the graph
+        config = {
+            "configurable": {"thread_id": "storytelling-pipeline"},
+            # FIX #13: recursion_limit raised to 300. Full mode with 10 scenes × N
+            # learning steps easily exceeds the old limit of 100.
+            "recursion_limit": 300,
+        }
+
+        # FIX #8: stream_mode="values" so each snapshot IS the full accumulated state.
+        # Default mode yields {"node_name": update_dict}; the last chunk has no
+        # "__root__" key so the old code always returned the original empty state,
+        # making image_paths always show 0.
+        final_state = {}
+        for state_snapshot in self.graph.stream(state, config, stream_mode="values"):
+            final_state = state_snapshot
+
+        def _get(key, default=None):
+            if isinstance(final_state, dict):
+                return final_state.get(key, default)
+            return getattr(final_state, key, default)
+
+        ls_list = _get("learning_steps_list", [])
+        image_paths_list = _get("image_paths", [])
+        ppt_output = _get("ppt_output_path", "")
+        final_model_run_folder = _get("model_run_folder", state.model_run_folder or "")
+
+        if final_model_run_folder:
+            model_run_path = Path(final_model_run_folder)
             if model_run_path.exists():
-                update_run_metadata(
-                    model_run_path,
-                    {"learning_steps": len(actual_state.learning_steps_list)},
-                )
+                update_run_metadata(model_run_path, {"learning_steps": len(ls_list)})
+
+        # DEBUG MODE: Save final debug data
+        if DEBUG_MODE:
+            _save_image_debug()
+
+            final_summary = {
+                "timestamp": datetime.now().isoformat(),
+                "learning_steps_count": len(ls_list),
+                "image_paths_count": len(image_paths_list),
+                "image_paths": image_paths_list,
+                "ppt_output": ppt_output,
+                "model_run_folder": final_model_run_folder,
+                "final_state": {
+                    "learning_steps_list": ls_list,
+                    "scenes": state.scenes if hasattr(state, "scenes") else {},
+                },
+            }
+            _save_debug_json("final_summary.json", final_summary)
+            print(f"\n[DEBUG] Final debug data saved to {DEBUG_OUTPUT_DIR}/")
 
         return {
-            "run_folder": actual_state.model_run_folder,
-            "learning_steps_list": actual_state.learning_steps_list,
-            "image_paths": actual_state.image_paths,
-            "ppt_output_path": actual_state.ppt_output_path,
+            "run_folder": final_model_run_folder,
+            "learning_steps_list": ls_list,
+            "image_paths": image_paths_list,
+            "ppt_output_path": ppt_output,
         }
 
 

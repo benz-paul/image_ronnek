@@ -303,12 +303,12 @@ def select_image_model() -> str:
     Allow user to select image generation model.
 
     Returns:
-        Model name: "gpt-image-1.5", "fal-flux", or "fal-juggernaut"
+        Model name: "gpt-image-1.5", "fal-flux2pro", or "fal-juggernaut"
     """
     print("\n" + "-" * 40)
     print("Select image generation model:")
     print("  1 - GPT-image-1.5 (OpenAI)")
-    print("  2 - Flux Pro (fal.ai)")
+    print("  2 - Flux 2 Pro (fal.ai)")
     print("  3 - Juggernaut (fal.ai)")
 
     while True:
@@ -316,7 +316,7 @@ def select_image_model() -> str:
         if choice == "1":
             return "gpt-image-1.5"
         elif choice == "2":
-            return "fal-flux"
+            return "fal-flux2pro"
         elif choice == "3":
             return "fal-juggernaut"
         else:
@@ -459,6 +459,10 @@ def run_test_mode():
     # Ask for image generation mode BEFORE running pipeline
     image_mode = ask_image_generation_mode()
 
+    # Ask for scene generation mode BEFORE running pipeline
+    scene_mode = ask_scene_generation_mode()
+    scene_generation_scope = "single" if scene_mode == "single" else "multiple"
+
     print("\n[3/5] Running Pipeline...")
     print("  - Prompt 0: Concept Inventory")
     print("  - Prompt 1: Story Backbone")
@@ -472,6 +476,7 @@ def run_test_mode():
     print(f"Text Model: {text_model}")
     print(f"Image Model: {image_model}")
     print(f"Image Mode: {image_mode}")
+    print(f"Scene Generation Scope: {scene_generation_scope}")
     print("=" * 40 + "\n")
 
     result = pipeline.run(
@@ -487,30 +492,10 @@ def run_test_mode():
         image_model=image_model,
         image_mode=image_mode,
         test_mode=True,
+        scene_generation_scope=scene_generation_scope,
     )
 
     print("\n[4/5] Processing Results...")
-
-    learning_steps = result.get("learning_steps_list", [])
-
-    if learning_steps:
-        display_learning_steps(learning_steps)
-
-        selected_ls = select_learning_step(learning_steps)
-
-        scene_mode = ask_scene_generation_mode()
-
-        if selected_ls:
-            print(f"\n[TEST MODE] Generating scenes for Learning Step {selected_ls}")
-        else:
-            print(
-                f"\n[TEST MODE] Generating scenes for ALL {len(learning_steps)} learning steps"
-            )
-
-        if scene_mode == "single":
-            print("[TEST MODE] Generating ONE scene for testing")
-        else:
-            print(f"[TEST MODE] Generating ALL scenes")
 
     print("\n" + "=" * 60)
     print("  Pipeline execution completed successfully!")

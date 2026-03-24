@@ -1,0 +1,460 @@
+## Prompt 0A: Concept Extraction — First Pass
+
+Extract a COMPLETE list of concepts from this chapter.
+
+IMPORTANT:
+- Return ONLY concept TITLES (short)
+- DO NOT explain
+- DO NOT add long descriptions
+- Keep each concept 3-6 words max
+
+RULES:
+- Do NOT miss any concept
+- Prefer over-extraction
+- Include formulas, ideas, problem types
+
+STRICT FILTERING RULE:
+
+Do NOT include:
+
+* examples
+* case studies
+* word problems
+* story-based scenarios
+* application-specific situations (e.g., taxi fare, rabbits, salary cases)
+
+ONLY include:
+
+* definitions
+* formulas
+* properties
+* relationships between concepts
+* mathematical structures
+
+If an item is an example of a concept, DO NOT include it.
+
+OUTPUT:
+
+Return ONLY JSON:
+{
+  "concepts": [
+    "Concept 1",
+    "Concept 2",
+    "Concept 3"
+  ]
+}
+
+TEXT:
+[CHAPTER_TEXT]
+
+----
+
+## Prompt 0B: Concept Extraction — Gap Detection Pass
+
+You already extracted concepts.
+
+Here is the current list:
+
+[EXISTING_CONCEPTS]
+
+Find IMPORTANT missing concepts.
+Return ONLY concept TITLES (short), 3-6 words max.
+
+RULES:
+- Only add missing ones
+- Do NOT repeat
+- Focus on gaps
+
+STRICT FILTERING RULE:
+
+Do NOT include:
+
+* examples
+* case studies
+* word problems
+* story-based scenarios
+* application-specific situations (e.g., taxi fare, rabbits, salary cases)
+
+ONLY include:
+
+* definitions
+* formulas
+* properties
+* relationships between concepts
+* mathematical structures
+
+If an item is an example of a concept, DO NOT include it.
+
+Return ONLY JSON:
+{
+  "concept_titles": [
+    "Missing Concept 1",
+    "Missing Concept 2"
+  ]
+}
+
+----
+
+## Prompt 1: Story Backbone Generation
+
+Chapter: [CHAPTER_NAME]
+Concepts: [CONCEPTS]
+
+IMPORTANT: You must create a story with MINIMUM 2 MAIN CHARACTERS.
+
+Character Requirements:
+- Each character must have: name, role, personality, visual_description, gender, voice_id
+- Characters must interact in scenes through dialogue
+- Story must be visual and cinematic
+- Characters should be relatable to students (e.g., student, teacher, friend, family)
+
+Voice Assignment Rules (Amazon Polly voices):
+- gender must be "male" or "female"
+- Assign voice_id from this palette — pick the best match per character:
+  Male voices:   "Matthew" (neutral US), "Joey" (young US), "Brian" (UK)
+  Female voices: "Joanna" (neutral US), "Ivy" (young US), "Emma" (UK)
+- The NARRATOR always uses "Matthew" — do NOT assign "Matthew" to a main character
+  unless there are already 2+ other male characters.
+- No two characters should share the same voice_id.
+
+Return ONLY JSON:
+{
+  "title": "...",
+  "core_premise": "...",
+  "characters": [
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "male",
+      "voice_id": "Joey"
+    },
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "female",
+      "voice_id": "Joanna"
+    }
+  ]
+}
+
+CRITICAL: characters array must have at least 2 entries. Every character MUST have gender and voice_id.
+
+----
+
+## Prompt 2: Learning Steps Decomposition
+
+Story: [STORY_BACKBONE]
+Concepts: [CONCEPTS]
+
+Return ONLY JSON:
+{
+  "learning_steps": [...]
+}
+
+STRICT OUTPUT ENFORCEMENT:
+
+You MUST follow the exact JSON schema.
+
+Each learning step MUST contain:
+
+* "learning_step_id"
+* "title"
+* "concepts_introduced"
+* "narrative_moment"
+
+DO NOT use:
+
+* step_number
+* description
+* concepts_covered
+
+If any of these incorrect keys are used, the output is INVALID.
+
+---
+
+SELF-CHECK BEFORE OUTPUT:
+
+Before returning the final JSON:
+
+1. Ensure every learning step contains:
+
+   * learning_step_id (LS1, LS2, ...)
+   * title (non-empty)
+   * concepts_introduced (must NOT be empty)
+   * narrative_moment (minimum 5 lines)
+
+2. If ANY field is missing or empty:
+   REGENERATE the entire output.
+
+3. Ensure JSON is valid and parsable.
+
+---
+
+Output ONLY valid JSON
+
+----
+
+## Prompt 3A: Scene Plan
+
+You are generating a SCENE PLAN for a learning step.
+
+----------------------------------------
+STORY CONTEXT:
+Title: [STORY_TITLE]
+Premise: [STORY_PREMISE]
+Characters: [CHARACTER_REGISTRY]
+
+PREVIOUS LEARNING STEP LAST SCENE:
+[PREVIOUS_STEP_LAST_SCENE]
+
+CURRENT LEARNING STEP:
+- ID: [LS_ID]
+- Title: [LS_TITLE]
+- Concepts: [LS_CONCEPTS]
+- Narrative: [LS_NARRATIVE]
+
+----------------------------------------
+SCENE PLAN RULES:
+
+1. Generate between 8-15 scenes (minimum 8, aim for 10-12)
+2. Each scene must have a PURPOSE:
+   - HOOK: Grab attention
+   - SETUP: Introduce situation
+   - DISCOVERY: Reveal something
+   - CONFUSION: Create tension/mystery
+   - GUIDANCE: Show direction
+   - MICRO_LEARN: Teach micro concept
+   - VALIDATION: Confirm understanding
+   - APPLICATION: Real-world use
+   - TWIST: Surprise element
+   - ESCALATION: Increase stakes
+   - PAYOFF: Satisfying resolution
+   - REFLECTION: Personal insight
+   - TRANSITION: Bridge to next step
+   - CLIFFHANGER: Leave wanting more
+
+3. STRICT REQUIREMENTS:
+    - First scene MUST be HOOK
+    - DO NOT repeat same type consecutively
+    - Use tension/confusion every 2-3 scenes
+    - Delay full explanations (build curiosity first)
+    - Include at least one APPLICATION scene
+    - Final scene should have PAYOFF or set up next step
+
+4. Scene plan format:
+    - scene_id: "S1", "S2", etc.
+    - phase: scene type (HOOK, SETUP, etc.)
+    - summary: what happens (1 sentence, max 25 words)
+    - concept_focus: what concept is taught
+
+----------------------------------------
+STRICT RULES:
+
+* Generate 8-15 scenes (minimum 8, aim for 10-12, maximum 15)
+* Each summary MUST be 25 words or fewer
+* Return ONLY valid JSON - no markdown, no explanations
+* JSON must be COMPLETE with all brackets closed
+* Do not truncate output
+
+----------------------------------------
+OUTPUT JSON:
+
+{
+  "scene_plan": [
+    {
+      "scene_id": "S1",
+      "phase": "HOOK",
+      "summary": "...",
+      "concept_focus": "..."
+    }
+  ]
+}
+
+Generate 8-15 scenes (minimum 8, aim for 10-12 per learning step). More scenes = better concept coverage. Each summary must be concise (1 sentence, max 25 words).
+
+----
+
+## Prompt 3B: Scene Generation
+
+You are generating a CINEMATIC, VIRAL learning scene.
+
+----------------------------------------
+SCENE PLAN:
+- Scene ID: [SCENE_ID]
+- Phase: [SCENE_PHASE]
+- Summary: [SCENE_SUMMARY]
+- Concept Focus: [CONCEPT_FOCUS]
+
+----------------------------------------
+STORY CONTEXT:
+Title: [STORY_TITLE]
+Premise: [STORY_PREMISE]
+Characters: [CHARACTER_REGISTRY]
+
+----------------------------------------
+LEARNING STEP:
+- ID: [LS_ID]
+- Title: [LS_TITLE]
+- Concepts: [LS_CONCEPTS]
+
+----------------------------------------
+STORY SO FAR (last 5 scenes):
+[STORY_SUMMARY]
+
+----------------------------------------
+PREVIOUS SCENE (for continuity):
+[PREVIOUS_SCENE]
+
+----------------------------------------
+SCENE GENERATION RULES:
+
+1. Based on the scene plan, generate a full scene
+2. Phase: [SCENE_PHASE] - follow its purpose
+3. Setting: Create a vivid, engaging location
+4. Characters: Use story characters naturally
+5. Action: Show, don't tell
+6. Dialogue: 2-4 lines, realistic and sharp
+7. Learning: Teach the concept subtly within the narrative
+8. Continuity: Connect naturally to previous scene
+
+----------------------------------------
+SCENE COMPLETENESS RULE:
+
+This scene is part of a sequence of [TOTAL_SCENES] scenes.
+Ensure the story is not prematurely concluded.
+
+- DO NOT rush to a final resolution in early scenes
+- Build tension and curiosity progressively
+- Leave room for the story to develop
+- Each scene should set up the next
+
+----------------------------------------
+11. HOOK SCENE RULE (CRITICAL):
+
+* If phase == HOOK:
+
+  * DO NOT explain any concept
+  * DO NOT define arithmetic progression
+  * Only show confusion, frustration, or curiosity
+  * End scene with a question or hint, not an answer
+
+12. DISCOVERY PACING RULE:
+
+* Discovery must feel gradual, not instant
+* Characters should:
+  observe → doubt → test → realize
+* Avoid immediate correct conclusions
+
+13. DIALOGUE NATURALNESS RULE:
+
+* Avoid perfect or teacher-like dialogue
+* Add hesitation, partial thoughts, interruptions
+* Use phrases like:
+  "wait...", "maybe...", "that means...", "hold on..."
+
+14. EXPLANATION DELAY RULE:
+
+* Do NOT fully explain concepts in early scenes
+* Spread explanation across:
+  S3 → S6 gradually
+* Each scene should reveal only 1 small idea
+
+15. SCENE VARIETY RULE:
+
+* Avoid repeating same structure:
+  explanation → confirmation
+* Mix:
+  confusion scenes
+  silent realization moments
+  visual thinking (drawing, observing)
+
+16. MICRO-TENSION RULE:
+
+* Each scene must include:
+
+  * a question OR
+  * a doubt OR
+  * a small problem
+* Never allow smooth uninterrupted understanding
+
+17. STRICT HOOK ENFORCEMENT:
+
+* If phase contains "HOOK" (case-insensitive):
+
+  * Absolutely NO explanation allowed
+  * If any explanation appears, it is INVALID
+  * Scene must end with unresolved curiosity
+
+18. NO EARLY RESOLUTION RULE:
+
+* The first 30-40% of scenes must NOT:
+
+  * fully explain the concept
+  * resolve the main idea
+* If resolved too early → regenerate internally
+
+----------------------------------------
+OUTPUT JSON:
+
+{
+  "scene_id": "[SCENE_ID]",
+  "phase": "[SCENE_PHASE]",
+  "setting": "...",
+  "characters": ["..."],
+  "action": "...",
+  "dialogue": ["...", "..."],
+  "learning_moment": "...",
+  "transition_hint": "...",
+  "narrator_audio_text": "2-4 sentence cinematic narration of this scene written as clean prose — no brackets, no stage directions, suitable for direct TTS input. Describe the environment, mood, what is happening, and the emotional undercurrent.",
+  "character_dialogues": [
+    {
+      "character_id": "character_name_lowercase_no_spaces",
+      "voice_id": "Polly voice ID from the character registry (e.g. Joey, Joanna)",
+      "dialogue": "Exact dialogue line the character speaks",
+      "audio_text": "Same dialogue line — clean text suitable for TTS, no punctuation marks except commas and periods"
+    }
+  ]
+}
+
+AUDIO FIELD RULES:
+- narrator_audio_text: Write this as a skilled narrator would read it aloud. Pure prose. No [brackets] or (parentheses).
+- character_dialogues: One entry per character who speaks in this scene. Use voice_id from the story backbone character registry.
+- audio_text should be identical to dialogue unless the dialogue has special characters that would break TTS.
+- If a scene has no dialogue, set character_dialogues to an empty array [].
+
+Generate the complete scene now.
+
+----
+
+## Prompt 4: Image Prompt Generation
+
+You are generating a SINGLE cinematic scene for an image model.
+
+STRICT RULES:
+- This is ONE single scene (NOT multiple panels)
+- DO NOT create comic strips
+- DO NOT create multi-panel layouts
+- DO NOT add labels, arrows, diagrams, or annotations
+- Keep scene realistic and cinematic
+
+DIALOGUE HANDLING:
+- If dialogue is provided, use it EXACTLY as given
+- DO NOT rewrite or summarize dialogue
+- DO NOT invent new dialogue
+
+OUTPUT FORMAT:
+Return JSON:
+{
+  "visual_prompt": "clean visual description"
+}
+
+INPUT:
+[SCENE_DATA]
+
+[DIALOGUE_INSTRUCTION]
+
+IMPORTANT: Output ONLY valid JSON with "visual_prompt" key.
