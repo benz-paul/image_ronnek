@@ -345,16 +345,25 @@ def get_generation_mode() -> str:
             print("Invalid choice. Please enter 1 or 2.")
 
 
-def ask_image_prompts() -> bool:
+def ask_generate_images() -> bool:
     """
-    Ask user whether to generate image prompts.
+    Ask user whether to generate images (calls image model API).
 
     Returns:
-        True if user wants to generate image prompts
+        True if user wants to generate images
     """
     print("\n" + "-" * 40)
-    response = input("Generate image prompts now? (y/n): ").strip().lower()
-    return response in ["y", "yes"]
+    print("  Generate Images?")
+    print("-" * 40)
+    print("  Call the image model API to generate scene images.")
+    print("  Select 'n' to skip image generation (saves API credits).")
+    print("-" * 40)
+    response = input("Generate images? (y/n): ").strip().lower()
+    if response in ["y", "yes"]:
+        print("  ✓ Images will be generated")
+        return True
+    print("  ✓ Skipping image generation")
+    return False
 
 
 def check_and_get_pdf(
@@ -463,12 +472,15 @@ def run_test_mode():
     scene_mode = ask_scene_generation_mode()
     scene_generation_scope = "single" if scene_mode == "single" else "multiple"
 
+    # Ask whether to actually call the image model API
+    generate_images = ask_generate_images()
+
     print("\n[3/5] Running Pipeline...")
     print("  - Prompt 0: Concept Inventory")
     print("  - Prompt 1: Story Backbone")
     print("  - Prompt 2: Learning Steps")
     print("  - Prompt 3: Scene Generation (per learning step)")
-    print("  - Prompt 4: Image Prompts (per scene)")
+    print("  - Prompt 4: Image Generation (per scene)" if generate_images else "  - Prompt 4: Image Prompts (skipped — generate_images=False)")
 
     print("\n" + "=" * 40)
     print("MODEL CONFIGURATION")
@@ -477,6 +489,7 @@ def run_test_mode():
     print(f"Image Model: {image_model}")
     print(f"Image Mode: {image_mode}")
     print(f"Scene Generation Scope: {scene_generation_scope}")
+    print(f"Generate Images: {generate_images}")
     print("=" * 40 + "\n")
 
     result = pipeline.run(
@@ -491,6 +504,7 @@ def run_test_mode():
         text_model=text_model,
         image_model=image_model,
         image_mode=image_mode,
+        generate_images=generate_images,
         test_mode=True,
         scene_generation_scope=scene_generation_scope,
     )
@@ -553,12 +567,15 @@ def run_production_mode():
         # Ask for image generation mode
         image_mode = ask_image_generation_mode()
 
+        # Ask whether to actually call the image model API
+        generate_images = ask_generate_images()
+
         print("\n[3/4] Running Pipeline (this may take a while...)")
         print("  - Prompt 0: Concept Inventory")
         print("  - Prompt 1: Story Backbone")
         print("  - Prompt 2: Learning Steps")
         print("  - Prompt 3: Scene Generation (per learning step)")
-        print("  - Prompt 4: Image Prompts (per scene)")
+        print("  - Prompt 4: Image Generation (per scene)" if generate_images else "  - Prompt 4: Image Prompts (skipped — generate_images=False)")
 
         print("\n" + "=" * 40)
         print("MODEL CONFIGURATION")
@@ -566,6 +583,7 @@ def run_production_mode():
         print(f"Text Model: {text_model}")
         print(f"Image Model: {image_model}")
         print(f"Image Mode: {image_mode}")
+        print(f"Generate Images: {generate_images}")
         print("=" * 40 + "\n")
 
         result = pipeline.run(
@@ -580,6 +598,7 @@ def run_production_mode():
             text_model=text_model,
             image_model=image_model,
             image_mode=image_mode,
+            generate_images=generate_images,
             test_mode=False,
         )
 

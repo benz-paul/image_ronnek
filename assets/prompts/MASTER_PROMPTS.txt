@@ -220,7 +220,7 @@ CURRENT LEARNING STEP:
 ----------------------------------------
 SCENE PLAN RULES:
 
-1. Generate between 8-15 scenes (minimum 8, aim for 10-12)
+1. Generate between 12-15 scenes (minimum 10, aim for 12-15)
 2. Each scene must have a PURPOSE:
    - HOOK: Grab attention
    - SETUP: Introduce situation
@@ -254,7 +254,7 @@ SCENE PLAN RULES:
 ----------------------------------------
 STRICT RULES:
 
-* Generate 8-15 scenes (minimum 8, aim for 10-12, maximum 15)
+* Generate 12-15 scenes (minimum 10, aim for 12-15)
 * Each summary MUST be 25 words or fewer
 * Return ONLY valid JSON - no markdown, no explanations
 * JSON must be COMPLETE with all brackets closed
@@ -274,7 +274,7 @@ OUTPUT JSON:
   ]
 }
 
-Generate 8-15 scenes (minimum 8, aim for 10-12 per learning step). More scenes = better concept coverage. Each summary must be concise (1 sentence, max 25 words).
+Generate 12-15 scenes (minimum 10, aim for 12-15 per learning step). More scenes = better concept coverage and cinematic pacing. Each summary must be concise (1 sentence, max 25 words).
 
 ----
 
@@ -342,12 +342,28 @@ Ensure the story is not prematurely concluded.
   * Only show confusion, frustration, or curiosity
   * End scene with a question or hint, not an answer
 
+11a. SENSORY SPECIFICITY (HOOK and SETUP scenes):
+
+* Every action in a HOOK or SETUP scene must include one micro-sensory detail that grounds
+  the emotion in the body — jaw tension, a hand that won't stay still, the sound of breathing
+  changing, a stomach that drops.
+* Do NOT open a scene with generic observation ("he looked at" / "she noticed").
+* Open with a physical sensation or involuntary reaction.
+
 12. DISCOVERY PACING RULE:
 
 * Discovery must feel gradual, not instant
 * Characters should:
   observe → doubt → test → realize
 * Avoid immediate correct conclusions
+
+12a. COGNITIVE STRUGGLE (CONFUSION and TWIST scenes):
+
+* Counter-examples and twist scenes must show 2-3 failed attempts before any revelation.
+* The character must actively try to apply their current (wrong) understanding, get a
+  surprising result, try again with a small adjustment, fail again, then discover the
+  correct pattern.
+* Never jump straight to revelation after one failure. Earn the breakthrough.
 
 13. DIALOGUE NATURALNESS RULE:
 
@@ -397,6 +413,31 @@ Ensure the story is not prematurely concluded.
   * resolve the main idea
 * If resolved too early → regenerate internally
 
+19. CONCEPT NAMING (CRITICAL):
+
+* Every concept listed in [LS_CONCEPTS] must be explicitly NAMED in dialogue at least once
+  across the scene sequence — spoken aloud by a character using the exact term.
+* Showing the pattern is not enough. A character must say the name:
+  "This is called an arithmetic progression" / "That's the common difference."
+* If a concept is in the list and hasn't been named yet in [STORY_SUMMARY], this scene
+  must name it.
+
+20. VISUAL ARTIFACT (REFLECTION scenes):
+
+* In REFLECTION scenes, the whiteboard, notebook, sketch, or diagram must be the PRIMARY
+  carrier of the insight.
+* Describe the artifact in detail first — what is drawn, written, or arranged.
+* Dialogue should only annotate what the viewer already sees on the artifact.
+* Never let dialogue carry the full insight while the artifact remains vague or decorative.
+
+21. CONTINUITY LOCK (CRITICAL):
+
+* Before writing this scene, check [PREVIOUS_SCENE] and [STORY_SUMMARY] for any numbers,
+  counts, or object descriptions that have already been established.
+* USE THOSE EXACT VALUES. Never introduce a different number for the same object.
+* If you need to show a second/different sequence, a character must explicitly say so in
+  dialogue ("there's ANOTHER row over here — different pattern entirely").
+
 ----------------------------------------
 OUTPUT JSON:
 
@@ -412,7 +453,9 @@ OUTPUT JSON:
   "narrator_audio_text": "2-4 sentence cinematic narration of this scene written as clean prose — no brackets, no stage directions, suitable for direct TTS input. Describe the environment, mood, what is happening, and the emotional undercurrent.",
   "character_dialogues": [
     {
-      "character_id": "character_name_lowercase_no_spaces",
+      "character_id": "character_name_lowercase_no_spaces_no_underscores",
+      // e.g. Leo → "leo", Maya → "maya", Mr. Aris → "mraris", Jo-Jo → "jojo"
+      // WRONG: "Leo" "mr_aris" "Jojo" "MrAris" "mr.aris" — these break the audio pipeline
       "voice_id": "Polly voice ID from the character registry (e.g. Joey, Joanna)",
       "dialogue": "Exact dialogue line the character speaks",
       "audio_text": "Same dialogue line — clean text suitable for TTS, no punctuation marks except commas and periods"
