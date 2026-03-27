@@ -92,53 +92,6 @@ def get_available_topics():
 
     return topics
 
-    pdf_files = sorted(knowledge_dir.glob("*.pdf"))
-
-    for idx, pdf_path in enumerate(pdf_files, 1):
-        filename = pdf_path.stem
-
-        name_parts = (
-            filename.replace("Chapter ", "")
-            .replace(" – ", " ")
-            .replace("-", " ")
-            .split()
-        )
-
-        if len(name_parts) >= 3:
-            chapter_number = name_parts[1] if name_parts[1].isdigit() else name_parts[0]
-            subject = (
-                name_parts[0]
-                if not name_parts[0].isdigit()
-                else name_parts[2]
-                if len(name_parts) > 2
-                else "Unknown"
-            )
-            chapter_title = (
-                " ".join(name_parts[2:])
-                if len(name_parts) > 2
-                else " ".join(name_parts)
-            )
-        else:
-            chapter_number = "1"
-            subject = "Unknown"
-            chapter_title = filename
-
-        display_name = f"{subject} - Chapter {chapter_number}: {chapter_title}"
-
-        topics.append(
-            {
-                "index": idx,
-                "display_name": display_name,
-                "filename": pdf_path.name,
-                "chapter_number": chapter_number,
-                "subject": subject,
-                "chapter_title": chapter_title,
-                "pdf_path": str(pdf_path),
-            }
-        )
-
-    return topics
-
 
 def select_topic():
     """

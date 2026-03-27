@@ -21,7 +21,9 @@ from typing import Any, Dict, List, Optional, Union
 # ============================================================================
 DEBUG_MODE = True
 DEBUG_MAX_LS = 1        # Limit to 1 learning step per run (all scenes within it)
-DEBUG_OUTPUT_DIR = "outputs/debug_run"
+# Always anchor to project root so it works whether you run from brain/ or project root
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+DEBUG_OUTPUT_DIR = str(_PROJECT_ROOT / "outputs" / "debug_run")
 # ============================================================================
 
 from langgraph.graph import StateGraph, END
@@ -1777,11 +1779,16 @@ class PipelineGraph:
         # FIX #21: pipeline_graph always calls generate(prompt_str) which returns
         # a str path or None on failure. generate() is the correct call here.
         print(f"  [IMAGE] {scene_id} ({scene_index + 1}/{len(scene_plan)}) — generating...", end="", flush=True)
-        image_path = self.image_generator.generate(
-            prompt=visual_prompt,
-            learning_step_id=ls_key,
-            scene_id=scene_id,
-        )
+        image_path = None
+        try:
+            image_path = self.image_generator.generate(
+                prompt=visual_prompt,
+                learning_step_id=ls_key,
+                scene_id=scene_id,
+            )
+        except Exception as img_err:
+            print(f" → ERROR: {img_err}")
+
         if image_path is not None:
             save_image(run_folder, ls_index, scene_index, image_path, image_prompt=visual_prompt)
             new_image_paths = state.image_paths + [image_path]
@@ -1790,7 +1797,7 @@ class PipelineGraph:
             # Save only the .txt prompt for debugging; image generation failed
             save_image(run_folder, ls_index, scene_index, "", image_prompt=visual_prompt)
             new_image_paths = state.image_paths
-            print(f" → FAILED")
+            print(f" → FAILED (continuing to next scene)")
 
         # Calculate next indices with proper bounds checking
         next_scene = scene_index + 1
@@ -2172,9 +2179,13 @@ class PipelineGraph:
         model_run_folder = create_run_folder(
             text_model,
             chapter=chapter,
+            class_level=class_level,
+            subject=subject,
             text_model=text_model,
             image_model=image_model,
             image_mode=state.image_mode,
+            generate_images=state.generate_images,
+            generation_mode=generation_mode,
         )
         state.model_run_folder = str(model_run_folder)
 
@@ -2182,7 +2193,7 @@ class PipelineGraph:
         folder_name = f"{class_level}_{subject}_{folder_title}".lower().replace(
             " ", "_"
         )
-        state.run_folder = f"outputs/{folder_name}"
+        state.run_folder = str(_PROJECT_ROOT / "outputs" / folder_name)
         Path(state.run_folder).mkdir(parents=True, exist_ok=True)
         (Path(state.run_folder) / "learning_steps").mkdir(exist_ok=True)
         (Path(state.run_folder) / "images").mkdir(exist_ok=True)

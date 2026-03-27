@@ -70,8 +70,8 @@ from utils.pipeline_logger import debug
 
 
 def get_base_output_dir() -> Path:
-    """Get the base output directory."""
-    return Path("outputs")
+    """Get the base output directory — always anchored to project root regardless of cwd."""
+    return Path(__file__).parent.parent / "outputs"
 
 
 def create_run_folder(
@@ -383,11 +383,6 @@ def get_audio_manifest(run_folder: Path) -> Optional[Dict]:
 # LEGACY / COMPATIBILITY FUNCTIONS
 # Keep these intact so existing callers don't break.
 # ============================================================================
-
-
-def get_base_output_dir() -> Path:
-    """Get the base output directory."""
-    return Path("outputs")
 
 
 def get_model_output_dir(model_name: str) -> Path:

@@ -114,14 +114,13 @@ class PipelineState(BaseModel):
     # Never overridden inside the graph nodes.
     generate_images: bool = False
     # generate_audio controls Polly TTS — set from main.py ask_generate_audio()
-    generate_audio: bool = True
+    generate_audio: bool = False
     generate_ppt: bool = False
     generation_mode: str = "full"
 
     image_generation_scope: str = "single"
     scene_generation_scope: str = "multiple"
     total_images: int = 0
-    overlay_mode: str = "overlay"
 
     # PDF handling
     pdf_path: Optional[str] = None

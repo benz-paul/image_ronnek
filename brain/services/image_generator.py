@@ -201,13 +201,9 @@ class ImageGeneratorService:
                 filename = f"{learning_step_id}_{scene_id}.png"
             return ls_folder / filename
 
-        # Legacy fallback — keep old behaviour for backwards compat
+        # Legacy fallback
         run_folder = self._get_model_run_folder()
-        if self.image_mode == "overlay":
-            images_dir = run_folder / "images" / "overlay_dialogue" / self.quality
-        else:
-            images_dir = run_folder / "images" / "dialogue_rendered" / self.quality
-
+        images_dir = run_folder / "images" / "dialogue_rendered" / self.quality
         images_dir.mkdir(parents=True, exist_ok=True)
         ls_folder = images_dir / learning_step_id
         ls_folder.mkdir(exist_ok=True)
