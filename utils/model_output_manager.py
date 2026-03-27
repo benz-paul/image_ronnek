@@ -270,7 +270,9 @@ def save_image(
     if source_image_path:
         src = Path(source_image_path)
         if src.exists():
-            shutil.copy2(src, image_filepath)
+            if src.resolve() != image_filepath.resolve():
+                shutil.copy2(src, image_filepath)
+            # else: image already saved directly to the right place by image_generator
         else:
             debug(f"[WARNING] save_image: source not found: {source_image_path}")
 
