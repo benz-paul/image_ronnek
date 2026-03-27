@@ -2,6 +2,8 @@ import json
 import re
 from typing import Optional, Callable, Any, Dict
 
+from utils.pipeline_logger import debug
+
 
 def fix_common_json_issues(text: str) -> str:
     """Fix common JSON issues from LLM outputs."""
@@ -132,8 +134,8 @@ def extract_json(text: str) -> str:
     if last_error is not None:
         ctx_start = max(0, last_error.pos - 60)
         ctx_end = min(len(json_str), last_error.pos + 60)
-        print(f"[JSON DEBUG] Parse error: {last_error.msg} at pos {last_error.pos}")
-        print(f"[JSON DEBUG] Context: ...{repr(json_str[ctx_start:ctx_end])}...")
+        debug(f"[JSON DEBUG] Parse error: {last_error.msg} at pos {last_error.pos}")
+        debug(f"[JSON DEBUG] Context: ...{repr(json_str[ctx_start:ctx_end])}...")
     raise ValueError("Could not parse JSON after all fix attempts")
 
 
@@ -233,8 +235,8 @@ def safe_parse(text: str, validate: bool = True, prompt_type: str = "general") -
         if validate:
             validator = get_validator(prompt_type)
             if not validator(parsed):
-                print(f"[VALIDATION] {prompt_type}: missing required keys")
-                print(f"[VALIDATION] Keys found: {list(parsed.keys())}")
+                debug(f"[VALIDATION] {prompt_type}: missing required keys")
+                debug(f"[VALIDATION] Keys found: {list(parsed.keys())}")
                 return {
                     "_invalid": True,
                     "_reason": f"validation_failed_for_{prompt_type}",
@@ -280,7 +282,7 @@ def safe_parse_with_retry(
                 print(f"[VALIDATION] {prompt_type}: failed validation check")
 
         if attempt < max_retries - 1:
-            print(
+            debug(
                 f"[RETRY] Parsing failed (attempt {attempt + 1}/{max_retries}), retrying..."
             )
 

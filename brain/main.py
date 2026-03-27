@@ -11,14 +11,16 @@ load_dotenv(override=True)
 
 import sys
 import os
+import time
 from pathlib import Path
 
 TEST_MODE = True
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from brain.pipeline.pipeline_graph import create_pipeline_graph
+from brain.pipeline.pipeline_graph import create_pipeline_graph, DEBUG_MODE
 from brain.pipeline.state.pipeline_state import PipelineState
+from utils.pipeline_logger import set_verbose
 
 
 def get_available_topics():
@@ -242,31 +244,6 @@ def ask_scene_generation_mode():
             print("  Invalid choice. Please enter 1 or 2.")
 
 
-def ask_image_generation_mode():
-    """
-    Ask user for image generation mode in TEST_MODE.
-
-    Returns:
-        "dialogue" or "overlay"
-    """
-    print("\n" + "-" * 40)
-    print("  Image Generation Mode")
-    print("-" * 40)
-    print("  1. Dialogue INSIDE image (AI renders text in scene)")
-    print("  2. Dialogue OVERLAY (add speech bubbles after generation)")
-    print("-" * 40)
-
-    while True:
-        choice = input("Enter choice (1/2): ").strip()
-        if choice == "1":
-            print("  ✓ Mode: Dialogue inside image")
-            return "dialogue"
-        elif choice == "2":
-            print("  ✓ Mode: Dialogue overlay")
-            return "overlay"
-        else:
-            print("  Invalid choice. Please enter 1 or 2.")
-
 
 def get_user_input() -> dict:
     """
@@ -308,7 +285,7 @@ def select_image_model() -> str:
     print("\n" + "-" * 40)
     print("Select image generation model:")
     print("  1 - GPT-image-1.5 (OpenAI)")
-    print("  2 - Flux 2 Pro (fal.ai)")
+    print("  2 - Flux 2 Pro (fal.ai)  ← recommended")
     print("  3 - Juggernaut (fal.ai)")
 
     while True:
@@ -321,6 +298,27 @@ def select_image_model() -> str:
             return "fal-juggernaut"
         else:
             print("  Invalid choice. Please enter 1, 2, or 3.")
+
+
+def ask_generate_audio() -> bool:
+    """
+    Ask user whether to generate audio (calls Amazon Polly).
+
+    Returns:
+        True if user wants to generate audio
+    """
+    print("\n" + "-" * 40)
+    print("  Generate Audio?")
+    print("-" * 40)
+    print("  Generates narrator + character voices via Amazon Polly.")
+    print("  Select 'n' to skip (faster test runs).")
+    print("-" * 40)
+    response = input("Generate audio? (y/n): ").strip().lower()
+    if response in ["y", "yes"]:
+        print("  ✓ Audio will be generated")
+        return True
+    print("  ✓ Skipping audio generation")
+    return False
 
 
 def get_generation_mode() -> str:
@@ -363,6 +361,27 @@ def ask_generate_images() -> bool:
         print("  ✓ Images will be generated")
         return True
     print("  ✓ Skipping image generation")
+    return False
+
+
+def ask_verbosity() -> bool:
+    """
+    Ask user whether to show verbose debug logs.
+
+    Returns:
+        True = show all debug output, False = show only milestones (recommended)
+    """
+    print("\n" + "-" * 40)
+    print("  Log Verbosity")
+    print("-" * 40)
+    print("  n = clean output (scene progress, image status, errors only)")
+    print("  y = verbose (fal.ai polling, JSON validation, scene storage, etc.)")
+    print("-" * 40)
+    response = input("Verbose logs? (y/n): ").strip().lower()
+    if response in ["y", "yes"]:
+        print("  ✓ Verbose mode on")
+        return True
+    print("  ✓ Clean output mode")
     return False
 
 
@@ -415,12 +434,75 @@ def check_and_get_pdf(
         return None, "none"
 
 
+def _print_summary(result: dict, elapsed_seconds: float) -> None:
+    """Print the detailed per-LS pipeline summary box."""
+    run_folder = result.get("run_folder", "unknown")
+    ls_list = result.get("learning_steps_list", [])
+    image_paths = result.get("image_paths", [])
+
+    width = 56
+    border = "═" * width
+
+    def row(text: str) -> str:
+        return f"  ║  {text:<{width - 4}}║"
+
+    def divider() -> str:
+        return f"  ╠{border}╣"
+
+    mins, secs = divmod(int(elapsed_seconds), 60)
+    duration_str = f"{mins}m {secs:02d}s" if mins else f"{secs}s"
+
+    lines = [f"  ╔{border}╗", row("Pipeline Complete"), divider()]
+
+    for ls in ls_list:
+        ls_id = ls.get("learning_step_id", "?")
+        ls_title = ls.get("title", "")
+        scenes = ls.get("scenes", [])
+        scene_count = len(scenes)
+
+        # Count actual saved .png images for this LS
+        images_saved = 0
+        if run_folder and run_folder != "unknown":
+            ls_images_dir = Path(run_folder) / "images" / ls_id
+            if ls_images_dir.exists():
+                images_saved = len(list(ls_images_dir.glob("*.png")))
+        images_failed = scene_count - images_saved if scene_count > 0 else 0
+
+        header = f"{ls_id} — {ls_title}"
+        lines.append(row(header[:width - 4]))
+        lines.append(row(f"  Scenes : {scene_count}"))
+        if result.get("generate_images", True) or image_paths:
+            lines.append(row(f"  Images : {images_saved} saved / {images_failed} failed"))
+
+        # Audio stats
+        if result.get("generate_audio", True) and run_folder and run_folder != "unknown":
+            ls_audio_dir = Path(run_folder) / "audio" / ls_id
+            combined_count = len(list(ls_audio_dir.glob("*.mp3"))) if ls_audio_dir.exists() else 0
+            if combined_count:
+                lines.append(row(f"  Audio  : {combined_count} combined MP3(s)"))
+
+    lines.append(divider())
+    lines.append(row(f"Duration : {duration_str}"))
+    lines.append(row(f"Output   : {run_folder}"))
+    if result.get("ppt_output_path"):
+        lines.append(row(f"PPT      : {result.get('ppt_output_path')}"))
+    lines.append(f"  ╚{border}╝")
+
+    print()
+    for line in lines:
+        print(line)
+    print()
+
+
 def run_test_mode():
     """
     Run pipeline in TEST_MODE with interactive debugging.
+    DEBUG_MODE in pipeline_graph.py controls whether we cap at 1 LS.
     """
     print("\n" + "=" * 60)
     print("  TEST MODE - Interactive Debugging")
+    if DEBUG_MODE:
+        print("  DEBUG MODE ON — limited to 1 learning step")
     print("=" * 60)
 
     # Hardcoded text model
@@ -437,7 +519,6 @@ def run_test_mode():
     pdf_path = selected_topic["pdf_path"]
 
     print(f"\n[TEST MODE] Topic: {subject} - {chapter_title}")
-    print(f"[TEST MODE] PDF: {pdf_path}")
 
     print("\n[1/5] Getting PDF...")
     pdf_path, pdf_source = check_and_get_pdf(
@@ -448,49 +529,54 @@ def run_test_mode():
         medium=medium,
         pdf_path=pdf_path,
     )
-
     print(f"  ✓ PDF source: {pdf_source}")
 
-    print("\n[2/5] Initializing Agentic Pipeline...")
+    print("\n[2/5] Initializing Pipeline...")
     pipeline = create_pipeline_graph()
 
     chapter_name = (
         f"Class {class_level} {subject} Chapter {chapter_number} {chapter_title}"
     )
 
-    generation_mode = get_generation_mode()
-
-    if generation_mode == "ls1":
-        print("  Mode: LS1 Only (fast preview)")
+    # When DEBUG_MODE is on, always run ls1 — skip the question entirely
+    if DEBUG_MODE:
+        generation_mode = "ls1"
+        print("  Mode: 1 Learning Step (DEBUG_MODE)")
     else:
-        print("  Mode: Full chapter")
+        generation_mode = get_generation_mode()
+        if generation_mode == "ls1":
+            print("  Mode: LS1 Only (fast preview)")
+        else:
+            print("  Mode: Full chapter")
 
-    # Ask for image generation mode BEFORE running pipeline
-    image_mode = ask_image_generation_mode()
+    # Dialogue-in mode only (overlay removed)
+    image_mode = "dialogue"
 
-    # Ask for scene generation mode BEFORE running pipeline
+    # Ask how many scenes to generate per LS
     scene_mode = ask_scene_generation_mode()
     scene_generation_scope = "single" if scene_mode == "single" else "multiple"
 
-    # Ask whether to actually call the image model API
+    # Ask whether to call the image model API
     generate_images = ask_generate_images()
 
-    print("\n[3/5] Running Pipeline...")
+    # Ask whether to generate audio
+    generate_audio = ask_generate_audio()
+
+    # Ask verbosity preference and set global logger level
+    verbose = ask_verbosity()
+    set_verbose(verbose)
+
+    steps = 5
+    print(f"\n[3/{steps}] Running Pipeline...")
     print("  - Prompt 0: Concept Inventory")
     print("  - Prompt 1: Story Backbone")
     print("  - Prompt 2: Learning Steps")
     print("  - Prompt 3: Scene Generation (per learning step)")
     print("  - Prompt 4: Image Generation (per scene)" if generate_images else "  - Prompt 4: Image Prompts (skipped — generate_images=False)")
+    if generate_audio:
+        print("  - Audio: Narrator + dialogue voices via Polly")
 
-    print("\n" + "=" * 40)
-    print("MODEL CONFIGURATION")
-    print("=" * 40)
-    print(f"Text Model: {text_model}")
-    print(f"Image Model: {image_model}")
-    print(f"Image Mode: {image_mode}")
-    print(f"Scene Generation Scope: {scene_generation_scope}")
-    print(f"Generate Images: {generate_images}")
-    print("=" * 40 + "\n")
+    _start_time = time.time()
 
     result = pipeline.run(
         chapter_name=chapter_name,
@@ -505,21 +591,15 @@ def run_test_mode():
         image_model=image_model,
         image_mode=image_mode,
         generate_images=generate_images,
+        generate_audio=generate_audio,
         test_mode=True,
         scene_generation_scope=scene_generation_scope,
     )
 
-    print("\n[4/5] Processing Results...")
-
-    print("\n" + "=" * 60)
-    print("  Pipeline execution completed successfully!")
-    print("=" * 60)
-
-    print(f"\nOutput Location: {result.get('run_folder', 'unknown')}")
-    print(f"Learning Steps: {len(result.get('learning_steps_list', []))}")
-    print(f"Images Generated: {len(result.get('image_paths', []))}")
-    if result.get("ppt_output_path"):
-        print(f"PPT: {result.get('ppt_output_path')}")
+    elapsed = time.time() - _start_time
+    result["generate_images"] = generate_images
+    result["generate_audio"] = generate_audio
+    _print_summary(result, elapsed)
 
     return result
 
@@ -564,11 +644,14 @@ def run_production_mode():
         else:
             print("  Mode: Full chapter")
 
-        # Ask for image generation mode
-        image_mode = ask_image_generation_mode()
+        # Dialogue-in mode only (overlay removed)
+        image_mode = "dialogue"
 
         # Ask whether to actually call the image model API
         generate_images = ask_generate_images()
+
+        # Ask whether to generate audio
+        generate_audio = ask_generate_audio()
 
         print("\n[3/4] Running Pipeline (this may take a while...)")
         print("  - Prompt 0: Concept Inventory")
@@ -576,6 +659,8 @@ def run_production_mode():
         print("  - Prompt 2: Learning Steps")
         print("  - Prompt 3: Scene Generation (per learning step)")
         print("  - Prompt 4: Image Generation (per scene)" if generate_images else "  - Prompt 4: Image Prompts (skipped — generate_images=False)")
+        if generate_audio:
+            print("  - Audio: Narrator + dialogue voices via Polly")
 
         print("\n" + "=" * 40)
         print("MODEL CONFIGURATION")
@@ -584,6 +669,7 @@ def run_production_mode():
         print(f"Image Model: {image_model}")
         print(f"Image Mode: {image_mode}")
         print(f"Generate Images: {generate_images}")
+        print(f"Generate Audio: {generate_audio}")
         print("=" * 40 + "\n")
 
         result = pipeline.run(
@@ -599,6 +685,7 @@ def run_production_mode():
             image_model=image_model,
             image_mode=image_mode,
             generate_images=generate_images,
+            generate_audio=generate_audio,
             test_mode=False,
         )
 

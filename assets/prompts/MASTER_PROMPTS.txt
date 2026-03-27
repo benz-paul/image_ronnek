@@ -220,6 +220,15 @@ CURRENT LEARNING STEP:
 ----------------------------------------
 SCENE PLAN RULES:
 
+0. CINEMATIC OPENING RULE (CRITICAL):
+   - Scene S1 (HOOK): Environment ONLY — no character visible.
+     Wide establishing shot. Pure atmosphere. Like a movie title card.
+     Show the mystery/setting before the character arrives.
+     (e.g., empty school courtyard at golden hour, chalk numbers appearing on ground)
+   - Scene S2 (SETUP): Character enters from a distance or we see them approach.
+     We see the character before they see the problem.
+     Do NOT start with characters already in the middle of things.
+
 1. Generate between 12-15 scenes (minimum 10, aim for 12-15)
 2. Each scene must have a PURPOSE:
    - HOOK: Grab attention
@@ -438,6 +447,15 @@ Ensure the story is not prematurely concluded.
 * If you need to show a second/different sequence, a character must explicitly say so in
   dialogue ("there's ANOTHER row over here — different pattern entirely").
 
+22. NO EARLY CONCEPT NAMING (CRITICAL):
+
+* CONFUSION and SETUP phases must NOT have characters formally name mathematical concepts.
+* In these phases, characters may only describe what they observe in plain language
+  (e.g., "the numbers keep going up by the same amount", "there's a pattern here").
+* Formal concept names — "arithmetic progression", "common difference", "first term",
+  "nth term", etc. — must be saved for DISCOVERY phase and later.
+* Introducing the concept name in CONFUSION destroys the payoff of the VALIDATION scene.
+
 ----------------------------------------
 OUTPUT JSON:
 
@@ -458,15 +476,41 @@ OUTPUT JSON:
       // WRONG: "Leo" "mr_aris" "Jojo" "MrAris" "mr.aris" — these break the audio pipeline
       "voice_id": "Polly voice ID from the character registry (e.g. Joey, Joanna)",
       "dialogue": "Exact dialogue line the character speaks",
-      "audio_text": "Same dialogue line — clean text suitable for TTS, no punctuation marks except commas and periods"
+      "audio_text": "Same dialogue line — clean text suitable for TTS, no punctuation marks except commas and periods",
+      "emotion": "happy | sad | curious | excited | frustrated | neutral"
     }
-  ]
+  ],
+  "student_interaction": {
+    "type": "none | think_prompt | prediction | mini_quiz",
+    "prompt_text": "A question or prompt for the student to think about before continuing",
+    "pause_seconds": 5,
+    "reveal_text": "The answer or insight revealed after the pause"
+  }
 }
+
+STUDENT INTERACTION RULES:
+- CONFUSION and DISCOVERY scenes: MUST include a "think_prompt" or "prediction" interaction.
+  Example: "What do you think happens to the sequence when the common difference doubles?"
+- REFLECTION scenes: include a "mini_quiz" interaction.
+  Example prompt: "Can you find the 10th term of 3, 7, 11, 15...?" / reveal: "The 10th term is 39!"
+- HOOK, SETUP, TRANSITION, RESOLUTION: use type "none" (set prompt_text and reveal_text to "").
+- The question should be something the STUDENT can answer based on what they have seen so far.
+- The reveal_text should be the answer or a key insight — short and memorable (1-2 sentences).
+- pause_seconds: 5 for think_prompt, 8 for prediction, 10 for mini_quiz.
+
+DIALOGUE LENGTH RULE (CRITICAL FOR IMAGE TEXT RENDERING):
+- Every character dialogue line MUST be 6 words or fewer
+- Shorter is always better — aim for 2-4 words when possible
+- Split long thoughts into multiple short lines across different bubbles
+- Examples of GOOD dialogue: "Wait. That can't be right." ✅ "Always four?" ✅ "Whoa—" ✅
+- Examples of BAD dialogue: "The common difference between each term is always four." ❌ (too long)
+- This rule is NON-NEGOTIABLE — long dialogue lines cause spelling errors in image generation
 
 AUDIO FIELD RULES:
 - narrator_audio_text: Write this as a skilled narrator would read it aloud. Pure prose. No [brackets] or (parentheses).
 - character_dialogues: One entry per character who speaks in this scene. Use voice_id from the story backbone character registry.
 - audio_text should be identical to dialogue unless the dialogue has special characters that would break TTS.
+- emotion: REQUIRED for every character_dialogue entry. Pick the ONE emotion that best matches this line's delivery. Drives TTS expressiveness via SSML voice modulation.
 - If a scene has no dialogue, set character_dialogues to an empty array [].
 
 Generate the complete scene now.
@@ -477,22 +521,50 @@ Generate the complete scene now.
 
 You are generating a SINGLE cinematic scene for an image model.
 
+GLOBAL STYLE LOCK (MANDATORY — apply to every single scene):
+- Art style: cinematic semi-realistic anime — anime-styled characters in a photorealistic environment
+- Lighting: golden hour backlighting, warm amber rim light, soft depth of field
+- Color grading: warm amber and soft teal, rich but not oversaturated
+- Every scene must look like a frame from the SAME movie — no style variation allowed
+- Characters must look IDENTICAL to their description in every scene — same face, hair, outfit
+
 STRICT RULES:
 - This is ONE single scene (NOT multiple panels)
-- DO NOT create comic strips
-- DO NOT create multi-panel layouts
+- DO NOT create comic strips or multi-panel layouts
 - DO NOT add labels, arrows, diagrams, or annotations
 - Keep scene realistic and cinematic
 
-DIALOGUE HANDLING:
-- If dialogue is provided, use it EXACTLY as given
-- DO NOT rewrite or summarize dialogue
-- DO NOT invent new dialogue
+CONCEPT VISUALIZATION (CRITICAL — makes images teach, not just decorate):
+- If the scene involves numbers, sequences, or patterns → show them physically in the environment:
+  chalk marks on ground, numbers on a whiteboard, numbered tiles on a path, beads on a string, markings on a wall
+- If the scene involves a formula or relationship → show components as physical objects characters interact with:
+  blocks stacking, measuring tape extending, objects arranged in rows
+- The mathematical concept should be DISCOVERABLE in the scene setting — embedded in the environment, not floating text
+- Use spatial arrangement to reinforce the concept (e.g., evenly spaced objects for arithmetic progression)
+
+CAMERA GUIDANCE BY SCENE PHASE:
+- HOOK: Wide establishing shot — show the full environment, characters small in frame, mystery/curiosity atmosphere
+- SETUP: Medium-wide shot — characters entering or exploring the space
+- CONFUSION: Medium shot — focus on character reactions (furrowed brows, scratching heads, looking puzzled)
+- DISCOVERY: Close-up on the artifact/object that reveals the concept (whiteboard, ground markings, notebook)
+- GUIDANCE: Over-the-shoulder shot — mentor character pointing at or explaining something visible
+- MICRO_LEARN: Close-up on the concept visualization (the pattern, the sequence, the diagram)
+- VALIDATION: Split focus — character and their work/visualization both visible
+- APPLICATION: Medium shot — characters actively using the concept in a real-world context
+- REFLECTION: Wide shot — characters stepping back, the complete concept visible in environment
+- PAYOFF/RESOLUTION: Character-centric medium shot — satisfaction/pride visible, concept in background
+
+CHARACTER EXPRESSIONS:
+- Characters must show the EMOTIONAL STATE of the scene through facial expressions and body language
+- Curiosity: leaning forward, eyes wide, pointing
+- Confusion: furrowed brow, scratching head, tilted head
+- Excitement/Discovery: eyes lit up, hands raised, leaning in
+- Satisfaction: relaxed posture, slight smile, nodding
 
 OUTPUT FORMAT:
 Return JSON:
 {
-  "visual_prompt": "clean visual description"
+  "visual_prompt": "clean visual description following the rules above"
 }
 
 INPUT:

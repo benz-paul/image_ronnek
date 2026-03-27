@@ -4,8 +4,11 @@ Image Generator Service - Generates images from scene data using various image m
 Supports:
 - OpenAI GPT-image-1.5
 - fal.ai Flux 2 Pro
-- fal.ai Juggernaut
+- fal.ai Juggernaut Pro
 - Dialogue overlay mode for speech bubbles
+
+Fallback: if primary fal.ai model returns 5xx errors, automatically retries
+with fal-ai/flux-2-pro (most reliable model).
 """
 
 import json
@@ -15,10 +18,11 @@ import requests
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from utils.pipeline_logger import debug
+
 from openai import OpenAI
 
 from brain.pipeline.state.pipeline_state import PipelineState
-from brain.services.dialogue_overlay import overlay_dialogue_on_image
 from utils.model_output_manager import (
     get_model_output_dir,
     create_run_folder,
@@ -29,6 +33,47 @@ from utils.image_repository import store_image_repository
 
 
 IMAGE_SIZE = "1536x1024"
+
+# Global visual style anchor — injected as a suffix into every image prompt
+# to keep consistent art style across all scenes and models.
+# Derived from the "cinematic semi-realistic anime" aesthetic of the target output style.
+GLOBAL_VISUAL_STYLE = (
+    "\n\nGLOBAL STYLE LOCK (apply to EVERY scene, no exceptions):\n"
+    "- Art style: cinematic semi-realistic anime — anime-styled characters in a photorealistic environment\n"
+    "- Lighting: golden hour backlighting, warm amber rim light, soft shadows\n"
+    "- Color palette: warm amber and soft teal contrast, rich but not oversaturated\n"
+    "- Camera: cinematic depth of field, film still quality, varied shot composition\n"
+    "- Character rendering: clean anime linework, expressive faces, consistent proportions\n"
+    "- Background: detailed photorealistic school/outdoor environment\n"
+    "- DO NOT vary the art style between scenes — every scene must feel like the same movie\n"
+    "- Overall mood: cinematic, engaging, suitable for high school students"
+)
+
+# Per-model configs for fal.ai — each model has its own endpoint and accepted parameters.
+# Flux 2 Pro is zero-config (no inference_steps/guidance_scale accepted).
+# Juggernaut Pro (/pro endpoint) accepts tuning params. Both use enum strings for image_size.
+# fallback_endpoint: used if the primary endpoint returns persistent 5xx errors.
+FAL_MODEL_CONFIGS = {
+    "fal-flux2pro": {
+        "endpoint": "fal-ai/flux-2-pro",
+        "fallback_endpoint": None,  # already the most reliable — no fallback needed
+        "payload": {
+            "image_size": "landscape_16_9",
+            "output_format": "png",
+        },
+    },
+    "fal-juggernaut": {
+        "endpoint": "rundiffusion-fal/juggernaut-flux/pro",
+        "fallback_endpoint": "fal-ai/flux-2-pro",  # fallback to Flux 2 Pro if 500s persist
+        "payload": {
+            "image_size": "landscape_16_9",
+            "num_inference_steps": 28,
+            "guidance_scale": 3.5,
+            "output_format": "png",
+            "negative_prompt": "blurry, low quality, distorted faces, extra limbs, extra fingers, deformed hands, text, watermark, signature, jpeg artifacts, ugly, duplicate, morbid",
+        },
+    },
+}
 
 
 class ImageGeneratorService:
@@ -89,8 +134,8 @@ class ImageGeneratorService:
                 raise ValueError("OPENAI_API_KEY environment variable not set")
             self.client = OpenAI(api_key=api_key)
 
-        print(f"[MODEL] Image model selected: {model}")
-        print(f"[MODE] Image rendering: {image_mode}")
+        debug(f"[MODEL] Image model selected: {model}")
+        debug(f"[MODE] Image rendering: {image_mode}")
 
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -99,12 +144,14 @@ class ImageGeneratorService:
             self._ensure_run_folder()
 
     def _get_fal_endpoint(self, model: str) -> str:
-        """Get the fal.ai endpoint for the given model."""
-        endpoints = {
-            "fal-flux2pro": "fal-ai/flux-pro/v2",
-            "fal-juggernaut": "fal-ai/juggernaut-xl",
-        }
-        return endpoints.get(model, "fal-ai/flux-pro/v2")
+        """Get the primary fal.ai endpoint for the given model."""
+        config = FAL_MODEL_CONFIGS.get(model, FAL_MODEL_CONFIGS["fal-flux2pro"])
+        return config["endpoint"]
+
+    def _get_fal_fallback_endpoint(self, model: str) -> Optional[str]:
+        """Get the fallback endpoint for a model (None if no fallback configured)."""
+        config = FAL_MODEL_CONFIGS.get(model, {})
+        return config.get("fallback_endpoint")
 
     def _ensure_run_folder(self) -> None:
         """Ensure the run folder exists for this model."""
@@ -177,7 +224,7 @@ class ImageGeneratorService:
             n=1,
         )
 
-        print(f"       DEBUG: OpenAI Response: {response}")
+        debug(f"[DEBUG] OpenAI response: {response}")
 
         if response.data:
             img_obj = response.data[0]
@@ -191,7 +238,7 @@ class ImageGeneratorService:
         return None
 
     def _generate_fal_image(self, prompt: str) -> Optional[bytes]:
-        """Generate image using fal.ai API with async polling."""
+        """Generate image using fal.ai API with async polling and fallback model."""
         import time
 
         headers = {
@@ -199,28 +246,69 @@ class ImageGeneratorService:
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "prompt": prompt,
-            "image_size": {
-                "width": 1536,
-                "height": 1024,
-            },
-            "num_inference_steps": 30,
-            "guidance_scale": 7.5,
-        }
+        # Append global style anchor to every prompt for visual consistency
+        styled_prompt = prompt + GLOBAL_VISUAL_STYLE
 
-        # Submit the request
-        response = requests.post(
-            f"https://queue.fal.run/{self.fal_endpoint}",
-            headers=headers,
-            json=payload,
-            timeout=120,
-        )
+        # Each model gets its own validated payload from FAL_MODEL_CONFIGS
+        config  = FAL_MODEL_CONFIGS.get(self.model, FAL_MODEL_CONFIGS["fal-flux2pro"])
+        payload = {"prompt": styled_prompt, **config["payload"]}
+
+        debug(f"[FAL] Model: {self.model}, Endpoint: {self.fal_endpoint}, Prompt length: {len(styled_prompt)}")
+
+        # Submit with retry logic — if primary endpoint keeps returning 5xx,
+        # fall back to the configured fallback_endpoint (e.g. flux-2-pro)
+        active_endpoint = self.fal_endpoint
+        fallback_endpoint = self._get_fal_fallback_endpoint(self.model)
+
+        submit_error = None
+        for submit_retry in range(3):
+            try:
+                response = requests.post(
+                    f"https://queue.fal.run/{active_endpoint}",
+                    headers=headers,
+                    json=payload,
+                    timeout=120,
+                )
+                if response.status_code < 500:
+                    submit_error = None
+                    break
+                submit_error = response.status_code
+                debug(f"[FAL RETRY] Submit got {submit_error}, retry {submit_retry + 1}/3")
+                time.sleep(2 ** submit_retry)
+            except Exception as e:
+                debug(f"[FAL RETRY] Submit exception: {e}, retry {submit_retry + 1}/3")
+                time.sleep(2 ** submit_retry)
+                continue
+
+        # If primary endpoint failed and a fallback is configured, try it once
+        if submit_error and fallback_endpoint and fallback_endpoint != active_endpoint:
+            print(f"[FAL FALLBACK] Primary {active_endpoint} failed ({submit_error}), trying {fallback_endpoint}")
+            fallback_config  = FAL_MODEL_CONFIGS.get("fal-flux2pro", {})
+            fallback_payload = {"prompt": styled_prompt, **fallback_config.get("payload", {})}
+            try:
+                response = requests.post(
+                    f"https://queue.fal.run/{fallback_endpoint}",
+                    headers=headers,
+                    json=fallback_payload,
+                    timeout=120,
+                )
+                if response.status_code < 500:
+                    active_endpoint = fallback_endpoint
+                    submit_error    = None
+                    print(f"[FAL FALLBACK] Using {fallback_endpoint} for this request")
+                else:
+                    print(f"[FAL FALLBACK] Fallback also failed ({response.status_code})")
+            except Exception as e:
+                print(f"[FAL FALLBACK] Fallback exception: {e}")
+
+        if submit_error:
+            print(f"[FAL ERROR] Submit returned {submit_error} after 3 retries (no working fallback)")
+            return None
 
         response.raise_for_status()
         result = response.json()
 
-        print(f"       DEBUG: fal.ai initial response: {result}")
+        debug(f"[DEBUG] fal.ai initial response: {result}")
 
         # Check if we got an immediate result (synchronous)
         if "images" in result and result.get("images"):
@@ -246,12 +334,31 @@ class ImageGeneratorService:
             time.sleep(2)
             attempt += 1
 
-            status_response = requests.get(status_url, headers=headers)
+            # Status poll with retry for 5xx errors
+            poll_error = None
+            for poll_retry in range(3):
+                try:
+                    status_response = requests.get(status_url, headers=headers)
+                    if status_response.status_code < 500:
+                        poll_error = None
+                        break
+                    poll_error = status_response.status_code
+                    debug(f"[FAL RETRY] Status poll got {poll_error}, retry {poll_retry + 1}/3")
+                    time.sleep(2 ** poll_retry)
+                except Exception as e:
+                    debug(f"[FAL RETRY] Status poll exception: {e}, retry {poll_retry + 1}/3")
+                    time.sleep(2 ** poll_retry)
+                    continue
+
+            if poll_error:
+                print(f"[FAL ERROR] Status poll returned {poll_error} after 3 retries")
+                return None
+
             status_response.raise_for_status()
             status_result = status_response.json()
 
             status = status_result.get("status")
-            print(f"[FAL STATUS] {status} (attempt {attempt}/{max_attempts})")
+            debug(f"[FAL STATUS] {status} (attempt {attempt}/{max_attempts})")
 
             if status == "COMPLETED":
                 # Fetch the result
@@ -260,7 +367,12 @@ class ImageGeneratorService:
                     final_response.raise_for_status()
                     final_result = final_response.json()
 
-                    print(f"       DEBUG: fal.ai final response: {final_result}")
+                    debug(f"[DEBUG] fal.ai final response: {final_result}")
+
+                    # Check for error in response body
+                    if final_result.get("error"):
+                        print(f"[FAL ERROR] Model returned error: {final_result['error']}")
+                        return None
 
                     image_url = final_result.get("images", [{}])[0].get("url")
                     if image_url:
@@ -294,7 +406,7 @@ class ImageGeneratorService:
         prompt: str,
         learning_step_id: Optional[str] = None,
         scene_id: Optional[str] = None,
-    ) -> str:
+    ) -> Optional[str]:
         """
         Generate an image from a text prompt.
 
@@ -306,7 +418,7 @@ class ImageGeneratorService:
                       a timestamp-based ID is generated.
 
         Returns:
-            Path to the generated image
+            Path to the saved image, or None if generation failed.
         """
         import time
         import uuid
@@ -318,25 +430,32 @@ class ImageGeneratorService:
 
         filepath = self._get_image_path(learning_step_id, scene_id)
 
+        # Prompt validation - skip if too short (indicates empty/plan-data fallback)
+        prompt_len = len(prompt.strip()) if prompt else 0
+        if prompt_len < 30:
+            print(f"[IMAGE SKIP] {scene_id}: prompt too short ({prompt_len} chars), skipping to avoid API errors")
+            debug(f"[IMAGE SKIP] {scene_id}: prompt was: {prompt[:100] if prompt else '(empty)'}")
+            return None
+
         try:
+            debug(f"[IMAGE PROMPT] {scene_id}: {prompt[:200]}")
             if self.use_fal:
                 image_data = self._generate_fal_image(prompt)
             else:
                 image_data = self._generate_openai_image(prompt)
 
             if not image_data:
-                print(f"WARNING: No image data returned.")
-                return str(filepath)
+                print(f"[IMAGE FAIL] No image data returned for {scene_id}. Check FAL_KEY/API key and endpoint.")
+                return None
 
             with open(filepath, "wb") as f:
                 f.write(image_data)
 
-            print(f"Image saved: {filepath}")
             return str(filepath)
 
         except Exception as e:
-            print(f"Error generating image: {e}")
-            return str(filepath)
+            print(f"[IMAGE ERROR] {scene_id}: {e}")
+            return None
 
     def generate_image_prompt_text(self, scene_data: Dict[str, Any]) -> str:
         """
@@ -352,7 +471,7 @@ class ImageGeneratorService:
         Returns:
             Image generation prompt text
         """
-        print(f"[IMAGE PROMPT MODE] {self.image_mode}")
+        debug(f"[IMAGE PROMPT MODE] {self.image_mode}")
 
         scene_id = scene_data.get("scene_id", "unknown")
         scene_goal = scene_data.get("scene_goal", "")
@@ -372,9 +491,8 @@ class ImageGeneratorService:
             [f"{d.get('speaker', 'Character')}: {d.get('text', '')}" for d in dialogues]
         )
 
-        if self.image_mode == "overlay":
-            # Overlay mode: explicitly exclude text, leave space for dialogue
-            prompt = f"""Create an educational comic/illustration scene for later dialogue overlay.
+        # Dialogue-in mode: AI renders speech bubbles with dialogue text
+        prompt = f"""Create a cinematic illustration of characters in active conversation with speech bubbles:
 
 Scene Goal: {scene_goal}
 Concept: {concept_focus}
@@ -387,48 +505,17 @@ Story: {screenplay}
 
 Camera: {camera_suggestion}
 
-Important rules for overlay preparation:
-- Do NOT include speech bubbles
-- Do NOT include written text
-- Do NOT render dialogue text inside the image
-- Keep upper corners and lower corners visually clear for dialogue overlay
-- Leave clean visual space around characters suitable for later dialogue overlay
-- Focus on environment, character positions, and expressions
-- Characters should have expressive poses and facial expressions that convey the story
-- Background should be clean and not cluttered
+Character direction:
+- Characters should appear to be in active dialogue — open mouths, hand gestures, eye contact
+- Facial expressions must convey the emotional tone: curiosity, confusion, excitement, realization
+- Body language should be dynamic, not static poses
+- If the concept involves numbers or sequences, show them physically in the environment (chalk on ground, numbers on whiteboard, tiles on a path)
+- If the concept involves a formula, show components as physical objects characters interact with
 
 Requirements:
-- Educational comic style illustration
-- Clean background appropriate to the setting
-- Suitable for CBSE Grade 10 students
-- Style: clean educational comic illustration, classroom teaching scene, clear board diagrams"""
-        else:
-            # Dialogue rendered mode: include dialogue for AI to render in image
-            prompt = f"""Create an educational comic/illustration scene:
-
-Scene Goal: {scene_goal}
-Concept: {concept_focus}
-Mood: {emotional_tone}
-
-Setting: {environment}
-Atmosphere: {atmosphere}
-
-Story: {screenplay}
-
-Camera: {camera_suggestion}
-
-Dialogue lines:
-{dialogue_text}
-
-Requirements:
-- Educational comic style
-- Include speech bubbles with the dialogue lines above
-- Clear character expressions showing emotions
-- Clean background appropriate to the setting
-- Text in images should be in English
-- Suitable for CBSE Grade 10 students
-- Style: clean educational comic illustration, classroom teaching scene, clear board diagrams, readable visual layout
-- clean readable English text, correct mathematical notation, no distorted characters"""
+- Cinematic composition with strong character expressions
+- Clean detailed background appropriate to the setting
+- Suitable for high school students"""
 
         return prompt
 
@@ -481,38 +568,6 @@ Requirements:
             with open(filepath, "wb") as f:
                 f.write(image_data)
 
-            # Handle overlay if enabled
-            overlay_applied = False
-            overlay_path = None
-            overlay_dialogue_path = None
-
-            if self.image_mode == "overlay":
-                try:
-                    # Get overlay output path - save overlay images in same folder with _overlay suffix
-                    # Path: run_folder/images/overlay_dialogue/<quality>/<learning_step_id>/
-
-                    base_name = filepath.stem
-                    overlay_path = filepath.parent / f"{base_name}_overlay.png"
-                    overlay_dialogue_path = (
-                        filepath.parent / f"{base_name}_dialogue.json"
-                    )
-
-                    # Apply dialogue overlay
-                    overlay_result = overlay_dialogue_on_image(
-                        base_image_path=str(filepath),
-                        scene_json=scene_data,
-                        output_path=str(overlay_path),
-                    )
-
-                    overlay_applied = True
-                    print(f"[OVERLAY] Dialogue successfully rendered")
-                    print(f"[OVERLAY] Saved: {overlay_path}")
-
-                except RuntimeError as e:
-                    print(f"[OVERLAY] Warning: Could not apply overlay: {e}")
-                except Exception as e:
-                    print(f"[OVERLAY] Error applying overlay: {e}")
-
             # Copy to image repository
             full_scene_id = f"{learning_step_id}_{scene_id}"
             repository_path = store_image_repository(
@@ -522,7 +577,7 @@ Requirements:
                 scene_id=full_scene_id,
             )
 
-            result = {
+            return {
                 "scene_id": scene_id,
                 "learning_step_id": learning_step_id,
                 "image_prompt": image_prompt,
@@ -530,13 +585,6 @@ Requirements:
                 "repository_path": repository_path,
                 "full_scene_data": scene_data,
             }
-
-            if overlay_applied and overlay_path:
-                result["overlay_image_path"] = str(overlay_path)
-                result["overlay_dialogue_path"] = str(overlay_dialogue_path)
-                result["overlay_applied"] = True
-
-            return result
 
         except Exception as e:
             print(f"Error generating image for {learning_step_id}_{scene_id}: {e}")

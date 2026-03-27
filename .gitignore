@@ -15,6 +15,19 @@ logs/
 # Stray Windows null-device file created by shell redirects
 nul
 
+# Accidental pip install artifacts (e.g. "=0.25.1" files)
+=*
+
+# =============================================================================
+# TEST RUNS & TEST OUTPUTS (test_op is excluded from main pipeline commits)
+# =============================================================================
+test_op/outputs/
+test_op/flux_pro/
+test_op/juggernaut/
+test_op/openai/
+test_op/logs/
+test_op/__pycache__/
+
 # =============================================================================
 # PYTHON
 # =============================================================================
@@ -51,6 +64,7 @@ htmlcov/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+frontend/tsconfig.tsbuildinfo
 
 # =============================================================================
 # IDE & OS
@@ -66,3 +80,5 @@ Thumbs.db
 # CLAUDE CODE INTERNAL
 # =============================================================================
 .claude/settings.local.json
+.claude
+Claude.md

@@ -199,18 +199,49 @@ def get_run(run_id: str) -> Dict[str, Any]:
             if not scene_id.startswith(ls_id):
                 scene_id = f"{ls_id}_{scene_id}"
 
-            # Attach audio URLs (frontend fetches from /static/...)
+            # Attach audio URLs + timing (frontend fetches from /static/...)
             scene_audio = ls_audio.get(scene_id, {})
             scene_copy = dict(scene)
+
+            # Narrator info
+            narrator_info = scene_audio.get("narrator", {})
+            has_narrator = bool(narrator_info.get("path") if isinstance(narrator_info, dict) else narrator_info)
+            narrator_dur = narrator_info.get("duration_ms", 0) if isinstance(narrator_info, dict) else 0
+
+            # Dialogue timing list (from new manifest format)
+            manifest_dialogues = scene_audio.get("dialogues", [])
+            char_count = len(scene_audio.get("characters", {}))
+
+            # Build dialogue URL list with timing
+            dialogue_urls = []
+            for i in range(max(char_count, len(manifest_dialogues))):
+                key = f"dialogue_{str(i+1).zfill(2)}"
+                entry = {
+                    "url": f"/static/{run_id}/audio/{ls_id}/{scene_id}/{key}.mp3",
+                    "speaker": manifest_dialogues[i].get("speaker", "unknown") if i < len(manifest_dialogues) else "unknown",
+                    "duration_ms": manifest_dialogues[i].get("duration_ms", 0) if i < len(manifest_dialogues) else 0,
+                    "start_ms": manifest_dialogues[i].get("start_ms", 0) if i < len(manifest_dialogues) else 0,
+                }
+                dialogue_urls.append(entry)
+
+            # Check if combined.mp3 exists in manifest
+            combined_path = scene_audio.get("combined_path", "")
+            has_combined = bool(combined_path)
+            combined_dur = scene_audio.get("combined_duration_ms", 0)
+
             scene_copy["audio"] = {
+                "combined_url": (
+                    f"/static/{run_id}/audio/{ls_id}/{scene_id}.mp3"
+                    if has_combined else None
+                ),
+                "combined_duration_ms": combined_dur,
                 "narrator_url": (
                     f"/static/{run_id}/audio/{ls_id}/{scene_id}/narrator.mp3"
-                    if scene_audio.get("narrator") else None
+                    if has_narrator else None
                 ),
-                "characters": {
-                    char_id: f"/static/{run_id}/audio/{ls_id}/{scene_id}/char_{char_id.lower().replace(' ', '_')}.mp3"
-                    for char_id in scene_audio.get("characters", {})
-                },
+                "narrator_duration_ms": narrator_dur,
+                "dialogue_urls": dialogue_urls,
+                "total_duration_ms": scene_audio.get("total_duration_ms", 0),
             }
             # Attach image URL
             scene_copy["image_url"] = (

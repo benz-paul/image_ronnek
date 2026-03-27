@@ -66,6 +66,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
+from utils.pipeline_logger import debug
+
 
 def get_base_output_dir() -> Path:
     """Get the base output directory."""
@@ -232,7 +234,7 @@ def save_scenes(run_folder: Path, ls_index: int, scenes_data: Any) -> None:
         scene_filename = f"{scene_id}.json"
         with open(ls_scenes_dir / scene_filename, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=2, ensure_ascii=False)
-        print(f"[SCENE STORAGE] {scene_id} saved to scenes/{ls_key}/{scene_filename}")
+        debug(f"[SCENE STORAGE] {scene_id} saved to scenes/{ls_key}/{scene_filename}")
 
     # Combined LS scenes in parsed/
     save_parsed(run_folder, f"scenes_{ls_key}", scenes)
@@ -265,11 +267,12 @@ def save_image(
     image_filename = f"LS{ls_index + 1}_S{scene_index + 1}.png"
     image_filepath = images_ls_dir / image_filename
 
-    src = Path(source_image_path)
-    if src.exists():
-        shutil.copy2(src, image_filepath)
-    else:
-        print(f"[WARNING] save_image: source not found: {source_image_path}")
+    if source_image_path:
+        src = Path(source_image_path)
+        if src.exists():
+            shutil.copy2(src, image_filepath)
+        else:
+            debug(f"[WARNING] save_image: source not found: {source_image_path}")
 
     if image_prompt:
         prompt_filepath = images_ls_dir / f"LS{ls_index + 1}_S{scene_index + 1}.txt"

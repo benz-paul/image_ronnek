@@ -11,6 +11,7 @@ This module defines the LangGraph workflow that:
 import os
 import json
 import re
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -36,6 +37,7 @@ from brain.pipeline.state.pipeline_state import (
 )
 from brain.agents.flow_tracker_agent import FlowTrackerAgent, PipelineStage
 
+from brain.services.audio_generator import AudioGeneratorService
 from brain.services.image_generator import ImageGeneratorService
 from brain.services.ppt_generator import PPTGeneratorService
 from brain.services.prompt_builder import PromptBuilder
@@ -53,6 +55,7 @@ from utils.model_output_manager import (
     save_audio_manifest,
 )
 from utils.json_utils import safe_parse, safe_parse_with_retry
+from utils.pipeline_logger import debug, log
 
 
 # =============================================================================
@@ -64,7 +67,7 @@ def _ensure_debug_dir():
     """Create debug output directory if it doesn't exist."""
     if DEBUG_MODE:
         Path(DEBUG_OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
-        print(f"[DEBUG] Debug output directory: {DEBUG_OUTPUT_DIR}")
+        debug(f"[DEBUG] Debug output directory: {DEBUG_OUTPUT_DIR}")
 
 
 def _save_debug_json(filename: str, data: Any) -> None:
@@ -73,7 +76,7 @@ def _save_debug_json(filename: str, data: Any) -> None:
         filepath = Path(DEBUG_OUTPUT_DIR) / filename
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
-        print(f"[DEBUG] Saved: {filepath}")
+        debug(f"[DEBUG] Saved: {filepath}")
 
 
 def _capture_state(state: PipelineState, label: str) -> None:
@@ -120,27 +123,27 @@ def _save_image_debug() -> None:
     """Save captured image prompts to file."""
     if DEBUG_MODE and _image_debug_data:
         _save_debug_json("image_prompts.json", _image_debug_data)
-        print(f"[DEBUG] Saved {len(_image_debug_data)} image prompts")
+        debug(f"[DEBUG] Saved {len(_image_debug_data)} image prompts")
 
 
 def _debug_print_state(label: str, state: PipelineState) -> None:
     """Print formatted debug state."""
     if DEBUG_MODE:
-        print(f"\n{'=' * 60}")
-        print(f"[DEBUG STATE] {label}")
-        print(f"{'=' * 60}")
-        print(f"  LS count: {len(state.learning_steps_list)}")
-        print(
+        debug(f"\n{'=' * 60}")
+        debug(f"[DEBUG STATE] {label}")
+        debug(f"{'=' * 60}")
+        debug(f"  LS count: {len(state.learning_steps_list)}")
+        debug(
             f"  LS IDs: {[ls.get('learning_step_id', f'LS{i}') for i, ls in enumerate(state.learning_steps_list)]}"
         )
-        print(f"  Scenes keys: {list(state.scenes.keys())}")
-        print(f"  Scene counts: {[(k, len(v)) for k, v in state.scenes.items()]}")
-        print(f"  Current LS index: {state.current_learning_step_index}")
-        print(f"  Current Scene index: {state.current_scene_index}")
-        print(f"  Generate images: {state.generate_images}")
-        print(f"  Generation mode: {state.generation_mode}")
-        print(f"  Image model: {state.image_model}")
-        print(f"{'=' * 60}\n")
+        debug(f"  Scenes keys: {list(state.scenes.keys())}")
+        debug(f"  Scene counts: {[(k, len(v)) for k, v in state.scenes.items()]}")
+        debug(f"  Current LS index: {state.current_learning_step_index}")
+        debug(f"  Current Scene index: {state.current_scene_index}")
+        debug(f"  Generate images: {state.generate_images}")
+        debug(f"  Generation mode: {state.generation_mode}")
+        debug(f"  Image model: {state.image_model}")
+        debug(f"{'=' * 60}\n")
 
 
 # =============================================================================
@@ -374,11 +377,11 @@ def validate_scenes_response(
     valid_scenes = []
     invalid_count = 0
 
-    print(f"\n  Validating {len(scenes)} scenes...")
+    debug(f"\n  Validating {len(scenes)} scenes...")
 
     for i, scene in enumerate(scenes):
         if not isinstance(scene, dict):
-            print(f"    ⚠ Scene {i + 1}: Not a dictionary, skipping")
+            debug(f"    ⚠ Scene {i + 1}: Not a dictionary, skipping")
             invalid_count += 1
             continue
 
@@ -406,9 +409,9 @@ def validate_scenes_response(
 
     # Report validation results
     if invalid_count > 0:
-        print(f"  ⚠ {invalid_count} scenes had missing optional fields (acceptable)")
+        debug(f"  ⚠ {invalid_count} scenes had missing optional fields (acceptable)")
 
-    print(f"  ✓ Validated {len(valid_scenes)} scenes for {ls_id}")
+    debug(f"  ✓ Validated {len(valid_scenes)} scenes for {ls_id}")
     return valid_scenes
 
 
@@ -546,15 +549,20 @@ class LLMService:
                     timeout=120,
                 )
                 break
-            except requests.exceptions.Timeout as e:
+            except (
+                requests.exceptions.Timeout,
+                requests.exceptions.ChunkedEncodingError,
+                requests.exceptions.ConnectionError,
+            ) as e:
                 if attempt < max_retries - 1:
                     print(
-                        f"[RETRY] Timeout attempt {attempt + 1}/{max_retries}, retrying..."
+                        f"[RETRY] Network error (attempt {attempt + 1}/{max_retries}), retrying in 5s..."
                     )
+                    time.sleep(5)
                     continue
                 else:
-                    print(f"[ERROR] Timeout after {max_retries} attempts")
-                    raise Exception(f"LLM timeout after {max_retries} attempts: {e}")
+                    print(f"[ERROR] Network error after {max_retries} attempts: {e}")
+                    raise Exception(f"LLM request failed after {max_retries} attempts: {e}")
 
         # Handle errors
         if response.status_code != 200:
@@ -573,8 +581,7 @@ class LLMService:
         # OpenRouter returns cost in USD
         cost = usage.get("cost", 0)
 
-        # Debug token usage
-        print(
+        debug(
             f"[TOKENS] prompt={prompt_tokens}, completion={completion_tokens}, total={total_tokens}, cost=${cost}"
         )
 
@@ -592,30 +599,28 @@ class LLMService:
                 "max_tokens": tokens,
             }
 
-            retry_resp = requests.post(
-                url="https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": "Bearer " + api_key,
-                    "Content-Type": "application/json",
-                },
-                json=retry_payload,
-                timeout=120,
-            )
-
-            if retry_resp.status_code == 200:
-                retry_json = retry_resp.json()
-                content = retry_json["choices"][0]["message"].get("content")
+            try:
+                retry_resp = requests.post(
+                    url="https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": "Bearer " + api_key,
+                        "Content-Type": "application/json",
+                    },
+                    json=retry_payload,
+                    timeout=120,
+                )
+                if retry_resp.status_code == 200:
+                    retry_json = retry_resp.json()
+                    content = retry_json["choices"][0]["message"].get("content")
+            except Exception:
+                pass  # content stays None, fallback handles it below
 
             if not content:
                 print("[FALLBACK] Using minimal fallback output")
                 content = '{"concepts": ["Basic Concept"]}'
 
-        # Debug
-        print("\n[LLM RAW RESPONSE]")
-        print(response_json)
-
-        print("\n[LLM CONTENT]")
-        print(content[:500] if content else "EMPTY")
+        debug(f"\n[LLM RAW RESPONSE]\n{response_json}")
+        debug(f"\n[LLM CONTENT]\n{content[:500] if content else 'EMPTY'}")
 
         # Log to LangSmith if available
         try:
@@ -722,16 +727,16 @@ class PipelineGraph:
 
             # HARD STOP - bounds check BEFORE logging
             if total_scenes == 0:
-                print(f"[ROUTER] {ls_key} has no scenes planned → go to prompt4")
+                debug(f"[ROUTER] {ls_key} has no scenes planned → go to prompt4")
                 return "execute_prompt4"
 
             # Guard: only log when index is in bounds
             if current_scene_idx < total_scenes:
-                print(f"[ROUTER] {ls_key} scene {current_scene_idx + 1}/{total_scenes}")
+                debug(f"[ROUTER] {ls_key} scene {current_scene_idx + 1}/{total_scenes}")
 
             # HARD STOP - scene index out of bounds means this LS is done
             if current_scene_idx >= total_scenes:
-                print(f"[ROUTER] All {total_scenes} scenes generated for {ls_key}")
+                debug(f"[ROUTER] All {total_scenes} scenes generated for {ls_key}")
 
                 # LS1 MODE → STOP AFTER FIRST LS
                 if state.generation_mode == "ls1":
@@ -751,10 +756,10 @@ class PipelineGraph:
                 and getattr(state, "scene_generation_scope", None) == "single"
             ):
                 if current_scene_idx >= 1:
-                    print("[DEBUG] Single scene mode → END scene gen, go to prompt4")
+                    debug("[DEBUG] Single scene mode → END scene gen, go to prompt4")
                     return "execute_prompt4"
                 else:
-                    print("[DEBUG] Single scene mode → generate first scene")
+                    debug("[DEBUG] Single scene mode → generate first scene")
                     return "execute_prompt3b"
 
             # LOOP THROUGH SCENES (full mode)
@@ -784,7 +789,7 @@ class PipelineGraph:
 
             # No images → go directly to generate_ppt
             if not state.generate_images:
-                print("[ROUTER] Image generation disabled → generate_ppt")
+                debug("[ROUTER] Image generation disabled → generate_ppt")
                 return "generate_ppt"
 
             # Check bounds
@@ -792,7 +797,7 @@ class PipelineGraph:
             scene_index = state.current_scene_index
 
             if ls_index >= len(state.learning_steps_list):
-                print("[ROUTER] All learning steps processed → generate_ppt")
+                debug("[ROUTER] All learning steps processed → generate_ppt")
                 return "generate_ppt"
 
             # Use actual learning_step_id
@@ -804,28 +809,36 @@ class PipelineGraph:
                 ls_key = f"LS{ls_index + 1}"
 
             scene_plan = state.scene_plans.get(ls_key, [])
+            current_ls = state.learning_steps_list[ls_index] if ls_index < len(state.learning_steps_list) else {}
+
+            # Single-scene mode: cap to only generated scenes (not the full plan)
+            single_done = getattr(state, "single_scene_done", False)
+            if single_done:
+                total_scenes = len(current_ls.get("scenes", []))
+                debug(f"[DEBUG] Single-scene mode: limiting to {total_scenes} generated scene(s), not {len(scene_plan)} planned")
+            else:
+                total_scenes = len(scene_plan)
 
             # LS1-only mode → only process LS1 scenes
             if state.generation_mode == "ls1":
-                total_scenes = len(scene_plan)
                 if scene_index >= total_scenes:
-                    print("[ROUTER] LS1-only: all scenes done → generate_ppt")
+                    debug("[ROUTER] LS1-only: all scenes done → generate_ppt")
                     return "generate_ppt"
-                print(f"[ROUTER] LS1-only: scene {scene_index + 1}/{total_scenes}")
+                debug(f"[ROUTER] LS1-only: scene {scene_index + 1}/{total_scenes}")
                 return "execute_prompt4"
 
             # Full mode - continue through all scenes and LS
             if scene_index < len(scene_plan):
-                print(f"[ROUTER] Scene {scene_index + 1}/{len(scene_plan)}")
+                debug(f"[ROUTER] Scene {scene_index + 1}/{len(scene_plan)}")
                 return "execute_prompt4"
 
             # Move to next LS
             next_ls = ls_index + 1
             if next_ls >= len(state.learning_steps_list):
-                print("[ROUTER] All LS complete → generate_ppt")
+                debug("[ROUTER] All LS complete → generate_ppt")
                 return "generate_ppt"
 
-            print(f"[ROUTER] Moving to LS{next_ls + 1}")
+            debug(f"[ROUTER] Moving to LS{next_ls + 1}")
             return "execute_prompt4"
 
         graph.add_conditional_edges(
@@ -907,23 +920,33 @@ class PipelineGraph:
         if not full_text:
             raise ValueError("No chapter text available for concept extraction")
 
-        print(f"[DEBUG] Full text length: {len(full_text)}")
+        debug(f"[DEBUG] Full text length: {len(full_text)}")
 
-        # STEP 1 — First pass (extract concept titles only)
+        # STEP 1 — First pass (extract concept titles only), retry once on bad response
         prompt1 = self.prompt_builder.get_prompt(
             "prompt0a",
-            CHAPTER_TEXT=full_text[:12000],
+            CHAPTER_TEXT=full_text[:35000],
         )
         print("  First pass: Full extraction...")
-        result1 = self.llm_service.invoke(prompt1, max_tokens=2000, temperature=0.2)
-        response1 = result1["content"]
-        concepts_pass1 = safe_parse(response1, prompt_type="concepts")
-        print("[DEBUG] Prompt0 response length:", len(str(response1)))
+        concepts_pass1 = {"_error": "not_run"}
+        for _attempt in range(2):
+            result1 = self.llm_service.invoke(prompt1, max_tokens=3000, temperature=0.2)
+            response1 = result1["content"]
+            concepts_pass1 = safe_parse(response1, prompt_type="concepts")
+            debug(f"[DEBUG] Prompt0 response length: {len(str(response1))}")
+            if "_error" not in concepts_pass1 and "_invalid" not in concepts_pass1:
+                break
+            if _attempt == 0:
+                print("  [RETRY] Pass 1 returned invalid content, retrying...")
+        if "_error" in concepts_pass1 or "_invalid" in concepts_pass1:
+            print("  [WARNING] Pass 1 failed — continuing with pass 2 full extraction")
 
         # STEP 2 — Second pass (gap detection)
+        # If pass 1 failed, pass empty list so pass 2 does a full extraction
+        concepts_list1 = concepts_pass1.get("concepts", []) if "_error" not in concepts_pass1 and "_invalid" not in concepts_pass1 else []
         prompt2 = self.prompt_builder.get_prompt(
             "prompt0b",
-            EXISTING_CONCEPTS=json.dumps(concepts_pass1),
+            EXISTING_CONCEPTS=json.dumps({"concepts": concepts_list1}),
         )
         print("  Second pass: Gap detection...")
         result2 = self.llm_service.invoke(prompt2, max_tokens=1000, temperature=0.2)
@@ -931,8 +954,8 @@ class PipelineGraph:
         concepts_pass2 = safe_parse(response2, prompt_type="concepts")
 
         # STEP 3 — Merge (both are now lists of concept titles)
-        concepts_list1 = concepts_pass1.get("concepts", [])
-        concepts_list2 = concepts_pass2.get("concept_titles", [])
+        # concepts_list1 already set above (empty if pass 1 failed)
+        concepts_list2 = concepts_pass2.get("concept_titles", []) or concepts_pass2.get("concepts", [])
 
         # Combine and deduplicate
         all_concepts = concepts_list1 + concepts_list2
@@ -940,7 +963,7 @@ class PipelineGraph:
             dict.fromkeys(all_concepts)
         )  # Preserve order, remove duplicates
 
-        print(f"[DEBUG] Total concepts: {len(final_concepts)}")
+        debug(f"[DEBUG] Total concepts: {len(final_concepts)}")
 
         state.prompt0_output = {"concepts": final_concepts}
 
@@ -1044,15 +1067,15 @@ class PipelineGraph:
         learning_steps_list = learning_steps.get("learning_steps", [])
         if state.generation_mode == "ls1":
             learning_steps_list = learning_steps_list[:1]
-            print(f"[MODE] LS1-only mode: Processing only first learning step")
-            print(f"[MODE] Only LS1.json will be saved in learning_steps/")
+            debug(f"[MODE] LS1-only mode: Processing only first learning step")
+            debug(f"[MODE] Only LS1.json will be saved in learning_steps/")
 
         # UPDATE STATE - critical synchronization
         state.learning_steps_list = learning_steps_list
         state.active_learning_steps = learning_steps_list
 
-        print(f"[DEBUG] Total learning steps: {len(state.learning_steps_list)}")
-        print(
+        debug(f"[DEBUG] Total learning steps: {len(state.learning_steps_list)}")
+        debug(
             f"[DEBUG] LS list: {[ls.get('learning_step_id', f'LS{i + 1}') for i, ls in enumerate(state.learning_steps_list)]}"
         )
 
@@ -1074,7 +1097,7 @@ class PipelineGraph:
             if concepts_introduced is None:
                 concepts_introduced = ls.get("concepts_covered", [])
                 if concepts_introduced != []:
-                    print(
+                    debug(
                         f"[WARNING] Using fallback key: concepts_covered → concepts_introduced for {ls_id}"
                     )
 
@@ -1082,19 +1105,19 @@ class PipelineGraph:
             if narrative_moment is None or narrative_moment == "":
                 narrative_moment = ls.get("description", "")
                 if narrative_moment != "":
-                    print(
+                    debug(
                         f"[WARNING] Using fallback key: description → narrative_moment for {ls_id}"
                     )
 
             # Validate required fields
             if not concepts_introduced:
-                print(
+                debug(
                     f"[WARNING] Missing concepts_introduced for {ls_id}, using empty list"
                 )
                 concepts_introduced = []
 
             if not narrative_moment:
-                print(
+                debug(
                     f"[WARNING] Missing narrative_moment for {ls_id}, using placeholder"
                 )
                 narrative_moment = f"Learning step about {ls.get('title', ls_id)}"
@@ -1124,7 +1147,7 @@ class PipelineGraph:
             with open(ls_filepath, "w", encoding="utf-8") as f:
                 json.dump(ls_data, f, indent=2, ensure_ascii=False)
 
-            print(f"[LS STORAGE] Saved {ls_id} → learning_steps/{ls_filename}")
+            debug(f"[LS STORAGE] Saved {ls_id} → learning_steps/{ls_filename}")
 
         print(f"  ✓ Saved parsed learning_steps to: parsed/learning_steps.json")
         print(
@@ -1134,7 +1157,7 @@ class PipelineGraph:
         # DEBUG MODE: Limit to DEBUG_MAX_LS learning steps
         if DEBUG_MODE:
             _ensure_debug_dir()
-            print(f"\n[DEBUG] Limiting to {DEBUG_MAX_LS} learning step(s)")
+            debug(f"[DEBUG] Limiting to {DEBUG_MAX_LS} learning step(s)")
             validated_learning_steps = validated_learning_steps[:DEBUG_MAX_LS]
             _save_debug_json(
                 "learning_steps_after_prompt2.json", validated_learning_steps
@@ -1167,7 +1190,7 @@ class PipelineGraph:
             print("[PIPELINE ERROR] No learning steps generated from Prompt 2.")
             return {"learning_steps_list": state.learning_steps_list}
 
-        print(f"[DEBUG] Active LS count: {len(state.learning_steps_list)}")
+        debug(f"[DEBUG] Active LS count: {len(state.learning_steps_list)}")
 
         if current_index >= len(state.learning_steps_list):
             print(
@@ -1185,10 +1208,7 @@ class PipelineGraph:
         ls_key = ls_id
 
         print(f"\n{'=' * 60}")
-        print(
-            f"  SCENE PLANNING: {ls_id} ({current_index + 1}/{len(state.learning_steps_list)})"
-        )
-        print(f"{'=' * 60}")
+        print(f"  [PLAN] Building scene plan for {ls_id} ({current_index + 1}/{len(state.learning_steps_list)})...")
 
         run_folder = Path(state.model_run_folder or state.run_folder)
 
@@ -1225,7 +1245,7 @@ class PipelineGraph:
         )
         # SKIP IF EXISTS - prevent re-planning
         if ls_key in state.scene_plans and len(state.scene_plans[ls_key]) > 0:
-            print(f"[DEBUG] Using existing scene plan for {ls_key}")
+            debug(f"[DEBUG] Using existing scene plan for {ls_key}")
             scene_plan = state.scene_plans[ls_key]
         else:
             # Retry logic for scene planning
@@ -1260,9 +1280,7 @@ class PipelineGraph:
                         retry_count += 1
                         continue
 
-                    print(
-                        f"[SCENE PLAN] Generated {len(scene_plan)} scenes for {ls_key}"
-                    )
+                    print(f"  [PLAN] {ls_key}: {len(scene_plan)} scenes planned")
                     break
 
                 except Exception as e:
@@ -1320,14 +1338,14 @@ class PipelineGraph:
         current_ls_index = state.current_learning_step_index
         current_scene_index = state.current_scene_index
 
-        print(f"[DEBUG] Active LS count: {len(state.learning_steps_list)}")
+        debug(f"[DEBUG] Active LS count: {len(state.learning_steps_list)}")
 
         if not state.learning_steps_list:
             print("[PIPELINE ERROR] No learning steps.")
             return {"learning_steps_list": state.learning_steps_list}
 
         if current_ls_index >= len(state.learning_steps_list):
-            print(f"\n[PROMPT3B] Completed all learning steps")
+            debug(f"[PROMPT3B] Completed all learning steps")
             return {
                 "learning_steps_list": state.learning_steps_list,
                 "current_learning_step_index": current_ls_index + 1,
@@ -1347,8 +1365,7 @@ class PipelineGraph:
             if scene_plan:
                 ls_key = index_key
 
-        print(f"[DEBUG] Scene plan count: {len(scene_plan)}")
-        print(f"[DEBUG] Generating scenes for LS: {ls_id}")
+        debug(f"[DEBUG] Scene plan count: {len(scene_plan)}, LS: {ls_id}")
 
         if not scene_plan:
             print(f"[ERROR] No scene plan for {ls_key} → skipping to next LS")
@@ -1359,7 +1376,7 @@ class PipelineGraph:
             }
 
         if current_scene_index >= len(scene_plan):
-            print(f"[PROMPT3B] All {len(scene_plan)} scenes completed for {ls_key}")
+            debug(f"[PROMPT3B] All {len(scene_plan)} scenes completed for {ls_key}")
             return {
                 "learning_steps_list": state.learning_steps_list,
                 "current_learning_step_index": current_ls_index + 1,
@@ -1370,9 +1387,13 @@ class PipelineGraph:
         current_plan = scene_plan[current_scene_index]
         scene_id = current_plan.get("scene_id", f"S{current_scene_index + 1}")
 
-        print(
-            f"\n  Generating {ls_key}_{scene_id} ({current_scene_index + 1}/{len(scene_plan)})"
-        )
+        # Print LS banner on first scene of each learning step
+        if current_scene_index == 0:
+            ls_title = learning_step.get("title", ls_key)
+            print(f"\n{'═' * 56}")
+            print(f"  [{ls_key}] {ls_title}")
+            print(f"{'═' * 56}")
+        print(f"  [SCENE] {scene_id} ({current_scene_index + 1}/{len(scene_plan)}) — {current_plan.get('phase', 'SCENE')}")
 
         run_folder = Path(state.model_run_folder or state.run_folder)
 
@@ -1463,7 +1484,7 @@ class PipelineGraph:
         with open(scene_path, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=2, ensure_ascii=False)
 
-        print(f"[SCENE GEN] {ls_key}_{scene_id} saved to scenes/{ls_key}/{scene_filename}")
+        debug(f"[SCENE GEN] {ls_key}_{scene_id} saved to scenes/{ls_key}/{scene_filename}")
 
         # STORY SUMMARY — append 1-sentence summary, keep last 5 for continuity injection
         narration = scene.get("narrator_audio_text", "") or scene.get("action", "")
@@ -1471,7 +1492,7 @@ class PipelineGraph:
         scene_summary_line = f"- {ls_key}_{scene_id} ({scene.get('phase', '')}): {short_narration}"
         existing_summaries = [s for s in state.story_summary.split("\n") if s.strip()]
         existing_summaries.append(scene_summary_line)
-        state.story_summary = "\n".join(existing_summaries[-5:])
+        state.story_summary = "\n".join(existing_summaries[-8:])
 
         next_scene_index = current_scene_index + 1
 
@@ -1518,35 +1539,27 @@ class PipelineGraph:
         """Pure node - generates ONE image per call. Router handles loop/termination."""
         import json
 
-        # DEBUG: Print state before image generation
-        print(f"[DEBUG] Prompt4 entry:")
-        print(f"  - generate_images: {state.generate_images}")
-        print(f"  - image_model: {state.image_model}")
-        print(f"  - learning_steps_list: {len(state.learning_steps_list)} steps")
-        print(f"  - current_ls_index: {state.current_learning_step_index}")
-        print(f"  - current_scene_index: {state.current_scene_index}")
+        debug(f"[DEBUG] Prompt4 entry: generate_images={state.generate_images}, ls={state.current_learning_step_index}, scene={state.current_scene_index}")
 
         # FIX #9: Do NOT force generate_images to True here. Respect the user's
         # choice that was set in run() and passed through state. The router already
         # short-circuits to generate_ppt when generate_images is False, so this
         # node is only reached when the user actually wants images.
         if not state.generate_images:
-            print("[DEBUG] generate_images=False → skipping image generation")
+            debug("[DEBUG] generate_images=False → skipping image generation")
             return {"is_complete": True}
 
         # RECOVERY FIX: Inject scenes from state.scenes into state.learning_steps_list
         if state.scenes and not any(
             ls.get("scenes") for ls in state.learning_steps_list
         ):
-            print("[RECOVERY] Injecting scenes into learning_steps_list...")
+            debug("[RECOVERY] Injecting scenes into learning_steps_list...")
             for i, ls in enumerate(state.learning_steps_list):
                 # FIX #15: use actual learning_step_id instead of hardcoded index
                 ls_key = ls.get("learning_step_id", f"LS{i + 1}")
                 if ls_key in state.scenes:
                     ls["scenes"] = state.scenes[ls_key]
-                    print(
-                        f"[RECOVERY] Injected {len(state.scenes[ls_key])} scenes into {ls_key}"
-                    )
+                    debug(f"[RECOVERY] Injected {len(state.scenes[ls_key])} scenes into {ls_key}")
 
         # FAIL FAST: Check learning_steps_list is not empty
         if not state.learning_steps_list:
@@ -1565,7 +1578,7 @@ class PipelineGraph:
 
         if valid_ls:
             state.learning_steps_list = valid_ls
-            print(f"[DEBUG] Filtered to {len(valid_ls)} LS with scenes")
+            debug(f"[DEBUG] Filtered to {len(valid_ls)} LS with scenes")
         else:
             print("[ERROR] No LS with scenes found!")
             return {"skip_image_generation": True, "is_complete": True}
@@ -1578,9 +1591,7 @@ class PipelineGraph:
         if getattr(state, "single_scene_done", False):
             ls_index = 0
             scene_index = 0
-            print(
-                "[DEBUG] single_scene_done=True → resetting ls_index=0, scene_index=0"
-            )
+            debug("[DEBUG] single_scene_done=True → resetting ls_index=0, scene_index=0")
         else:
             ls_index = state.current_learning_step_index
             scene_index = state.current_scene_index
@@ -1600,10 +1611,7 @@ class PipelineGraph:
         # This is not an error - it means scene-generation just finished and
         # image generation should start from scene 0.
         if scene_plan and scene_index >= len(scene_plan):
-            print(
-                f"[DEBUG] scene_index {scene_index} >= plan length {len(scene_plan)}"
-                f" - entering image generation from scratch, resetting to 0"
-            )
+            debug(f"[DEBUG] scene_index {scene_index} >= plan length {len(scene_plan)} - resetting to 0")
             scene_index = 0
             ls_index = 0
 
@@ -1647,9 +1655,7 @@ class PipelineGraph:
             print(f"[WARNING] No parsed scene for {scene_id}, using plan data")
             scene = scene_plan_entry
 
-        print(
-            f"[PROMPT4] Processing scene {scene_index + 1}/{len(scene_plan)} for {ls_key}"
-        )
+        debug(f"[PROMPT4] Processing scene {scene_index + 1}/{len(scene_plan)} for {ls_key}")
 
         story_data = state.prompt1_output or {}
         characters = story_data.get("characters", [])
@@ -1689,8 +1695,6 @@ class PipelineGraph:
             "concepts": ls_concepts,
         }
 
-        image_mode = getattr(state, "image_mode", "dialogue")
-
         input_data = {
             "setting": scene_setting,
             "characters": character_details if character_details else scene_characters,
@@ -1698,26 +1702,36 @@ class PipelineGraph:
             "dialogue": scene_dialogue,
         }
 
-        if image_mode == "overlay":
-            dialogue_instruction = (
-                "OVERLAY MODE - NO TEXT IN IMAGE:\n"
-                "DO NOT include ANY text, speech bubbles, or labels in the image.\n"
-                "Leave visual space clear for dialogue overlay later."
-            )
-        else:
-            dialogue_lines = []
-            for d in scene_dialogue:
-                if isinstance(d, dict):
-                    speaker = d.get("speaker", "Character")
-                    text = d.get("text", "")
-                    dialogue_lines.append(f"{speaker}: {text}")
-                elif isinstance(d, str):
-                    dialogue_lines.append(d)
-            dialogue_text = "\n".join(dialogue_lines)
-            dialogue_instruction = (
-                f"DIALOGUE MODE - Include speech bubbles:\n"
-                f"Use EXACT dialogue below in speech bubbles:\n{dialogue_text}"
-            )
+        # Build dialogue lines for speech bubbles
+        dialogue_lines = []
+        for d in scene_dialogue:
+            if isinstance(d, dict):
+                speaker = d.get("speaker", "Character")
+                text = d.get("text", "")
+                dialogue_lines.append(f"{speaker}: {text}")
+            elif isinstance(d, str):
+                dialogue_lines.append(d)
+        dialogue_text = "\n".join(dialogue_lines) if dialogue_lines else "(no dialogue)"
+
+        # Build character anchor from story backbone — injected into every Prompt 4 call
+        char_anchor_lines = []
+        for char in characters:
+            name = char.get("name", "")
+            visual_desc = char.get("visual_description", "")
+            if name and visual_desc:
+                char_anchor_lines.append(f"  - {name}: {visual_desc}")
+        char_anchor = (
+            "\n\nCHARACTER LOCK — use EXACT same appearance in every scene:\n"
+            + "\n".join(char_anchor_lines)
+        ) if char_anchor_lines else ""
+
+        dialogue_instruction = (
+            f"DIALOGUE MODE - Include speech bubbles with EXACT text:\n"
+            f"Use EXACT dialogue below in speech bubbles:\n{dialogue_text}\n\n"
+            "Speech bubbles must be clearly readable with correct English text.\n"
+            "Keep each bubble SHORT — match the exact text provided, no additions."
+            + char_anchor
+        )
 
         prompt = self.prompt_builder.get_prompt(
             "prompt4",
@@ -1753,7 +1767,7 @@ class PipelineGraph:
                 parsed.get("visual_prompt") or parsed.get("prompt") or response_content
             )
 
-        print(f"[PROMPT4] Image mode: {image_mode}, prompt: {visual_prompt[:100]}...")
+        debug(f"[PROMPT4] dialogue_in prompt: {visual_prompt[:100]}...")
 
         # DEBUG MODE: Capture image prompts
         if DEBUG_MODE:
@@ -1761,16 +1775,22 @@ class PipelineGraph:
 
         # Simple flow: pass LLM-generated prompt directly to image model
         # FIX #21: pipeline_graph always calls generate(prompt_str) which returns
-        # a str path. The old generate_image(scene_data) method expects a dict and
-        # would crash with AttributeError. generate() is the correct call here.
+        # a str path or None on failure. generate() is the correct call here.
+        print(f"  [IMAGE] {scene_id} ({scene_index + 1}/{len(scene_plan)}) — generating...", end="", flush=True)
         image_path = self.image_generator.generate(
             prompt=visual_prompt,
             learning_step_id=ls_key,
             scene_id=scene_id,
         )
-        save_image(
-            run_folder, ls_index, scene_index, image_path, image_prompt=visual_prompt
-        )
+        if image_path is not None:
+            save_image(run_folder, ls_index, scene_index, image_path, image_prompt=visual_prompt)
+            new_image_paths = state.image_paths + [image_path]
+            print(f" → saved")
+        else:
+            # Save only the .txt prompt for debugging; image generation failed
+            save_image(run_folder, ls_index, scene_index, "", image_prompt=visual_prompt)
+            new_image_paths = state.image_paths
+            print(f" → FAILED")
 
         # Calculate next indices with proper bounds checking
         next_scene = scene_index + 1
@@ -1785,7 +1805,7 @@ class PipelineGraph:
 
         return {
             "learning_steps_list": state.learning_steps_list,  # persist filtered+injected list
-            "image_paths": state.image_paths + [image_path],
+            "image_paths": new_image_paths,
             "current_image_index": state.current_image_index + 1,
             "current_scene_index": next_scene,
             "current_learning_step_index": next_ls,
@@ -1794,47 +1814,35 @@ class PipelineGraph:
 
     def _node_build_audio_manifest(self, state: PipelineState) -> Dict[str, Any]:
         """
-        Build audio_manifest.json after all scenes are generated.
-        Records narrator text and character dialogue voice assignments per scene.
-        No actual audio generation — this is consumed by tools/generate_audio.py.
+        Generate TTS audio for all scenes using Amazon Polly, then save manifest.
+        Replaces the old manifest-only approach — now actually synthesizes MP3 files.
         """
         run_folder = Path(state.model_run_folder or state.run_folder)
-        narrator_voice = state.narrator_voice_id or "Matthew"
 
-        manifest: Dict[str, Any] = {
-            "run_id": run_folder.name,
-            "narrator_voice_id": narrator_voice,
-            "scenes": {},
-        }
-
+        # Build scenes_by_ls dict from state
+        scenes_by_ls: Dict[str, list] = {}
         for ls_key, scenes in state.scenes.items():
-            for scene in scenes:
-                scene_id = scene.get("scene_id", "")
-                full_scene_id = f"{ls_key}_{scene_id}" if not scene_id.startswith(ls_key) else scene_id
+            scenes_by_ls[ls_key] = scenes
 
-                narrator_text = scene.get("narrator_audio_text", "")
-                char_dialogues = scene.get("character_dialogues", [])
+        if not scenes_by_ls:
+            print("  [AUDIO] No scenes found — skipping audio generation")
+            return {"audio_manifest": {}}
 
-                char_entries = []
-                for cd in char_dialogues:
-                    char_entries.append({
-                        "character_id": cd.get("character_id", ""),
-                        "voice_id": cd.get("voice_id", ""),
-                        "text": cd.get("audio_text", cd.get("dialogue", "")),
-                        "audio_file": f"audio/{ls_key}/{full_scene_id}/char_{cd.get('character_id', '')}.mp3",
-                    })
+        if not getattr(state, "generate_audio", True):
+            print("  [AUDIO] Skipped (generate_audio=False)")
+            return {"audio_manifest": {}}
 
-                manifest["scenes"][full_scene_id] = {
-                    "narrator": {
-                        "text": narrator_text,
-                        "voice_id": narrator_voice,
-                        "audio_file": f"audio/{ls_key}/{full_scene_id}/narrator.mp3",
-                    },
-                    "characters": char_entries,
-                }
-
-        save_audio_manifest(run_folder, manifest)
-        print(f"  ✓ Audio manifest saved: {len(manifest['scenes'])} scenes → audio/audio_manifest.json")
+        try:
+            audio_service = AudioGeneratorService(run_folder=str(run_folder))
+            manifest = audio_service.generate_audio_for_all_scenes(
+                scenes_by_ls=scenes_by_ls,
+                learning_steps_list=getattr(state, "learning_steps", []),
+            )
+            total_scenes = sum(len(v) for v in scenes_by_ls.values())
+            print(f"  ✓ Audio generated for {total_scenes} scenes → audio/")
+        except Exception as e:
+            print(f"  [AUDIO] Generation failed: {e}")
+            manifest = {}
 
         return {"audio_manifest": manifest}
 
@@ -1937,7 +1945,7 @@ class PipelineGraph:
             }
 
         except json.JSONDecodeError as e:
-            print(f"  DEBUG: JSON parsing failed: {e}")
+            debug(f"  DEBUG: JSON parsing failed: {e}")
             title = "Selected Story"
             title_match = re.search(
                 r"(?:Title|Story)[:\s]+\*?(.+?)(?:\n|$|\*\*)", response, re.IGNORECASE
@@ -1981,10 +1989,10 @@ class PipelineGraph:
         try:
             data = json.loads(response)
             learning_steps = data.get("learning_steps", [])
-            print(f"  DEBUG: Parsed {len(learning_steps)} learning steps from JSON")
+            debug(f"  DEBUG: Parsed {len(learning_steps)} learning steps from JSON")
             return learning_steps
         except json.JSONDecodeError as e:
-            print(f"  DEBUG: JSON parsing failed: {e}")
+            debug(f"  DEBUG: JSON parsing failed: {e}")
 
         learning_steps = []
         ls_pattern = r"(?:\d+[.\s]+|LS\d+[.\s-]+)\*?([^\n]+)\*?"
@@ -2034,13 +2042,13 @@ class PipelineGraph:
 
             if "response" in parsed_json:
                 parsed_json = parsed_json["response"]
-                print("[SCENE JSON NORMALIZED] Unwrapped 'response' field")
+                debug("[SCENE JSON NORMALIZED] Unwrapped 'response' field")
 
             if "data" in parsed_json:
                 parsed_json = parsed_json["data"]
-                print("[SCENE JSON NORMALIZED] Unwrapped 'data' field")
+                debug("[SCENE JSON NORMALIZED] Unwrapped 'data' field")
 
-            print("[SCENE JSON NORMALIZED] Keys:", list(parsed_json.keys()))
+            debug(f"[SCENE JSON NORMALIZED] Keys: {list(parsed_json.keys())}")
 
             return parsed_json
         except json.JSONDecodeError:
@@ -2078,6 +2086,7 @@ class PipelineGraph:
         image_model: str = "gpt-image-1.5",
         image_mode: str = "dialogue",
         generate_images: bool = False,
+        generate_audio: bool = True,
         test_mode: bool = False,
         scene_generation_scope: str = "multiple",
     ) -> dict:
@@ -2097,6 +2106,7 @@ class PipelineGraph:
             image_model: Image model to use
             image_mode: "dialogue" or "overlay"
             generate_images: Whether to generate images (asked in main.py before run())
+            generate_audio: Whether to generate audio via Polly (asked in main.py before run())
             test_mode: If True, enable human-in-the-loop checkpoints
             scene_generation_scope: "single" or "multiple" (for fast testing)
 
@@ -2132,19 +2142,18 @@ class PipelineGraph:
         # and passed from main.py after asking the user. Honour it exactly as given.
         state.generate_images = generate_images
 
+        # generate_audio controls whether Polly TTS is called
+        state.generate_audio = generate_audio
+
         # Set test_mode for human-in-the-loop checkpoints
         state.test_mode = test_mode
         if test_mode:
-            print(f"[MODE] Test Mode: Human-in-the-loop checkpoints ENABLED")
+            debug(f"[MODE] Test Mode: Human-in-the-loop checkpoints ENABLED")
 
         # Set scene generation scope
         state.scene_generation_scope = scene_generation_scope
 
-        # Debug logs
-        print(f"[MODEL] Text model: {text_model}")
-        print(f"[MODEL] Image model: {image_model}")
-        print(f"[MODE] Image rendering: {state.image_mode}")
-        print(f"[MODE] Generate images: {state.generate_images}")
+        debug(f"[MODEL] Text model: {text_model}, Image model: {image_model}, Generate images: {state.generate_images}")
 
         # Reinitialize LLM service with selected model
         self.llm_service = LLMService(model=text_model)
@@ -2237,7 +2246,7 @@ class PipelineGraph:
                 },
             }
             _save_debug_json("final_summary.json", final_summary)
-            print(f"\n[DEBUG] Final debug data saved to {DEBUG_OUTPUT_DIR}/")
+            debug(f"[DEBUG] Final debug data saved to {DEBUG_OUTPUT_DIR}/")
 
         return {
             "run_folder": final_model_run_folder,

@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DialogueBubble from "@/components/DialogueBubble";
+import InteractionOverlay from "@/components/InteractionOverlay";
 import ProgressBar from "@/components/ProgressBar";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { useAudioPlayer, QueueItem } from "@/hooks/useAudioPlayer";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -17,9 +18,20 @@ interface CharacterDialogue {
   audio_text?: string;
 }
 
+interface DialogueUrl {
+  url: string;
+  speaker: string;
+  duration_ms?: number;
+  start_ms?: number;
+}
+
 interface SceneAudio {
+  combined_url?: string | null;
+  combined_duration_ms?: number;
   narrator_url: string | null;
-  characters: Record<string, string>;
+  narrator_duration_ms?: number;
+  dialogue_urls?: DialogueUrl[];
+  total_duration_ms?: number;
 }
 
 interface Scene {
@@ -32,6 +44,12 @@ interface Scene {
   image_url?: string;
   audio?: SceneAudio;
   transition_hint?: string;
+  student_interaction?: {
+    type: string;
+    prompt_text?: string;
+    pause_seconds?: number;
+    reveal_text?: string;
+  };
 }
 
 interface RunData {
@@ -85,20 +103,48 @@ export default function PlayerPage() {
   // UI state
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showDialogue, setShowDialogue] = useState(false);
+  const [activeDialogueIndex, setActiveDialogueIndex] = useState(-1);
   const [isPaused, setIsPaused] = useState(false);
   const [audioMode, setAudioMode] = useState<"narrator" | "silent">("narrator");
+  const [showInteraction, setShowInteraction] = useState(false);
 
-  // Audio: advances to next scene when narrator ends
-  const handleAudioEnded = useCallback(() => {
-    if (!isPaused) {
-      advanceScene();
+  // Audio callbacks
+  const advanceScene = useCallback(() => {
+    setCurrentIndex((prev) => {
+      if (prev < flatScenes.length - 1) return prev + 1;
+      return prev;
+    });
+  }, [flatScenes.length]);
+
+  const handleSegmentStart = useCallback((index: number, speaker: string) => {
+    if (speaker === "narrator") {
+      // Narrator is playing — show dialogue after a beat
+    } else {
+      // A character dialogue started — reveal that bubble
+      setShowDialogue(true);
+      setActiveDialogueIndex(index - 1); // index 0 = narrator, so dialogue 0 = index 1
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPaused, currentIndex, flatScenes.length]);
+  }, []);
 
-  const { play, pause, stop, state: audioState } = useAudioPlayer({
-    onEnded: handleAudioEnded,
-  });
+  const handleQueueEnd = useCallback(() => {
+    if (isPaused) return;
+    // Check if current scene has a student interaction
+    const scene = flatScenes[currentIndex];
+    const interaction = scene?.student_interaction;
+    if (interaction && interaction.type && interaction.type !== "none") {
+      // Show interaction overlay instead of advancing
+      setTimeout(() => setShowInteraction(true), 500);
+    } else {
+      // Small delay before advancing to let the last bubble be read
+      setTimeout(() => advanceScene(), 1500);
+    }
+  }, [isPaused, advanceScene, flatScenes, currentIndex]);
+
+  const { play, playQueue, pause: audioPause, resume, stop, state: audioState } =
+    useAudioPlayer({
+      onSegmentStart: handleSegmentStart,
+      onQueueEnd: handleQueueEnd,
+    });
 
   // ---------------------------------------------------------------------------
   // Load run data
@@ -129,13 +175,6 @@ export default function PlayerPage() {
 
   const currentScene = flatScenes[currentIndex] ?? null;
 
-  const advanceScene = useCallback(() => {
-    setCurrentIndex((prev) => {
-      if (prev < flatScenes.length - 1) return prev + 1;
-      return prev; // Stay on last scene
-    });
-  }, [flatScenes.length]);
-
   const goToPrev = useCallback(() => {
     stop();
     setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -147,27 +186,55 @@ export default function PlayerPage() {
   }, [stop, advanceScene]);
 
   // ---------------------------------------------------------------------------
-  // When scene changes: reset UI and play narrator audio
+  // When scene changes: build audio queue and play
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
     if (!currentScene) return;
     setImageLoaded(false);
     setShowDialogue(false);
+    setActiveDialogueIndex(-1);
+    setShowInteraction(false);
 
-    // Play narrator audio after a short delay (allows image to start loading)
     const timer = setTimeout(() => {
-      const narratorUrl = currentScene.audio?.narrator_url;
-      if (narratorUrl && audioMode === "narrator" && !isPaused) {
-        play(narratorUrl);
-        // Show dialogue bubbles 1s after narrator starts
-        setTimeout(() => setShowDialogue(true), 1000);
-      } else {
-        // No audio → auto-advance after 5s
-        if (!isPaused && audioMode === "silent") {
+      if (isPaused || audioMode === "silent") {
+        if (audioMode === "silent" && !isPaused) {
           const autoTimer = setTimeout(() => advanceScene(), 5000);
           return () => clearTimeout(autoTimer);
         }
+        return;
+      }
+
+      const audio = currentScene.audio;
+
+      if (audio?.combined_url) {
+        // Single combined audio file (narrator + all dialogues merged)
+        play(audio.combined_url);
+        // Show all dialogue bubbles at 60% through the combined audio
+        const combinedDur = audio.combined_duration_ms ?? 5000;
+        setTimeout(() => {
+          setShowDialogue(true);
+          setActiveDialogueIndex(999);
+        }, Math.max(500, combinedDur * 0.6));
+      } else if (audio?.narrator_url || (audio?.dialogue_urls?.length ?? 0) > 0) {
+        // Fallback: queue narrator + individual dialogue files
+        const queue: QueueItem[] = [];
+        if (audio?.narrator_url) {
+          queue.push({ url: audio.narrator_url, speaker: "narrator", duration_ms: audio.narrator_duration_ms ?? 0 });
+        }
+        if (audio?.dialogue_urls) {
+          for (const d of audio.dialogue_urls) {
+            queue.push({ url: d.url, speaker: d.speaker, duration_ms: d.duration_ms ?? 0 });
+          }
+        }
+        playQueue(queue);
+        const narratorDur = audio?.narrator_duration_ms ?? 3000;
+        setTimeout(() => setShowDialogue(true), Math.max(500, narratorDur * 0.6));
+      } else {
+        // No audio at all — show dialogue immediately, auto-advance
+        setShowDialogue(true);
+        setActiveDialogueIndex(999);
+        setTimeout(() => advanceScene(), 5000);
       }
     }, 300);
 
@@ -186,20 +253,15 @@ export default function PlayerPage() {
       if (e.key === " ") {
         e.preventDefault();
         setIsPaused((prev) => {
-          if (prev) {
-            // Resume
-            const narratorUrl = currentScene?.audio?.narrator_url;
-            if (narratorUrl) play(narratorUrl);
-          } else {
-            pause();
-          }
+          if (prev) resume();
+          else audioPause();
           return !prev;
         });
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [goToNext, goToPrev, currentScene, play, pause]);
+  }, [goToNext, goToPrev, audioPause, resume]);
 
   // ---------------------------------------------------------------------------
   // Loading / error states
@@ -226,7 +288,7 @@ export default function PlayerPage() {
             onClick={() => router.push("/")}
             className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm"
           >
-            ← Back to runs
+            Back to runs
           </button>
         </div>
       </div>
@@ -243,6 +305,22 @@ export default function PlayerPage() {
     ? (runData.scenes[currentScene.ls_id]?.length ?? 0)
     : 0;
 
+  // Phase color mapping
+  const phaseColors: Record<string, string> = {
+    HOOK: "bg-red-600/80",
+    SETUP: "bg-yellow-600/80",
+    CONFUSION: "bg-orange-600/80",
+    DISCOVERY: "bg-green-600/80",
+    GUIDANCE: "bg-blue-600/80",
+    MICRO_LEARN: "bg-purple-600/80",
+    VALIDATION: "bg-emerald-600/80",
+    APPLICATION: "bg-cyan-600/80",
+    REFLECTION: "bg-indigo-600/80",
+    PAYOFF: "bg-pink-600/80",
+    TRANSITION: "bg-gray-600/80",
+    RESOLUTION: "bg-green-700/80",
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0f0f1a]">
       {/* Top bar */}
@@ -251,7 +329,7 @@ export default function PlayerPage() {
           onClick={() => { stop(); router.push("/"); }}
           className="text-gray-400 hover:text-white text-sm transition-colors"
         >
-          ← Back
+          Back
         </button>
 
         <div className="text-center">
@@ -277,7 +355,7 @@ export default function PlayerPage() {
               : "bg-white/10 text-gray-400"
           }`}
         >
-          {audioMode === "narrator" ? "🔊 Audio" : "🔇 Silent"}
+          {audioMode === "narrator" ? "Audio ON" : "Audio OFF"}
         </button>
       </div>
 
@@ -293,7 +371,9 @@ export default function PlayerPage() {
               alt={`Scene ${currentScene.scene_id}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
-              className={`w-full h-full object-cover scene-image ${imageLoaded ? "loaded" : "loading"}`}
+              className={`w-full h-full object-cover transition-opacity duration-500 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
             />
           )}
 
@@ -304,15 +384,18 @@ export default function PlayerPage() {
             </div>
           )}
 
-          {/* Dialogue bubbles */}
+          {/* Dialogue bubbles with staggered reveal */}
           <DialogueBubble
             dialogues={currentScene?.character_dialogues ?? []}
             visible={showDialogue}
+            activeIndex={activeDialogueIndex}
           />
 
-          {/* Phase badge */}
+          {/* Phase badge with color */}
           {currentScene?.phase && (
-            <div className="absolute top-3 right-3 px-2 py-1 text-xs bg-black/70 text-indigo-300 rounded-full backdrop-blur-sm">
+            <div className={`absolute top-3 right-3 px-3 py-1 text-xs text-white rounded-full backdrop-blur-sm ${
+              phaseColors[currentScene.phase] ?? "bg-gray-600/80"
+            }`}>
               {currentScene.phase}
             </div>
           )}
@@ -320,8 +403,22 @@ export default function PlayerPage() {
           {/* Pause overlay */}
           {isPaused && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="text-white text-5xl opacity-80">⏸</span>
+              <span className="text-white text-5xl opacity-80">||</span>
             </div>
+          )}
+
+          {/* Student interaction overlay */}
+          {showInteraction && currentScene?.student_interaction && (
+            <InteractionOverlay
+              type={currentScene.student_interaction.type ?? "think_prompt"}
+              promptText={currentScene.student_interaction.prompt_text ?? ""}
+              pauseSeconds={currentScene.student_interaction.pause_seconds ?? 5}
+              revealText={currentScene.student_interaction.reveal_text ?? ""}
+              onContinue={() => {
+                setShowInteraction(false);
+                advanceScene();
+              }}
+            />
           )}
 
           {/* Audio loading indicator */}
@@ -331,10 +428,12 @@ export default function PlayerPage() {
         </div>
       </div>
 
-      {/* Narrator text */}
+      {/* Narrator text as subtitle */}
       {currentScene?.narrator_audio_text && (
-        <div className="mx-auto max-w-3xl px-6 py-3 text-center text-sm text-gray-400 italic line-clamp-2">
-          {currentScene.narrator_audio_text}
+        <div className="mx-auto max-w-3xl px-6 py-3 text-center">
+          <p className="text-sm text-gray-400 italic leading-relaxed line-clamp-3">
+            {currentScene.narrator_audio_text}
+          </p>
         </div>
       )}
 
@@ -353,44 +452,39 @@ export default function PlayerPage() {
           onClick={goToPrev}
           disabled={currentIndex === 0}
           className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all"
-          title="Previous (← or J)"
+          title="Previous"
         >
-          ◀
+          &lt;
         </button>
 
-        {/* Pause/Resume */}
         <button
           onClick={() => {
             setIsPaused((prev) => {
-              if (prev) {
-                const url = currentScene?.audio?.narrator_url;
-                if (url) play(url);
-              } else {
-                pause();
-              }
+              if (prev) resume();
+              else audioPause();
               return !prev;
             });
           }}
-          className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center transition-all shadow-lg"
+          className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center transition-all shadow-lg text-lg"
           title="Pause/Resume (Space)"
         >
-          {isPaused ? "▶" : "⏸"}
+          {isPaused ? ">" : "||"}
         </button>
 
         <button
           onClick={goToNext}
           disabled={currentIndex === flatScenes.length - 1}
           className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all"
-          title="Next (→ or L)"
+          title="Next"
         >
-          ▶
+          &gt;
         </button>
       </div>
 
       {/* Scene counter */}
       <div className="text-center text-xs text-gray-600 pb-3">
         Scene {currentIndex + 1} / {flatScenes.length} ·{" "}
-        <span className="text-gray-500">Space=pause · ←→=navigate</span>
+        <span className="text-gray-500">Space=pause, arrows=navigate</span>
       </div>
     </div>
   );

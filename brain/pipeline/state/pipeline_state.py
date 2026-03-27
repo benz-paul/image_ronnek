@@ -113,6 +113,8 @@ class PipelineState(BaseModel):
     # ONLY set to True when the user answers "y" in main.py ask_generate_images().
     # Never overridden inside the graph nodes.
     generate_images: bool = False
+    # generate_audio controls Polly TTS — set from main.py ask_generate_audio()
+    generate_audio: bool = True
     generate_ppt: bool = False
     generation_mode: str = "full"
 
@@ -135,10 +137,9 @@ class PipelineState(BaseModel):
     text_model: str = "deepseek"
     image_model: str = "gpt-image-1.5"
 
-    # image_mode defaults to "overlay" — dialogue-in-image produces garbled text
-    # and is not a viable strategy. Overlay mode uses dialogue_overlay.py after
-    # image generation and produces readable speech bubbles.
-    image_mode: str = "overlay"
+    # image_mode is always "dialogue" — overlay was removed.
+    # Dialogue text is rendered directly inside the scene image by the model.
+    image_mode: str = "dialogue"
 
     # Execution control
     test_mode: bool = False
