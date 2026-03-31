@@ -76,24 +76,16 @@ def merge_scene_audio(
 ) -> str:
     """
     Merge narrator.mp3 + dialogue_NN.mp3 files into a single combined.mp3 per scene.
-    Structure: narrator → 600ms silence → dialogue_01 → 400ms silence → dialogue_02 → ...
+    Uses raw byte concatenation — no ffmpeg required. Works for CBR MP3s from Polly.
+    Structure: narrator → dialogue_01 → dialogue_02 → ...
 
     Args:
         scene_audio_dir: Path to LS1/LS1_S1/ folder
         output_path: Where to write combined.mp3
-        narrator_silence_ms: Gap after narrator before first dialogue
-        dialogue_silence_ms: Gap between dialogue lines
 
     Returns:
-        Path to merged file, or empty string if pydub unavailable or no audio found.
+        Path to merged file, or empty string if no audio found.
     """
-    if not _HAS_PYDUB:
-        print("[AUDIO MERGE] pydub not available — skipping merge. Run: pip install pydub")
-        return ""
-    if not _HAS_FFMPEG:
-        print("[AUDIO MERGE] ffmpeg not found — skipping merge. Install ffmpeg and add to PATH.")
-        return ""
-
     scene_dir = Path(scene_audio_dir)
     narrator_path = scene_dir / "narrator.mp3"
 
@@ -102,19 +94,17 @@ def merge_scene_audio(
         return ""
 
     try:
-        combined = AudioSegment.from_mp3(str(narrator_path))
+        parts: list = [narrator_path] + sorted(scene_dir.glob("dialogue_*.mp3"))
+        merged_bytes = b""
+        for part in parts:
+            with open(part, "rb") as f:
+                merged_bytes += f.read()
 
-        dialogue_files = sorted(scene_dir.glob("dialogue_*.mp3"))
-        if dialogue_files:
-            combined += AudioSegment.silent(duration=narrator_silence_ms)
-            for i, dlg_path in enumerate(dialogue_files):
-                combined += AudioSegment.from_mp3(str(dlg_path))
-                if i < len(dialogue_files) - 1:
-                    combined += AudioSegment.silent(duration=dialogue_silence_ms)
+        with open(output_path, "wb") as f:
+            f.write(merged_bytes)
 
-        combined.export(output_path, format="mp3")
-        duration_ms = len(combined)
-        print(f"[AUDIO MERGE] {Path(output_path).name} — {1 + len(dialogue_files)} segments, {duration_ms}ms")
+        duration_ms = _get_mp3_duration_ms(output_path)
+        print(f"[AUDIO MERGE] {Path(output_path).name} — {len(parts)} segments, {duration_ms}ms")
         return output_path
 
     except Exception as e:
@@ -128,19 +118,21 @@ def merge_scene_audio(
 CHARACTER_VOICE_MAP: Dict[str, Dict[str, str]] = {
     # Our story characters
     "leo":     {"voice": "Kevin",   "engine": "neural"},     # teen boy
-    "maya":    {"voice": "Ivy",     "engine": "standard"},   # teen girl
+    "maya":    {"voice": "Ivy",     "engine": "neural"},     # teen girl
     "mr_chen": {"voice": "Matthew", "engine": "neural"},     # adult teacher
     "mrchen":  {"voice": "Matthew", "engine": "neural"},     # alias (scene naming)
     # Teammate's original characters (kept for compatibility)
-    "mr_aris": {"voice": "Matthew", "engine": "neural"},     # adult mentor
-    "mraris":  {"voice": "Matthew", "engine": "neural"},     # alias
+    "mr_aris":      {"voice": "Matthew", "engine": "neural"},  # adult mentor
+    "mraris":       {"voice": "Matthew", "engine": "neural"},  # alias
+    "professor_aris":{"voice": "Matthew","engine": "neural"},  # scene naming variant
+    "professoraris":{"voice": "Matthew", "engine": "neural"},  # compact alias used by LLM
     "joey":    {"voice": "Kevin",   "engine": "neural"},     # forward-compat alias
     # Narrator — distinct adult male, different from teachers
     "narrator":{"voice": "Gregory", "engine": "neural"},     # deep narrator voice
     # Custom characters (Doraemon/Nobita demo)
     "doraemon": {"voice": "Matthew", "engine": "neural"},    # robot cat — warm adult
     "nobita":   {"voice": "Kevin",   "engine": "neural"},    # schoolboy
-    "shizuka":  {"voice": "Ivy",     "engine": "standard"},  # schoolgirl
+    "shizuka":  {"voice": "Ivy",     "engine": "neural"},    # schoolgirl
 }
 
 # Fallbacks when character not in map
@@ -152,6 +144,9 @@ DEFAULT_FEMALE_VOICE    = "Ivy"
 # Kid voice IDs — always get a baseline pitch boost so they sound young
 KID_VOICES = {"Kevin", "Ivy", "Justin"}
 
+# Polly voices that support the neural engine (pitch NOT allowed in <prosody> for these)
+NEURAL_VOICES = {"Matthew", "Joanna", "Kevin", "Ivy", "Gregory", "Ruth", "Stephen", "Amy", "Justin"}
+
 # ---------------------------------------------------------------------------
 # Emotion → SSML templates
 #
@@ -160,31 +155,42 @@ KID_VOICES = {"Kevin", "Ivy", "Justin"}
 #   "default" — any other       → moderate prosody
 # ---------------------------------------------------------------------------
 EMOTION_SSML: Dict[str, Dict[str, str]] = {
+    # NOTE for "kids" (Kevin / Ivy neural): volume= is NOT supported — only rate= is safe.
+    # Pitch is stripped at runtime for all neural voices; use rate keywords not percentages.
     "happy": {
         "matthew": '<amazon:emotion name="excited" intensity="high">{text}</amazon:emotion>',
-        "kids":    '<prosody pitch="+18%" rate="fast" volume="loud">{text}</prosody>',
-        "default": '<prosody pitch="+10%" rate="fast">{text}</prosody>',
+        "kids":    '<prosody rate="fast">{text}</prosody>',
+        "default": '<prosody rate="fast">{text}</prosody>',
     },
     "sad": {
         "matthew": '<amazon:emotion name="disappointed" intensity="high">{text}</amazon:emotion>',
-        "kids":    '<prosody pitch="-14%" rate="80%" volume="soft">{text}</prosody>',
-        "default": '<prosody pitch="-10%" rate="slow">{text}</prosody>',
+        "kids":    '<prosody rate="slow">{text}</prosody>',
+        "default": '<prosody rate="slow">{text}</prosody>',
     },
     "curious": {
-        "matthew": '<prosody pitch="+8%" rate="85%">{text}</prosody>',
-        "kids":    '<prosody pitch="+10%" rate="85%" volume="medium">{text}</prosody>',
-        "default": '<prosody pitch="+6%" rate="90%">{text}</prosody>',
+        "matthew": '<prosody rate="slow">{text}</prosody>',
+        "kids":    '<prosody rate="slow">{text}</prosody>',
+        "default": '<prosody rate="slow">{text}</prosody>',
     },
     "excited": {
         "matthew": '<amazon:emotion name="excited" intensity="medium">{text}</amazon:emotion>',
-        "kids":    '<prosody pitch="+15%" rate="fast" volume="loud">{text}</prosody>',
-        "default": '<prosody pitch="+8%" rate="fast">{text}</prosody>',
+        "kids":    '<prosody rate="fast">{text}</prosody>',
+        "default": '<prosody rate="fast">{text}</prosody>',
     },
     "frustrated": {
         "matthew": '<amazon:emotion name="disappointed" intensity="medium">{text}</amazon:emotion>',
-        "kids":    '<prosody pitch="-8%" rate="95%" volume="medium">{text}</prosody>',
-        "default": '<prosody pitch="-6%" rate="95%">{text}</prosody>',
+        "kids":    '<prosody rate="medium">{text}</prosody>',
+        "default": '<prosody rate="medium">{text}</prosody>',
     },
+    # Aliases for emotions the LLM generates that aren't core Polly emotions
+    "neutral":     {"matthew": "{text}", "kids": "{text}", "default": "{text}"},
+    "confident":   {"matthew": '<amazon:emotion name="excited" intensity="low">{text}</amazon:emotion>',  "kids": '<prosody rate="medium">{text}</prosody>', "default": '<prosody rate="medium">{text}</prosody>'},
+    "realization": {"matthew": '<amazon:emotion name="excited" intensity="medium">{text}</amazon:emotion>', "kids": '<prosody rate="fast">{text}</prosody>',   "default": '<prosody rate="fast">{text}</prosody>'},
+    "awestruck":   {"matthew": '<prosody rate="slow">{text}</prosody>',  "kids": '<prosody rate="slow">{text}</prosody>',   "default": '<prosody rate="slow">{text}</prosody>'},
+    "reverent":    {"matthew": '<prosody rate="slow">{text}</prosody>',  "kids": '<prosody rate="slow">{text}</prosody>',   "default": '<prosody rate="slow">{text}</prosody>'},
+    "satisfied":   {"matthew": '<amazon:emotion name="excited" intensity="low">{text}</amazon:emotion>',  "kids": '<prosody rate="medium">{text}</prosody>', "default": '<prosody rate="medium">{text}</prosody>'},
+    "proud":       {"matthew": '<amazon:emotion name="excited" intensity="medium">{text}</amazon:emotion>','kids': '<prosody rate="medium">{text}</prosody>', "default": '<prosody rate="medium">{text}</prosody>'},
+    "insight":     {"matthew": '<prosody rate="slow">{text}</prosody>',  "kids": '<prosody rate="slow">{text}</prosody>',   "default": '<prosody rate="slow">{text}</prosody>'},
 }
 
 
@@ -197,9 +203,10 @@ def _build_ssml(text: str, voice_id: str, engine: str, emotion: Optional[str]) -
       - "kids"    key  → Kevin / Ivy (strong prosody, teen energy)
       - "default" key  → everyone else
 
-    Baseline: kid voices always get +5% pitch even with no emotion so they
-    never sound adult.
+    Note: neural engine does NOT support pitch in <prosody>. Pitch attributes
+    are stripped automatically for all neural voices.
     """
+    import re as _re
     clean = text.strip()
     inner = clean
 
@@ -212,8 +219,14 @@ def _build_ssml(text: str, voice_id: str, engine: str, emotion: Optional[str]) -
             tmpl_key = "default"
         inner = EMOTION_SSML[emotion.lower()][tmpl_key].format(text=clean)
     elif voice_id in KID_VOICES:
-        # Baseline: teens always sound younger than adults
-        inner = f'<prosody pitch="+5%">{clean}</prosody>'
+        # Baseline: teens sound younger via slightly faster rate
+        inner = f'<prosody rate="95%">{clean}</prosody>'
+
+    # Neural engine silently ignores pitch= — strip it to keep SSML clean
+    if engine == "neural" and inner != clean:
+        inner = _re.sub(r'\s*pitch="[^"]*"', '', inner)
+        # Remove any <prosody> tags that are now empty (had only pitch)
+        inner = _re.sub(r'<prosody\s*>(.*?)</prosody>', r'\1', inner)
 
     if inner == clean:
         return clean  # no SSML needed — return plain text
@@ -435,8 +448,8 @@ class AudioGeneratorService:
             else:
                 # Unknown character: fall back to scene JSON voice_id
                 voice_id = cd.get("voice_id", DEFAULT_MALE_VOICE)
-                engine   = "standard"
-                print(f"[AUDIO] Unknown character '{char_id}', using fallback voice {voice_id}")
+                engine   = "neural" if voice_id in NEURAL_VOICES else "standard"
+                print(f"[AUDIO] Unknown character '{char_id}', using fallback voice {voice_id} ({engine})")
 
             if char_id and audio_text:
                 char_result = self.generate_character_audio(

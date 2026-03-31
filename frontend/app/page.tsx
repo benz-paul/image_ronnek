@@ -2,144 +2,140 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
-interface RunSummary {
-  run_id: string;
-  timestamp: string;
-  chapter: string;
-  subject: string;
-  class_level: string;
-  image_model: string;
-  image_count: number;
-  audio_count: number;
-  has_audio: boolean;
-  has_ppt: boolean;
-}
-
-export default function HomePage() {
-  const [runs, setRuns] = useState<RunSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function LoginPage() {
+  const { user, loading, login } = useAuth();
   const router = useRouter();
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Already logged in → go straight to dashboard
   useEffect(() => {
-    fetch("/api/runs")
-      .then((r) => r.json())
-      .then((data) => {
-        setRuns(data);
-        setLoading(false);
-      })
-      .catch((e) => {
-        setError("Could not connect to backend. Make sure uvicorn is running on port 8000.");
-        setLoading(false);
-      });
-  }, []);
+    if (!loading && user) router.replace("/dashboard");
+  }, [loading, user, router]);
 
-  const formatTimestamp = (ts: string) => {
-    if (!ts) return "";
-    // YYYYMMDD_HHMMSS → readable date
-    const match = ts.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
-    if (!match) return ts;
-    const [, y, mo, d, h, mi] = match;
-    return `${d}/${mo}/${y} ${h}:${mi}`;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading presentations...</p>
-        </div>
-      </div>
-    );
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    const result = await login(username.trim(), password);
+    setSubmitting(false);
+    if (result.ok) {
+      router.push("/dashboard");
+    } else {
+      setError(result.error || "Access denied");
+    }
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="max-w-md text-center p-8 bg-red-900/20 border border-red-800 rounded-2xl">
-          <h2 className="text-xl font-bold text-red-400 mb-2">Connection Error</h2>
-          <p className="text-gray-300 text-sm">{error}</p>
-          <code className="block mt-4 text-xs bg-black/40 p-3 rounded text-green-400">
-            uvicorn backend.server:app --port 8000 --reload
-          </code>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return null;
 
   return (
-    <div className="min-h-screen p-8">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            📚 Storytelling Pipeline
+    <div className="min-h-screen flex items-center justify-center overflow-hidden bg-background">
+      {/* Ambient background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 digital-grid opacity-60" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 blur-[120px] rounded-full" />
+      </div>
+
+      <main className="relative z-10 w-full max-w-md px-6">
+        {/* Logo */}
+        <div className="text-center mb-12 space-y-4">
+          <div className="inline-flex items-center justify-center p-4 bg-surface-container-highest rounded-lg border border-primary/20 mb-4 shadow-[0_0_30px_rgba(0,244,254,0.1)]">
+            <span
+              className="material-symbols-outlined text-5xl text-primary glow-cyan"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              terminal
+            </span>
+          </div>
+          <h1 className="font-headline text-3xl font-bold tracking-tighter text-on-surface uppercase leading-none">
+            AI DECODER <span className="text-primary">ACADEMY</span>
           </h1>
-          <p className="text-gray-400">
-            Select a presentation to start the interactive slideshow
+          <p className="font-label text-xs tracking-[0.2em] text-on-surface-variant uppercase">
+            Neural Link Interface • Secure Terminal
           </p>
         </div>
 
-        {runs.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-xl mb-2">No presentations found</p>
-            <p className="text-sm">Run the pipeline first to generate content</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {runs.map((run) => (
+        {/* Card */}
+        <div className="bg-surface-container-low p-8 rounded-lg border border-outline-variant/20 shadow-2xl backdrop-blur-sm">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-2">
+              <label className="font-label text-[10px] font-bold tracking-widest text-primary uppercase flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">person</span>
+                Student ID
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="DEC-XXXX-XXXX"
+                required
+                autoComplete="username"
+                className="w-full bg-surface-container-highest border-b-2 border-outline-variant focus:border-primary px-4 py-3 text-on-surface placeholder:text-on-surface-variant/40 font-headline tracking-wider transition-all outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-label text-[10px] font-bold tracking-widest text-primary uppercase flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">key</span>
+                Access Key
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                required
+                autoComplete="current-password"
+                className="w-full bg-surface-container-highest border-b-2 border-outline-variant focus:border-primary px-4 py-3 text-on-surface placeholder:text-on-surface-variant/40 font-headline tracking-widest transition-all outline-none"
+              />
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 text-error text-xs font-label tracking-wider">
+                <span className="material-symbols-outlined text-sm">error</span>
+                {error}
+              </div>
+            )}
+
+            <div className="pt-4 space-y-4">
               <button
-                key={run.run_id}
-                onClick={() => router.push(`/player/${run.run_id}`)}
-                className="text-left p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/50 rounded-2xl transition-all duration-200 group"
+                type="submit"
+                disabled={submitting}
+                className="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-bold uppercase tracking-widest rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group disabled:opacity-60"
               >
-                {/* Chapter info */}
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-white group-hover:text-indigo-300 transition-colors line-clamp-2">
-                    {run.chapter || run.run_id}
-                  </h2>
-                  <p className="text-sm text-gray-400 mt-1">
-                    {run.subject && run.class_level
-                      ? `Class ${run.class_level} · ${run.subject}`
-                      : run.run_id}
-                  </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {formatTimestamp(run.timestamp)}
-                  </p>
-                </div>
-
-                {/* Stats */}
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 text-xs bg-indigo-900/50 text-indigo-300 rounded-full">
-                    🖼 {run.image_count} images
-                  </span>
-                  {run.has_audio ? (
-                    <span className="px-2 py-1 text-xs bg-green-900/50 text-green-300 rounded-full">
-                      🔊 {run.audio_count} audio
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 text-xs bg-gray-800 text-gray-500 rounded-full">
-                      🔇 no audio
-                    </span>
-                  )}
-                  {run.has_ppt && (
-                    <span className="px-2 py-1 text-xs bg-orange-900/50 text-orange-300 rounded-full">
-                      📊 PPT
-                    </span>
-                  )}
-                </div>
-
-                {/* Model badge */}
-                {run.image_model && (
-                  <p className="text-xs text-gray-600 mt-3">{run.image_model}</p>
+                {submitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-on-primary/40 border-t-on-primary rounded-full animate-spin" />
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    Enter Academy
+                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                  </>
                 )}
               </button>
-            ))}
-          </div>
-        )}
-      </div>
+
+              <p className="text-center font-label text-[10px] tracking-wider text-on-surface-variant/50 uppercase">
+                Demo: admin / academy123
+              </p>
+
+              <p className="text-center font-label text-[10px] tracking-wider text-on-surface-variant/50 uppercase">
+                New recruit?{" "}
+                <a href="/register" className="text-primary hover:text-primary-container transition-colors">
+                  Initialize Identity
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Allow long-running backend requests (avatar generation takes ~2-3 min)
+    proxyTimeout: 300_000,
+  },
   async rewrites() {
     return [
       {

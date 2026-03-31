@@ -39,14 +39,17 @@ IMAGE_SIZE = "1536x1024"
 # Derived from the "cinematic semi-realistic anime" aesthetic of the target output style.
 GLOBAL_VISUAL_STYLE = (
     "\n\nGLOBAL STYLE LOCK (apply to EVERY scene, no exceptions):\n"
-    "- Art style: cinematic semi-realistic anime — anime-styled characters in a photorealistic environment\n"
-    "- Lighting: golden hour backlighting, warm amber rim light, soft shadows\n"
-    "- Color palette: warm amber and soft teal contrast, rich but not oversaturated\n"
-    "- Camera: cinematic depth of field, film still quality, varied shot composition\n"
-    "- Character rendering: clean anime linework, expressive faces, consistent proportions\n"
-    "- Background: detailed photorealistic school/outdoor environment\n"
-    "- DO NOT vary the art style between scenes — every scene must feel like the same movie\n"
-    "- Overall mood: cinematic, engaging, suitable for high school students"
+    "- Art style: vibrant 2D animation — Pixar and Studio Ghibli inspired, expressive cartoon characters, "
+    "clean bold ink outlines, warm saturated colors, child-friendly proportions, flat-shaded cel look\n"
+    "- Characters must look like illustrations from the SAME animated movie — youthful teen proportions, "
+    "consistent faces, same hairstyle and outfit across every scene\n"
+    "- Lighting: warm golden-hour light, soft shadows, bright and inviting atmosphere — NOT dark or gritty\n"
+    "- Color palette: warm amber and soft teal, rich but cheerful — NOT muted or desaturated\n"
+    "- Backgrounds: detailed painted backgrounds in Ghibli style — lush, atmospheric, non-photorealistic\n"
+    "- Camera: varied composition (wide establishing, medium character focus, close-up reaction shots)\n"
+    "- DO NOT use photorealism, 3D rendering, or semi-realistic anime — strictly 2D illustration style\n"
+    "- DO NOT vary the art style between scenes — every frame must feel like the same animated film\n"
+    "- Overall mood: bright, warm, engaging, optimistic — suitable for high school students"
 )
 
 # Per-model configs for fal.ai — each model has its own endpoint and accepted parameters.
@@ -244,6 +247,11 @@ class ImageGeneratorService:
 
         # Append global style anchor to every prompt for visual consistency
         styled_prompt = prompt + GLOBAL_VISUAL_STYLE
+
+        # Sanitize: strip control characters and normalize whitespace to prevent 422 errors
+        import re as _re
+        styled_prompt = _re.sub(r'[\x00-\x1f\x7f]', ' ', styled_prompt)
+        styled_prompt = ' '.join(styled_prompt.split())
 
         # Each model gets its own validated payload from FAL_MODEL_CONFIGS
         config  = FAL_MODEL_CONFIGS.get(self.model, FAL_MODEL_CONFIGS["fal-flux2pro"])

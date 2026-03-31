@@ -1,17 +1,18 @@
-## Prompt 0A: Concept Extraction — First Pass
+## Prompt 0A: Concept Extraction — Section Pass
 
-Extract a COMPLETE list of concepts from this chapter.
+Extract ALL concepts present in this text section.
 
 IMPORTANT:
 - Return ONLY concept TITLES (short)
 - DO NOT explain
 - DO NOT add long descriptions
 - Keep each concept 3-6 words max
+- Extract EVERY concept you see — do not filter for importance
 
 RULES:
-- Do NOT miss any concept
+- Do NOT miss any concept in this section
 - Prefer over-extraction
-- Include formulas, ideas, problem types
+- Include formulas, ideas, problem types, notations
 
 STRICT FILTERING RULE:
 
@@ -30,6 +31,7 @@ ONLY include:
 * properties
 * relationships between concepts
 * mathematical structures
+* notations and symbols
 
 If an item is an example of a concept, DO NOT include it.
 
@@ -44,26 +46,28 @@ Return ONLY JSON:
   ]
 }
 
-TEXT:
+TEXT SECTION:
 [CHAPTER_TEXT]
 
 ----
 
 ## Prompt 0B: Concept Extraction — Gap Detection Pass
 
-You already extracted concepts.
+Here is the full chapter text:
 
-Here is the current list:
+[CHAPTER_TEXT]
+
+A previous extraction found these concepts:
 
 [EXISTING_CONCEPTS]
 
-Find IMPORTANT missing concepts.
+Re-read the chapter text above and find concepts that are genuinely present in the text but MISSING from the list.
 Return ONLY concept TITLES (short), 3-6 words max.
 
 RULES:
-- Only add missing ones
-- Do NOT repeat
-- Focus on gaps
+- Only add concepts actually present in the chapter text above
+- Do NOT repeat concepts already in the list
+- Focus only on real gaps — concepts in the text but not in the list
 
 STRICT FILTERING RULE:
 
@@ -82,6 +86,7 @@ ONLY include:
 * properties
 * relationships between concepts
 * mathematical structures
+* notations and symbols
 
 If an item is an example of a concept, DO NOT include it.
 
@@ -102,20 +107,38 @@ Concepts: [CONCEPTS]
 
 IMPORTANT: You must create a story with MINIMUM 2 MAIN CHARACTERS.
 
+STORY HOOK REQUIREMENT (CRITICAL):
+- The core problem must have STAKES — something the characters urgently want or need that ONLY mastering the math concept can unlock. "Students notice a pattern" is not enough.
+- Pick ONE of these engaging story archetypes (do NOT default to generic school drama):
+  * DETECTIVE/MYSTERY: characters solve a mystery where clues use mathematical patterns (e.g., a coded treasure map, a stolen artifact, an unexplained phenomenon)
+  * GAMING/ADVENTURE: characters are stuck in a challenge/level/quest that only math can unlock (e.g., a math-powered video game, an escape room, a magical obstacle)
+  * SPORTS CHALLENGE: a high-stakes competition where the math concept determines who wins (e.g., a tournament, a record attempt, a team crisis)
+  * SCI-FI DISCOVERY: characters discover a mathematical pattern in nature/space/technology that reveals something surprising
+- The story setting should feel exciting and vivid — not a bland classroom
+- Characters should feel like they belong in a world kids are already obsessed with (gaming, adventure, mystery, sports)
+
 Character Requirements:
 - Each character must have: name, role, personality, visual_description, gender, voice_id
 - Characters must interact in scenes through dialogue
 - Story must be visual and cinematic
-- Characters should be relatable to students (e.g., student, teacher, friend, family)
+- Characters should be relatable and exciting to kids aged 12-16
+
+Visual Description Format (CRITICAL for image generation):
+- Write visual_description as if briefing a 2D animation studio (Pixar/Ghibli style).
+- Must include ALL of the following: hair color + style/cut, eye color, skin tone, clothing with colors, height/build, and ONE distinctive feature (e.g., a scar, accessory, hairstyle quirk, or recurring prop).
+- Characters should look youthful and energetic — never adult-looking.
+- BAD:  "tall boy with dark hair and glasses"
+- GOOD: "15-year-old boy, wiry energetic build, wild spiky black hair, bright dark eyes, warm brown skin, orange and white hoodie over dark jeans, always has a cracked phone screen in his back pocket showing a math app"
 
 Voice Assignment Rules (Amazon Polly voices):
 - gender must be "male" or "female"
 - Assign voice_id from this palette — pick the best match per character:
-  Male voices:   "Matthew" (neutral US), "Joey" (young US), "Brian" (UK)
-  Female voices: "Joanna" (neutral US), "Ivy" (young US), "Emma" (UK)
-- The NARRATOR always uses "Matthew" — do NOT assign "Matthew" to a main character
-  unless there are already 2+ other male characters.
+  Male voices:   "Kevin" (teen boy, US), "Matthew" (adult teacher/mentor, US), "Brian" (adult, UK)
+  Female voices: "Ivy" (teen girl, US), "Joanna" (adult, US), "Emma" (adult, UK)
+- The NARRATOR always uses "Gregory" — do NOT assign "Gregory" to any story character.
 - No two characters should share the same voice_id.
+- Use "Kevin" for teen/young male characters, "Matthew" for adult teachers or mentors.
+- Use "Ivy" for teen/young female characters, "Joanna" for adult female characters.
 
 Return ONLY JSON:
 {
@@ -176,6 +199,21 @@ If any of these incorrect keys are used, the output is INVALID.
 
 ---
 
+NARRATIVE_MOMENT QUALITY RULES (CRITICAL — this field drives all scene generation):
+- Must describe a 3-act discovery arc:
+  (1) ENCOUNTER: How the characters first stumble onto the concept — through confusion, surprise, or a mystery object
+  (2) EXPLORATION: What they try, what goes wrong, what small observations they make (failed attempts are good)
+  (3) BREAKTHROUGH: The specific moment of realization — what clicks, what it feels like in the body
+- Must include at least ONE physical/environmental anchor:
+  A specific object, place, or visual detail that embeds the concept in the world
+  (e.g., "chalk numbers spiraling on a courtyard floor", "tiles on a staircase with uneven gaps", "a cracked clock showing wrong increments")
+- Must name the emotional journey: what the characters FEEL at each act (confusion → frustration → curiosity → surprise → satisfaction)
+- Minimum 5 sentences. Aim for 7-8. Write it like a scene treatment, not a topic summary.
+- BAD:  "Students learn about arithmetic progressions and their formula."
+- GOOD: "Leo finds a strange number pattern chalked on the science block wall — each gap between numbers is exactly the same, but he can't figure out why it matters. He tries adding, then multiplying, getting increasingly frustrated when none of his guesses explain the rule. Maya spots it: 'same jump every time.' But when they test it on a different sequence on the next wall, the jump is completely different — same kind of pattern, different step. The moment they realize there are different versions of this rule is when it clicks: the jump has a name, and it belongs to the pattern forever."
+
+---
+
 SELF-CHECK BEFORE OUTPUT:
 
 Before returning the final JSON:
@@ -185,7 +223,7 @@ Before returning the final JSON:
    * learning_step_id (LS1, LS2, ...)
    * title (non-empty)
    * concepts_introduced (must NOT be empty)
-   * narrative_moment (minimum 5 lines)
+   * narrative_moment (minimum 5 sentences with 3-act arc and physical anchor)
 
 2. If ANY field is missing or empty:
    REGENERATE the entire output.
@@ -455,6 +493,44 @@ Ensure the story is not prematurely concluded.
 * Formal concept names — "arithmetic progression", "common difference", "first term",
   "nth term", etc. — must be saved for DISCOVERY phase and later.
 * Introducing the concept name in CONFUSION destroys the payoff of the VALIDATION scene.
+* EXCEPTION: from GUIDANCE phase onward, a character may drop the concept name as a curious
+  aside (e.g., "My textbook calls this an arithmetic progression...") — this gives freshers
+  a name anchor without replacing the formal MICRO_LEARN/VALIDATION definition.
+
+23. HOOK LEARNING OBJECTIVE HINT (CRITICAL FOR FRESHERS):
+
+* The HOOK scene narrator_audio_text MUST include a 1-sentence hint about what the story will teach.
+* Example: "In this world, the key to every door is a number pattern — and one rule governs them all."
+* Do NOT fully explain the concept — just prime the student to look for a pattern, not random numbers.
+* A fresher who has never seen this concept must leave the HOOK scene knowing WHAT to look for.
+
+24. CONFUSION PHASE MUST TEST THE PUZZLE, NOT THE CONCEPT:
+
+* The confusion in CONFUSION scenes must be about the PUZZLE MECHANICS (why did the machine stop?
+  what is it testing?) — NOT about whether the mathematical pattern itself is real or correct.
+* Characters must maintain confidence in the pattern while being confused about the environment.
+* BAD example: "Random numbers? Maybe the pattern was wrong."
+* GOOD example: "The machine stopped, but OUR pattern still works. So what's it waiting for?"
+* A fresher who doubts the concept after CONFUSION will lose trust in everything that follows.
+
+25. WORKED EXAMPLE REQUIREMENT (ONE PER LEARNING STEP):
+
+* At least ONE scene per learning step MUST show a character performing an explicit, step-by-step
+  calculation written on a physical surface (whiteboard, notebook, sand, stone wall, hologram).
+* The visual artifact must show: term₁, term₂, and (term₂ - term₁ = d) written out in full.
+* This gives freshers a replicable method they can copy — not just an observed answer.
+* The character writing it must narrate each step aloud as they write.
+
+26. PREDICTION DIVERSITY RULE (PREVENTS REPETITION FATIGUE):
+
+* No more than 3 consecutive scenes should use the same student_interaction type with the
+  same question pattern ("what number comes next?").
+* After 3 "predict the next number" interactions, vary to:
+  - "predict backward" (what came before term₁?)
+  - "spot which sequence is an AP" (given 2-3 sequences, which one is an AP?)
+  - "calculate the common difference" for a different sequence
+  - "is this an AP?" (yes/no with justification)
+* A student who understood at scene 3 should not be asked the same question at scene 9.
 
 ----------------------------------------
 OUTPUT JSON:
@@ -468,7 +544,7 @@ OUTPUT JSON:
   "dialogue": ["...", "..."],
   "learning_moment": "...",
   "transition_hint": "...",
-  "narrator_audio_text": "2-4 sentence cinematic narration of this scene written as clean prose — no brackets, no stage directions, suitable for direct TTS input. Describe the environment, mood, what is happening, and the emotional undercurrent.",
+  "narrator_audio_text": "1-2 sentence cinematic narration of this scene written as clean prose — no brackets, no stage directions, suitable for direct TTS input. Describe the environment, mood, and emotional undercurrent only — keep it short, dialogue carries the scene.",
   "character_dialogues": [
     {
       "character_id": "character_name_lowercase_no_spaces_no_underscores",
@@ -507,10 +583,11 @@ DIALOGUE LENGTH RULE (CRITICAL FOR IMAGE TEXT RENDERING):
 - This rule is NON-NEGOTIABLE — long dialogue lines cause spelling errors in image generation
 
 AUDIO FIELD RULES:
-- narrator_audio_text: Write this as a skilled narrator would read it aloud. Pure prose. No [brackets] or (parentheses).
-- character_dialogues: One entry per character who speaks in this scene. Use voice_id from the story backbone character registry.
+- narrator_audio_text: Write 1-2 sentences MAX. Hard limit: 25 words total. Cinematic prose. No [brackets] or (parentheses). Do NOT exceed 25 words — long narration breaks slide timing. Keep it SHORT — dialogue carries the scene, narration is atmosphere only.
+- NARRATION vs DIALOGUE RATIO: Aim for 30% narration / 70% dialogue. Scenes must be conversation-driven. Bad: long narrator paragraph + short dialogue. Good: 1 short narrator line + 3-4 character exchanges.
+- character_dialogues: One entry per character who speaks in this scene. Maximum 4 entries per scene. Use voice_id from the story backbone character registry.
 - audio_text should be identical to dialogue unless the dialogue has special characters that would break TTS.
-- emotion: REQUIRED for every character_dialogue entry. Pick the ONE emotion that best matches this line's delivery. Drives TTS expressiveness via SSML voice modulation.
+- emotion: REQUIRED for every character_dialogue entry. Use ONLY these values: happy, sad, curious, excited, frustrated, neutral, confident, realization, awestruck, reverent, satisfied, proud, insight. Drives TTS expressiveness.
 - If a scene has no dialogue, set character_dialogues to an empty array [].
 
 Generate the complete scene now.
@@ -522,17 +599,23 @@ Generate the complete scene now.
 You are generating a SINGLE cinematic scene for an image model.
 
 GLOBAL STYLE LOCK (MANDATORY — apply to every single scene):
-- Art style: cinematic semi-realistic anime — anime-styled characters in a photorealistic environment
-- Lighting: golden hour backlighting, warm amber rim light, soft depth of field
+- Art style: vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters, clean bold line art, warm colors, child-friendly proportions, detailed but not photorealistic backgrounds
+- Characters must look their stated age — youthful, energetic, teen proportions (NOT adult)
+- Lighting: warm golden hour light, soft shadows, bright and inviting atmosphere
 - Color grading: warm amber and soft teal, rich but not oversaturated
-- Every scene must look like a frame from the SAME movie — no style variation allowed
-- Characters must look IDENTICAL to their description in every scene — same face, hair, outfit
+- Every scene must look like a frame from the SAME animated movie — no style variation allowed
+- Characters must look IDENTICAL to their description in every scene — same face, hair, outfit, accessories
+
+CHARACTER IDENTITY LOCK (CRITICAL — never deviate from these descriptions):
+[CHARACTER_ANCHOR]
+NEGATIVE PROMPT: different hair color, different eye color, wrong outfit, wrong age, adult-looking teenagers, multiple characters when only one is in the scene, photorealistic style, 3D render
 
 STRICT RULES:
 - This is ONE single scene (NOT multiple panels)
 - DO NOT create comic strips or multi-panel layouts
 - DO NOT add labels, arrows, diagrams, or annotations
 - Keep scene realistic and cinematic
+- EXCEPTION: When DIALOGUE_INSTRUCTION is provided, speech bubbles ARE required — follow that instruction exactly
 
 CONCEPT VISUALIZATION (CRITICAL — makes images teach, not just decorate):
 - If the scene involves numbers, sequences, or patterns → show them physically in the environment:

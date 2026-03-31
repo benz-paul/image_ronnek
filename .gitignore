@@ -1,84 +1,36 @@
-# =============================================================================
-# SECRETS & ENVIRONMENT
-# =============================================================================
+# Secrets & local config
+.mcp.json
 .env
-.env.local
-.env.*.local
 
-# =============================================================================
-# GENERATED OUTPUTS (never commit run data)
-# =============================================================================
-outputs/
-logs/
-.tmp/
-
-# Stray Windows null-device file created by shell redirects
-nul
-
-# Accidental pip install artifacts (e.g. "=0.25.1" files)
-=*
-
-# =============================================================================
-# TEST RUNS & TEST OUTPUTS (test_op is excluded from main pipeline commits)
-# =============================================================================
-test_op/outputs/
-test_op/flux_pro/
-test_op/juggernaut/
-test_op/openai/
-test_op/logs/
-test_op/__pycache__/
-
-# =============================================================================
-# PYTHON
-# =============================================================================
+# Python
 __pycache__/
 *.py[cod]
-*.pyc
 *.pyo
-*.pyd
-*.so
-*.egg-info/
-dist/
-build/
-.Python
-
-# =============================================================================
-# VIRTUAL ENVIRONMENT
-# =============================================================================
 venv/
-env/
 .venv/
 
-# =============================================================================
-# TOOLS & CACHES
-# =============================================================================
-.ruff_cache/
-.mypy_cache/
-.pytest_cache/
-.coverage
-htmlcov/
-
-# =============================================================================
-# FRONTEND (Node)
-# =============================================================================
-frontend/node_modules/
-frontend/.next/
-frontend/out/
+# Node
+node_modules/
+.next/
 frontend/tsconfig.tsbuildinfo
 
-# =============================================================================
-# IDE & OS
-# =============================================================================
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
+# Outputs & temp
+outputs/
+brain/outputs/
+testing_outputs/
+data/
+logs/
+*.zip
+nul
 
-# =============================================================================
-# CLAUDE CODE INTERNAL
-# =============================================================================
-.claude/settings.local.json
-.claude
-Claude.md
+# Large binaries
+bin/
+
+# Generated assets
+assets/image_repository/
+
+# Tool workspace files
+frontend/.stitch/
+
+# Claude Code local config
+.claude/

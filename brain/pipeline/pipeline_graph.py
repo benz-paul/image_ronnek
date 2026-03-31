@@ -889,21 +889,30 @@ class PipelineGraph:
             "model_run_folder": state.model_run_folder,
         }
 
+    @staticmethod
+    def _chunk_text(text: str, chunk_size: int = 7000, overlap: int = 600) -> list:
+        """Split text into overlapping chunks for map-reduce extraction."""
+        if len(text) <= chunk_size:
+            return [text]
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = min(start + chunk_size, len(text))
+            chunks.append(text[start:end])
+            if end >= len(text):
+                break
+            start = end - overlap
+        return chunks
+
     def _node_execute_prompt0(self, state: PipelineState) -> Dict[str, Any]:
         """
-        Execute Prompt 0 - Concept Inventory Extraction with global extraction.
-        Uses 2-pass approach for comprehensive concept extraction.
-
-        Args:
-            state: Current pipeline state
-
-        Returns:
-            State updates
+        Execute Prompt 0 - Concept Inventory Extraction.
+        Uses map-reduce chunking: extract from each section independently,
+        merge, then do a grounded gap-detection pass against the full text.
         """
         import json
 
         run_folder = Path(state.model_run_folder or state.run_folder)
-        chapter_name = state.user_inputs.chapter_name
 
         # Get full chapter text from PDF
         full_text = ""
@@ -924,54 +933,63 @@ class PipelineGraph:
 
         debug(f"[DEBUG] Full text length: {len(full_text)}")
 
-        # STEP 1 — First pass (extract concept titles only), retry once on bad response
-        prompt1 = self.prompt_builder.get_prompt(
-            "prompt0a",
-            CHAPTER_TEXT=full_text[:35000],
-        )
-        print("  First pass: Full extraction...")
-        concepts_pass1 = {"_error": "not_run"}
-        for _attempt in range(2):
-            result1 = self.llm_service.invoke(prompt1, max_tokens=3000, temperature=0.2)
-            response1 = result1["content"]
-            concepts_pass1 = safe_parse(response1, prompt_type="concepts")
-            debug(f"[DEBUG] Prompt0 response length: {len(str(response1))}")
-            if "_error" not in concepts_pass1 and "_invalid" not in concepts_pass1:
-                break
-            if _attempt == 0:
-                print("  [RETRY] Pass 1 returned invalid content, retrying...")
-        if "_error" in concepts_pass1 or "_invalid" in concepts_pass1:
-            print("  [WARNING] Pass 1 failed — continuing with pass 2 full extraction")
+        # STEP 1 — Map: split into sections and extract from each independently
+        chunks = self._chunk_text(full_text, chunk_size=7000, overlap=600)
+        print(f"  Chunked into {len(chunks)} sections for map-reduce extraction...")
 
-        # STEP 2 — Second pass (gap detection)
-        # If pass 1 failed, pass empty list so pass 2 does a full extraction
-        concepts_list1 = concepts_pass1.get("concepts", []) if "_error" not in concepts_pass1 and "_invalid" not in concepts_pass1 else []
+        all_chunk_concepts: list = []
+        first_prompt = None
+        first_response = None
+        for i, chunk in enumerate(chunks):
+            chunk_prompt = self.prompt_builder.get_prompt("prompt0a", CHAPTER_TEXT=chunk)
+            if first_prompt is None:
+                first_prompt = chunk_prompt
+            print(f"  Section {i + 1}/{len(chunks)}: extracting...")
+            parsed = {"_error": "not_run"}
+            response = ""
+            for _attempt in range(2):
+                result = self.llm_service.invoke(chunk_prompt, max_tokens=1500, temperature=0.2)
+                response = result["content"]
+                parsed = safe_parse(response, prompt_type="concepts")
+                if "_error" not in parsed and "_invalid" not in parsed:
+                    break
+                if _attempt == 0:
+                    print(f"  [RETRY] Section {i + 1} returned invalid content, retrying...")
+            if first_response is None:
+                first_response = response
+            if "_error" not in parsed and "_invalid" not in parsed:
+                all_chunk_concepts.extend(parsed.get("concepts", []))
+            else:
+                print(f"  [WARNING] Section {i + 1} failed — skipping")
+
+        # Reduce: deduplicate while preserving order
+        merged_concepts = list(dict.fromkeys(all_chunk_concepts))
+        print(f"  Merged: {len(merged_concepts)} unique concepts across {len(chunks)} sections")
+
+        # STEP 2 — Grounded gap detection: resend full text so the model can actually re-read it
         prompt2 = self.prompt_builder.get_prompt(
             "prompt0b",
-            EXISTING_CONCEPTS=json.dumps({"concepts": concepts_list1}),
+            CHAPTER_TEXT=full_text[:35000],
+            EXISTING_CONCEPTS=json.dumps({"concepts": merged_concepts}),
         )
-        print("  Second pass: Gap detection...")
-        result2 = self.llm_service.invoke(prompt2, max_tokens=1000, temperature=0.2)
+        print("  Gap detection pass (grounded on full text)...")
+        result2 = self.llm_service.invoke(prompt2, max_tokens=1500, temperature=0.2)
         response2 = result2["content"]
         concepts_pass2 = safe_parse(response2, prompt_type="concepts")
+        if "_error" not in concepts_pass2 and "_invalid" not in concepts_pass2:
+            gap_concepts = concepts_pass2.get("concept_titles", []) or concepts_pass2.get("concepts", [])
+        else:
+            gap_concepts = []
 
-        # STEP 3 — Merge (both are now lists of concept titles)
-        # concepts_list1 already set above (empty if pass 1 failed)
-        concepts_list2 = concepts_pass2.get("concept_titles", []) or concepts_pass2.get("concepts", [])
-
-        # Combine and deduplicate
-        all_concepts = concepts_list1 + concepts_list2
-        final_concepts = list(
-            dict.fromkeys(all_concepts)
-        )  # Preserve order, remove duplicates
-
-        debug(f"[DEBUG] Total concepts: {len(final_concepts)}")
+        # STEP 3 — Final merge
+        final_concepts = list(dict.fromkeys(merged_concepts + gap_concepts))
+        debug(f"[DEBUG] Total concepts after gap pass: {len(final_concepts)} ({len(gap_concepts)} new from gap pass)")
 
         state.prompt0_output = {"concepts": final_concepts}
 
         # STEP 4 — Save
-        save_prompt(run_folder, 0, prompt1)
-        save_raw_output(run_folder, 0, response1)
+        save_prompt(run_folder, 0, first_prompt or "")
+        save_raw_output(run_folder, 0, first_response or "")
         save_parsed(run_folder, "concepts", state.prompt0_output)
 
         print(f"  ✓ Extracted {len(final_concepts)} concepts")
@@ -1467,7 +1485,15 @@ class PipelineGraph:
                 "transition_hint": "",
                 "narrator_audio_text": "",
                 "character_dialogues": [],
+                "show_avatar": False,
+                "avatar_expression": "neutral",
             }
+
+        # Avatar integration hooks — unused by player now but required for future overlay feature
+        if "show_avatar" not in scene:
+            scene["show_avatar"] = False
+        if "avatar_expression" not in scene:
+            scene["avatar_expression"] = "neutral"
 
         if ls_key not in state.scenes:
             state.scenes[ls_key] = []
@@ -1721,24 +1747,29 @@ class PipelineGraph:
             name = char.get("name", "")
             visual_desc = char.get("visual_description", "")
             if name and visual_desc:
-                char_anchor_lines.append(f"  - {name}: {visual_desc}")
-        char_anchor = (
-            "\n\nCHARACTER LOCK — use EXACT same appearance in every scene:\n"
-            + "\n".join(char_anchor_lines)
-        ) if char_anchor_lines else ""
+                char_anchor_lines.append(f"- {name}: {visual_desc}")
+        char_anchor_block = "\n".join(char_anchor_lines) if char_anchor_lines else "(no characters defined)"
 
         dialogue_instruction = (
-            f"DIALOGUE MODE - Include speech bubbles with EXACT text:\n"
-            f"Use EXACT dialogue below in speech bubbles:\n{dialogue_text}\n\n"
-            "Speech bubbles must be clearly readable with correct English text.\n"
-            "Keep each bubble SHORT — match the exact text provided, no additions."
-            + char_anchor
+            "SPEECH BUBBLE REQUIREMENT — MANDATORY:\n"
+            "Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.\n"
+            "Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:\n\n"
+            f"{dialogue_text}\n\n"
+            "SPEECH BUBBLE RULES:\n"
+            "- Each bubble is white or off-white with a thin dark border\n"
+            "- Text is dark (black or very dark gray), clean, easily legible\n"
+            "- Bubble tail points clearly to the speaking character's open mouth\n"
+            "- Bubbles in upper portion of frame, not overlapping character faces\n"
+            "- Do NOT paraphrase — use EXACTLY the words provided\n"
+            "- If two characters speak, place two separate bubbles\n"
+            "- Prioritize text legibility — clean printing, not calligraphy"
         )
 
         prompt = self.prompt_builder.get_prompt(
             "prompt4",
             SCENE_DATA=json.dumps(input_data, indent=2),
             DIALOGUE_INSTRUCTION=dialogue_instruction,
+            CHARACTER_ANCHOR=char_anchor_block,
         )
 
         result = self.llm_service.invoke(prompt)
@@ -1769,6 +1800,12 @@ class PipelineGraph:
                 parsed.get("visual_prompt") or parsed.get("prompt") or response_content
             )
 
+        # Re-append the explicit speech bubble directive so Flux receives it directly.
+        # DeepSeek absorbs the dialogue_instruction into a narrative sentence; by appending
+        # it again here we guarantee Flux sees the same explicit format that worked in test_op.
+        if dialogue_text and dialogue_text != "(no dialogue)":
+            visual_prompt = visual_prompt + "\n\n" + dialogue_instruction
+
         debug(f"[PROMPT4] dialogue_in prompt: {visual_prompt[:100]}...")
 
         # DEBUG MODE: Capture image prompts
@@ -1778,26 +1815,36 @@ class PipelineGraph:
         # Simple flow: pass LLM-generated prompt directly to image model
         # FIX #21: pipeline_graph always calls generate(prompt_str) which returns
         # a str path or None on failure. generate() is the correct call here.
+        _MAX_IMAGE_RETRIES = 3
+        _RETRY_DELAY_SECONDS = 5
+
         print(f"  [IMAGE] {scene_id} ({scene_index + 1}/{len(scene_plan)}) — generating...", end="", flush=True)
         image_path = None
-        try:
-            image_path = self.image_generator.generate(
-                prompt=visual_prompt,
-                learning_step_id=ls_key,
-                scene_id=scene_id,
-            )
-        except Exception as img_err:
-            print(f" → ERROR: {img_err}")
+        for _attempt in range(1, _MAX_IMAGE_RETRIES + 1):
+            try:
+                image_path = self.image_generator.generate(
+                    prompt=visual_prompt,
+                    learning_step_id=ls_key,
+                    scene_id=scene_id,
+                )
+            except Exception as img_err:
+                print(f" → ERROR attempt {_attempt}/{_MAX_IMAGE_RETRIES}: {img_err}", end="", flush=True)
+                image_path = None
+            if image_path is not None:
+                break
+            if _attempt < _MAX_IMAGE_RETRIES:
+                print(f" → retry {_attempt + 1}/{_MAX_IMAGE_RETRIES}...", end="", flush=True)
+                time.sleep(_RETRY_DELAY_SECONDS)
 
         if image_path is not None:
             save_image(run_folder, ls_index, scene_index, image_path, image_prompt=visual_prompt)
             new_image_paths = state.image_paths + [image_path]
             print(f" → saved")
         else:
-            # Save only the .txt prompt for debugging; image generation failed
+            # Save only the .txt prompt for debugging; image generation failed all retries
             save_image(run_folder, ls_index, scene_index, "", image_prompt=visual_prompt)
             new_image_paths = state.image_paths
-            print(f" → FAILED (continuing to next scene)")
+            print(f" → FAILED all {_MAX_IMAGE_RETRIES} attempts (continuing to next scene)")
 
         # Calculate next indices with proper bounds checking
         next_scene = scene_index + 1
