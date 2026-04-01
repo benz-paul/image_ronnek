@@ -958,12 +958,23 @@ class PipelineGraph:
             if first_response is None:
                 first_response = response
             if "_error" not in parsed and "_invalid" not in parsed:
-                all_chunk_concepts.extend(parsed.get("concepts", []))
+                section_concepts = parsed.get("concepts", [])
+                # Cap per-section to avoid hallucinated permutation lists
+                if len(section_concepts) > 30:
+                    print(f"  [WARN] Section {i + 1} returned {len(section_concepts)} concepts — capping at 30")
+                    section_concepts = section_concepts[:30]
+                all_chunk_concepts.extend(section_concepts)
             else:
                 print(f"  [WARNING] Section {i + 1} failed — skipping")
 
-        # Reduce: deduplicate while preserving order
-        merged_concepts = list(dict.fromkeys(all_chunk_concepts))
+        # Reduce: case-insensitive deduplicate while preserving order (first occurrence wins)
+        seen_lower: set = set()
+        merged_concepts: list = []
+        for c in all_chunk_concepts:
+            key = c.strip().lower()
+            if key not in seen_lower:
+                seen_lower.add(key)
+                merged_concepts.append(c.strip())
         print(f"  Merged: {len(merged_concepts)} unique concepts across {len(chunks)} sections")
 
         # STEP 2 — Grounded gap detection: resend full text so the model can actually re-read it
@@ -981,8 +992,19 @@ class PipelineGraph:
         else:
             gap_concepts = []
 
-        # STEP 3 — Final merge
-        final_concepts = list(dict.fromkeys(merged_concepts + gap_concepts))
+        # STEP 3 — Final merge (case-insensitive dedup again to handle gap pass overlap)
+        for gc in gap_concepts:
+            key = gc.strip().lower()
+            if key not in seen_lower:
+                seen_lower.add(key)
+                merged_concepts.append(gc.strip())
+        final_concepts = merged_concepts
+
+        # Hard cap — a single chapter should not exceed 60 distinct concepts
+        if len(final_concepts) > 60:
+            print(f"  [WARN] {len(final_concepts)} concepts exceed cap — trimming to 60")
+            final_concepts = final_concepts[:60]
+
         debug(f"[DEBUG] Total concepts after gap pass: {len(final_concepts)} ({len(gap_concepts)} new from gap pass)")
 
         state.prompt0_output = {"concepts": final_concepts}

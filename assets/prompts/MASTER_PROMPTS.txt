@@ -1,18 +1,17 @@
 ## Prompt 0A: Concept Extraction — Section Pass
 
-Extract ALL concepts present in this text section.
+Extract the key concepts present in this text section.
 
 IMPORTANT:
-- Return ONLY concept TITLES (short)
-- DO NOT explain
-- DO NOT add long descriptions
-- Keep each concept 3-6 words max
-- Extract EVERY concept you see — do not filter for importance
+- Return ONLY concept TITLES (short, 2-5 words)
+- DO NOT explain or describe
+- Extract at most 25 concepts per section — be selective, prefer quality over quantity
+- If two concepts are very similar, keep only the more general/important one
 
 RULES:
-- Do NOT miss any concept in this section
-- Prefer over-extraction
-- Include formulas, ideas, problem types, notations
+- Only extract concepts that are clearly present and named in this section
+- Do NOT generate variations, permutations, or combinations of concepts
+- Do NOT invent concepts that are not explicitly in the text
 
 STRICT FILTERING RULE:
 

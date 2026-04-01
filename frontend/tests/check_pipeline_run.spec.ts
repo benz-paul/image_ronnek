@@ -7,7 +7,7 @@
  *   3. Dashboard shows the latest run card
  *   4. Player loads: first scene image renders, scene counter is visible
  *   5. Scene navigation works (→ arrow advances to scene 2)
- *   6. Audio element is present (if run has audio)
+ *   6. Audio ON/OFF button present (audio is JS-managed, no DOM <audio> element)
  *
  * Requirements:
  *   - Backend running:  uvicorn backend.server:app --port 8000
@@ -31,18 +31,15 @@ test('API: backend is up and has at least one run', async ({ request }) => {
   const latest = runs[0]
   console.log(`\n  Latest run: ${latest.run_id}`)
   console.log(`  Chapter:    ${latest.chapter}`)
-  console.log(`  Scenes:     ${latest.scene_count}`)
   console.log(`  Has audio:  ${latest.has_audio}`)
   console.log(`  Has PPT:    ${latest.has_ppt}`)
 })
 
 test('API: latest run has scenes and images', async ({ request }) => {
-  // Get latest run id
   const runsRes = await request.get(`${BASE_API}/api/runs`)
   const runs = await runsRes.json()
   const runId = runs[0].run_id
 
-  // Fetch full run data
   const runRes = await request.get(`${BASE_API}/api/runs/${runId}`)
   expect(runRes.status()).toBe(200)
 
@@ -50,18 +47,15 @@ test('API: latest run has scenes and images', async ({ request }) => {
   expect(data.learning_steps).toBeDefined()
   expect(data.learning_steps.length).toBeGreaterThan(0)
 
-  // Check scenes exist
   const allScenes = Object.values(data.scenes as Record<string, unknown[]>).flat()
   expect(allScenes.length).toBeGreaterThan(0)
   console.log(`\n  Total scenes in run: ${allScenes.length}`)
 
-  // Check first scene has image_url
   const firstScene = allScenes[0] as Record<string, unknown>
   expect(firstScene.image_url).toBeDefined()
   expect(typeof firstScene.image_url).toBe('string')
   console.log(`  First scene image: ${firstScene.image_url}`)
 
-  // Check image is actually served
   const imgRes = await request.get(`${BASE_API}${firstScene.image_url}`)
   expect(imgRes.status()).toBe(200)
   const contentType = imgRes.headers()['content-type']
@@ -74,16 +68,13 @@ test('API: latest run has scenes and images', async ({ request }) => {
 test('UI: login page loads and demo login works', async ({ page }) => {
   await page.goto('/')
 
-  // Login page should render
   await expect(page.locator('input[type="text"], input[name="username"]').first()).toBeVisible()
   await expect(page.locator('input[type="password"]').first()).toBeVisible()
 
-  // Fill demo credentials
   await page.locator('input[type="text"], input[name="username"]').first().fill('admin')
   await page.locator('input[type="password"]').first().fill('academy123')
   await page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign")').first().click()
 
-  // Should redirect to dashboard
   await page.waitForURL('**/dashboard', { timeout: 8000 })
   console.log('\n  Login successful → redirected to dashboard')
 })
@@ -91,33 +82,25 @@ test('UI: login page loads and demo login works', async ({ page }) => {
 // ─── 3. DASHBOARD ───────────────────────────────────────────────────────────
 
 test('UI: dashboard shows latest run card', async ({ page }) => {
-  // Login first
   await page.goto('/')
   await page.locator('input[type="text"], input[name="username"]').first().fill('admin')
   await page.locator('input[type="password"]').first().fill('academy123')
   await page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign")').first().click()
   await page.waitForURL('**/dashboard', { timeout: 8000 })
 
-  // Wait for run cards to load
   await page.waitForTimeout(2000)
 
-  // There should be at least one run card visible
   const runCards = page.locator('[data-testid="run-card"], .run-card, a[href*="/player/"]')
   const count = await runCards.count()
   expect(count).toBeGreaterThan(0)
   console.log(`\n  Run cards visible on dashboard: ${count}`)
 
-  // Get latest run id from API to verify it shows up
   const runsRes = await page.request.get(`${BASE_API}/api/runs`)
   const runs = await runsRes.json()
   const latestRunId = runs[0].run_id
 
-  // Check the latest run id appears somewhere on the page
-  const pageText = await page.textContent('body')
-  const runIdShort = latestRunId.replace('run_', '')   // e.g. "20250331_120000"
   console.log(`  Latest run ID: ${latestRunId}`)
 
-  // Either the full ID or the chapter name should be visible
   const chapterVisible = await page.locator(`text=${runs[0].chapter}`).count()
   expect(chapterVisible).toBeGreaterThan(0)
   console.log(`  Chapter "${runs[0].chapter}" visible on dashboard ✓`)
@@ -126,32 +109,26 @@ test('UI: dashboard shows latest run card', async ({ page }) => {
 // ─── 4. PLAYER ──────────────────────────────────────────────────────────────
 
 test('UI: player loads first scene image', async ({ page }) => {
-  // Get latest run id
   const runsRes = await page.request.get(`${BASE_API}/api/runs`)
   const runs = await runsRes.json()
   const runId = runs[0].run_id
 
-  // Login
   await page.goto('/')
   await page.locator('input[type="text"], input[name="username"]').first().fill('admin')
   await page.locator('input[type="password"]').first().fill('academy123')
   await page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign")').first().click()
   await page.waitForURL('**/dashboard', { timeout: 8000 })
 
-  // Navigate directly to player
   await page.goto(`/player/${runId}`)
   console.log(`\n  Opened player for: ${runId}`)
 
-  // Wait for scene image to appear and load
   const img = page.locator('img').first()
   await expect(img).toBeVisible({ timeout: 15000 })
 
-  // Check image actually loaded (naturalWidth > 0 means it painted)
   const loaded = await img.evaluate((el: HTMLImageElement) => el.naturalWidth > 0)
   expect(loaded).toBe(true)
   console.log(`  Scene image loaded ✓`)
 
-  // Scene counter or scene ID should be visible somewhere
   const bodyText = await page.textContent('body')
   const hasLS = bodyText?.includes('LS') || bodyText?.includes('Scene') || bodyText?.includes('scene')
   expect(hasLS).toBe(true)
@@ -163,7 +140,6 @@ test('UI: player scene navigation works (→ goes to scene 2)', async ({ page })
   const runs = await runsRes.json()
   const runId = runs[0].run_id
 
-  // Login + open player
   await page.goto('/')
   await page.locator('input[type="text"], input[name="username"]').first().fill('admin')
   await page.locator('input[type="password"]').first().fill('academy123')
@@ -171,17 +147,13 @@ test('UI: player scene navigation works (→ goes to scene 2)', async ({ page })
   await page.waitForURL('**/dashboard', { timeout: 8000 })
   await page.goto(`/player/${runId}`)
 
-  // Wait for first image
   await expect(page.locator('img').first()).toBeVisible({ timeout: 15000 })
 
-  // Capture current image src
   const imgSrcBefore = await page.locator('img').first().getAttribute('src')
 
-  // Press right arrow to go to scene 2
   await page.keyboard.press('ArrowRight')
   await page.waitForTimeout(800)
 
-  // Image should have changed
   const imgSrcAfter = await page.locator('img').first().getAttribute('src')
   expect(imgSrcAfter).not.toEqual(imgSrcBefore)
   console.log(`\n  Scene 1 → Scene 2 navigation ✓`)
@@ -190,8 +162,11 @@ test('UI: player scene navigation works (→ goes to scene 2)', async ({ page })
 })
 
 // ─── 5. AUDIO CHECK ─────────────────────────────────────────────────────────
+// NOTE: The player uses JS new Audio() API — there is no <audio> DOM element.
+// We verify audio support by checking the Audio ON/OFF toggle button and
+// confirming the audio file URL is actually served by the backend.
 
-test('UI: audio element is present if run has audio', async ({ page }) => {
+test('UI: audio toggle button present and audio file served if run has audio', async ({ page }) => {
   const runsRes = await page.request.get(`${BASE_API}/api/runs`)
   const runs = await runsRes.json()
   const latestRun = runs[0]
@@ -209,20 +184,26 @@ test('UI: audio element is present if run has audio', async ({ page }) => {
   await page.locator('button[type="submit"], button:has-text("Login"), button:has-text("Sign")').first().click()
   await page.waitForURL('**/dashboard', { timeout: 8000 })
   await page.goto(`/player/${runId}`)
-
   await expect(page.locator('img').first()).toBeVisible({ timeout: 15000 })
 
-  // Audio element should be in the DOM
-  const audioEl = page.locator('audio')
-  const audioCount = await audioEl.count()
-  expect(audioCount).toBeGreaterThan(0)
-  console.log(`\n  Audio element found in player ✓`)
+  // Audio is JS-managed (new Audio() API), not a DOM <audio> element.
+  // Verify the Audio ON/OFF toggle button is present.
+  const audioToggle = page.locator('button:has-text("Audio")')
+  await expect(audioToggle).toBeVisible({ timeout: 5000 })
+  const toggleText = await audioToggle.textContent()
+  console.log(`\n  Audio toggle button visible: "${toggleText?.trim()}" ✓`)
 
-  // Verify the audio src points to a real file
-  const audioSrc = await audioEl.first().getAttribute('src')
-  if (audioSrc) {
-    const audioRes = await page.request.get(`${BASE_API}${audioSrc}`)
+  // Verify audio file is actually served via the API
+  const runRes = await page.request.get(`${BASE_API}/api/runs/${runId}`)
+  const runData = await runRes.json()
+  const firstScene = Object.values(runData.scenes as Record<string, Array<{audio?: {combined_url?: string}}>>).flat()[0]
+  const audioUrl = firstScene?.audio?.combined_url
+
+  if (audioUrl) {
+    const audioRes = await page.request.get(`${BASE_API}${audioUrl}`)
     expect(audioRes.status()).toBe(200)
-    console.log(`  Audio file served OK: ${audioSrc.split('/').pop()}`)
+    console.log(`  Audio file served OK: ${audioUrl.split('/').pop()}`)
+  } else {
+    console.log('  No combined_url for first scene (acceptable)')
   }
 })
