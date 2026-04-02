@@ -1,7 +1,7 @@
 # Frontend Complete Architecture & Analysis
 
 ## Purpose
-This document provides a comprehensive analysis of the current frontend implementation for the Storytelling Pipeline. It explains how the frontend displays pipeline outputs, the API calls made, data flow, and integration details so that new frontend developers can understand and extend the system.
+This document provides a comprehensive analysis of the current frontend implementation for the Storytelling Pipeline. It explains how the frontend displays pipeline outputs, the API calls made, data flow.
 
 ---
 
@@ -70,38 +70,38 @@ All API endpoints are served by **FastAPI** at `http://localhost:8000`. The fron
 
 ### Authentication APIs
 
-| Endpoint | Method | Purpose | Backend Code Location |
-|----------|--------|---------|----------------------|
-| `/api/auth/login` | POST | Authenticate user with username/password | `backend/server.py:296-308` |
-| `/api/auth/register` | POST | Register new user | `backend/server.py:311-327` |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/auth/login` | POST | Authenticate user with username/password |
+| `/api/auth/register` | POST | Register new user |
 
 ### Run/Pipeline APIs
 
-| Endpoint | Method | Purpose | Backend Code Location |
-|----------|--------|---------|----------------------|
-| `/api/runs` | GET | List all available pipeline runs (sorted newest first) | `backend/server.py:344-348` |
-| `/api/runs/latest` | GET | Get the most recent run summary | `backend/server.py:335-341` |
-| `/api/runs/{run_id}` | GET | Get full run data: config, scenes grouped by LS, audio manifest, story backbone | `backend/server.py:351-435` |
-| `/api/runs/{run_id}/scenes` | GET | Get scenes grouped by LS for a run | `backend/server.py:438-444` |
-| `/api/runs/{run_id}/config` | GET | Get config.json for a run | `backend/server.py:447-454` |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/runs` | GET | List all available pipeline runs (sorted newest first) |
+| `/api/runs/latest` | GET | Get the most recent run summary |
+| `/api/runs/{run_id}` | GET | Get full run data: config, scenes grouped by LS, audio manifest, story backbone |
+| `/api/runs/{run_id}/scenes` | GET | Get scenes grouped by LS for a run |
+| `/api/runs/{run_id}/config` | GET | Get config.json for a run |
 
 ### Avatar APIs
 
-| Endpoint | Method | Purpose | Backend Code Location |
-|----------|--------|---------|----------------------|
-| `/api/avatar/generate` | POST | Generate avatar from uploaded photos (uses FAL.ai) | `backend/server.py:827-951` |
-| `/api/avatar/{username}` | GET | Get user's avatar JSON | `backend/server.py:954-962` |
-| `/api/avatar/{username}/base_face.png` | GET | Get avatar base face image | `backend/server.py:965-970` |
-| `/api/avatar/{username}/expressions/{expression}.png` | GET | Get specific expression image | `backend/server.py:973-978` |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/avatar/generate` | POST | Generate avatar from uploaded photos (uses FAL.ai) |
+| `/api/avatar/{username}` | GET | Get user's avatar JSON |
+| `/api/avatar/{username}/base_face.png` | GET | Get avatar base face image |
+| `/api/avatar/{username}/expressions/{expression}.png` | GET | Get specific expression image |
 
 ### Static File Serving
 
-| Endpoint | Purpose | Backend Code Location |
-|----------|---------|----------------------|
-| `/static/{run_id}/images/{ls_id}/{scene_id}.png` | Serve scene images | `backend/server.py:989-1006` |
-| `/static/{run_id}/audio/{ls_id}/{scene_id}/narrator.mp3` | Serve narrator audio | `backend/server.py:989-1006` |
-| `/static/{run_id}/audio/{ls_id}/{scene_id}/dialogue_{n}.mp3` | Serve character dialogues | `backend/server.py:989-1006` |
-| `/static/{run_id}/audio/{ls_id}/{scene_id}.mp3` | Serve combined audio | `backend/server.py:989-1006` |
+| Endpoint | Purpose |
+|----------|---------|
+| `/static/{run_id}/images/{ls_id}/{scene_id}.png` | Serve scene images |
+| `/static/{run_id}/audio/{ls_id}/{scene_id}/narrator.mp3` | Serve narrator audio |
+| `/static/{run_id}/audio/{ls_id}/{scene_id}/dialogue_{n}.mp3` | Serve character dialogues |
+| `/static/{run_id}/audio/{ls_id}/{scene_id}.mp3` | Serve combined audio |
 
 ---
 
@@ -137,16 +137,6 @@ Frontend displays grid of run cards
 User clicks a run card → navigates to /player/{run_id}
 ```
 
-**Frontend Code Location**: `frontend/app/dashboard/page.tsx:42-47`
-```typescript
-useEffect(() => {
-  fetch("/api/runs")
-    .then((r) => r.json())
-    .then((d) => { setRuns(d); setFetching(false); })
-    .catch(() => { setFetchError("Cannot reach backend..."); setFetching(false); });
-}, []);
-```
-
 ### 4.2 Player Page - Scene Display Flow
 
 ```
@@ -159,7 +149,7 @@ Backend returns:
   run_id: "run_20260324_173734",
   config: { ... },           # Config JSON
   story_backbone: { ... },   # Story backbone
-  learning_steps: [ ... ],  # Learning steps array
+  learning_steps: [ ... ],   # Learning steps array
   scenes: {
     "LS1": [ scene1, scene2, ... ],
     "LS2": [ ... ],
@@ -203,17 +193,6 @@ Image is preloaded for next scene (to avoid flash)
 Audio plays via useAudioPlayer hook
 ```
 
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:85-91`
-```typescript
-useEffect(() => {
-  if (!runId) return;
-  fetch(`/api/runs/${runId}`)
-    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    .then((d: RunData) => { setRunData(d); setFlatScenes(flattenScenes(d.scenes)); setLoading(false); })
-    .catch((e) => { setError(e.message); setLoading(false); });
-}, [runId]);
-```
-
 ---
 
 ## 5. Scene JSON Structure
@@ -236,8 +215,6 @@ outputs/run_20260324_173734/
 ```
 
 ### Scene JSON Fields (from `outputs/run_20260324_173734/scenes/LS1/LS1_S1.json`)
-
-**File**: `outputs/run_20260324_173734/scenes/LS1/LS1_S1.json` (entire file - 30 lines)
 
 ```json
 {
@@ -272,71 +249,19 @@ outputs/run_20260324_173734/
 
 ### How Scenes Are Loaded (Backend `server.py`)
 
-**Backend Code Location**: `backend/server.py:181-230`
-
-```python
-def load_scenes_for_run(run_folder: Path) -> Dict[str, List[Dict]]:
-    """
-    Load all scenes for a run.
-
-    Priority:
-    1. parsed/scenes_full.json
-    2. parsed/scenes_LS*.json files merged
-    3. Individual scenes/LS*/*.json files merged
-    """
-    # Option 1
-    full = load_json(run_folder / "parsed" / "scenes_full.json")
-    if full:
-        if isinstance(full, dict) and any(k.startswith("LS") for k in full):
-            return full
-        # Try nested "scenes" key
-        nested = full.get("scenes") if isinstance(full, dict) else None
-        if nested:
-            return nested
-
-    # Option 2: per-LS parsed files
-    parsed_dir = run_folder / "parsed"
-    if parsed_dir.exists():
-        ls_files = sorted(parsed_dir.glob("scenes_LS*.json"))
-        if ls_files:
-            result = {}
-            for f in ls_files:
-                ls_id = f.stem.replace("scenes_", "")
-                data = load_json(f)
-                if data is not None:
-                    result[ls_id] = data if isinstance(data, list) else data.get("scenes", [])
-            if result:
-                return result
-
-    # Option 3: individual scene JSON files
-    scenes_dir = run_folder / "scenes"
-    if scenes_dir.exists():
-        result = {}
-        for ls_dir in sorted(scenes_dir.iterdir()):
-            if not ls_dir.is_dir():
-                continue
-            scenes = []
-            for sf in sorted(ls_dir.glob("*.json")):
-                data = load_json(sf)
-                if data:
-                    scenes.append(data)
-            if scenes:
-                result[ls_dir.name] = scenes
-        return result
-
-    return {}
-```
+The `load_scenes_for_run()` function in `backend/server.py` (lines 181-230) tries multiple sources in priority order:
+1. `parsed/scenes_full.json`
+2. `parsed/scenes_LS*.json` merged
+3. Individual `scenes/LS*/*.json` files merged
 
 ---
 
 ## 6. Audio Manifest Structure
 
 ### Location
-`outputs/run_20260324_173734/audio/manifest.json` (entire file - 399 lines)
+`outputs/run_20260324_173734/audio/manifest.json`
 
 ### Audio Manifest JSON
-
-**File**: `outputs/run_20260324_173734/audio/manifest.json`
 
 ```json
 {
@@ -383,200 +308,65 @@ outputs/run_20260324_173734/audio/
 
 ### How Audio Is Combined with Scenes (Backend)
 
-**Backend Code Location**: `backend/server.py:351-435`
+In `backend/server.py` (`get_run` endpoint, lines 351-435):
 
-```python
-@app.get("/api/runs/{run_id}")
-def get_run(run_id: str) -> Dict[str, Any]:
-    """
-    Return full run data: config, scenes grouped by LS, audio manifest,
-    and story backbone.
-    """
-    run_folder = OUTPUTS_DIR / run_id
-    if not run_folder.exists():
-        raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
+1. Backend loads the audio manifest
+2. For each scene, it creates `audio` object with URLs:
+   - **combined_url**: Single MP3 combining all audio (narrator + dialogues)
+   - **narrator_url**: Individual narrator MP3
+   - **dialogue_urls**: Array of dialogue URLs with timing info:
+     - `url`: Path to dialogue MP3
+     - `speaker`: Character ID
+     - `duration_ms`: Duration in milliseconds
+     - `start_ms`: Start time in combined audio
 
-    config = load_json(run_folder / "inputs" / "config.json") or {}
-    story_backbone = load_json(run_folder / "parsed" / "story_backbone.json") or {}
-    learning_steps = load_json(run_folder / "parsed" / "learning_steps.json") or {}
-    scenes_by_ls = load_scenes_for_run(run_folder)
-    audio_manifest = load_json(run_folder / "audio" / "manifest.json") or {}
-
-    # Build scene list with audio paths attached
-    enriched_scenes: Dict[str, List[Dict]] = {}
-    for ls_id, scenes in scenes_by_ls.items():
-        enriched = []
-        ls_audio = audio_manifest.get(ls_id, {})
-        for scene in scenes:
-            scene_id = scene.get("scene_id", "")
-            if not scene_id.startswith(ls_id):
-                scene_id = f"{ls_id}_{scene_id}"
-
-            # Attach audio URLs + timing (frontend fetches from /static/...)
-            scene_audio = ls_audio.get(scene_id, {})
-            scene_copy = dict(scene)
-
-            # Narrator info
-            narrator_info = scene_audio.get("narrator", {})
-            has_narrator = bool(narrator_info.get("path") if isinstance(narrator_info, dict) else narrator_info)
-            narrator_dur = narrator_info.get("duration_ms", 0) if isinstance(narrator_info, dict) else 0
-
-            # Dialogue timing list (from new manifest format)
-            manifest_dialogues = scene_audio.get("dialogues", [])
-            char_count = len(scene_audio.get("characters", {}))
-
-            # Build dialogue URL list with timing
-            dialogue_urls = []
-            for i in range(max(char_count, len(manifest_dialogues))):
-                key = f"dialogue_{str(i+1).zfill(2)}"
-                entry = {
-                    "url": f"/static/{run_id}/audio/{ls_id}/{scene_id}/{key}.mp3",
-                    "speaker": manifest_dialogues[i].get("speaker", "unknown") if i < len(manifest_dialogues) else "unknown",
-                    "duration_ms": manifest_dialogues[i].get("duration_ms", 0) if i < len(manifest_dialogues) else 0,
-                    "start_ms": manifest_dialogues[i].get("start_ms", 0) if i < len(manifest_dialogues) else 0,
-                }
-                dialogue_urls.append(entry)
-
-            # Check if combined.mp3 exists in manifest
-            combined_path = scene_audio.get("combined_path", "")
-            has_combined = bool(combined_path)
-            combined_dur = scene_audio.get("combined_duration_ms", 0)
-
-            scene_copy["audio"] = {
-                "combined_url": (
-                    f"/static/{run_id}/audio/{ls_id}/{scene_id}.mp3"
-                    if has_combined else None
-                ),
-                "combined_duration_ms": combined_dur,
-                "narrator_url": (
-                    f"/static/{run_id}/audio/{ls_id}/{scene_id}/narrator.mp3"
-                    if has_narrator else None
-                ),
-                "narrator_duration_ms": narrator_dur,
-                "dialogue_urls": dialogue_urls,
-                "total_duration_ms": scene_audio.get("total_duration_ms", 0),
-            }
-            # Attach image URL
-            scene_copy["image_url"] = (
-                f"/static/{run_id}/images/{ls_id}/{scene_id}.png"
-            )
-            enriched.append(scene_copy)
-        enriched_scenes[ls_id] = enriched
-
-    return {
-        "run_id": run_id,
-        "config": config,
-        "story_backbone": story_backbone,
-        "learning_steps": learning_steps.get("learning_steps", []),
-        "scenes": enriched_scenes,
-        "has_audio": bool(audio_manifest),
-    }
-```
+3. Frontend receives these URLs and uses them for playback
 
 ---
 
 ## 7. How Audio Playback Works in Frontend
 
-### Hook: `useAudioPlayer.ts`
-
-**File**: `frontend/hooks/useAudioPlayer.ts` (entire file - 144 lines)
+### Hook: `useAudioPlayer.ts` (`frontend/hooks/useAudioPlayer.ts`)
 
 The audio player provides:
-- **play(url)**: Play single audio file (line 90-98)
-- **playQueue(items)**: Play multiple audio files in sequence (line 101-109)
-- **pause()**: Pause playback (line 112-116)
-- **resume()**: Resume playback (line 118-121)
-- **stop()**: Stop and reset (line 123-132)
-- **state**: Current state (line 25, 140)
-
-**Code Reference**: `frontend/hooks/useAudioPlayer.ts:19-144`
-
-```typescript
-export function useAudioPlayer({
-  onEnded,
-  onSegmentStart,
-  onQueueEnd,
-}: UseAudioPlayerOptions = {}) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [state, setState] = useState<AudioState>("idle");
-  const [currentUrl, setCurrentUrl] = useState<string | null>(null);
-  const queueRef = useRef<QueueItem[]>([]);
-  const queueIndexRef = useRef(-1);
-  const isPausedRef = useRef(false);
-  // ... implementation
-}
-```
+- **play(url)**: Play single audio file
+- **playQueue(items)**: Play multiple audio files in sequence
+- **pause()**, **resume()**, **stop()**: Playback controls
+- **state**: Current state (idle, loading, playing, paused, ended, error)
 
 ### Scene Audio Logic (Player Page)
 
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:96-146`
-
 ```typescript
-useEffect(() => {
-  const scene = flatScenes[currentIndex];
-  if (!scene) return;
-  setImageLoaded(false); setShowDialogue(false); setActiveDialogueIndex(-1); setShowInteraction(false);
-  clearDialogueTimers();
-  const t = setTimeout(() => {
-    if (isPaused || audioMode === "off") {
-      if (audioMode === "off" && !isPaused) {
-        const a = setTimeout(() => advanceScene(), 5000);
-        dialogueTimersRef.current.push(a);
-      }
-      return;
-    }
-    const audio = scene.audio;
-    if (audio?.combined_url) {
-      play(audio.combined_url);
-      const dlgs = audio.dialogue_urls ?? [];
-      const hasStartMs = dlgs.length > 0 && dlgs.some((d) => (d.start_ms ?? 0) > 0);
-      if (hasStartMs) {
-        // Reveal each dialogue bubble at its exact start time within the combined audio
-        dlgs.forEach((d, i) => {
-          const dt = setTimeout(() => {
-            setShowDialogue(true);
-            setActiveDialogueIndex(i);
-          }, Math.max(200, d.start_ms ?? 0));
-          dialogueTimersRef.current.push(dt);
-        });
-      } else {
-        // Fallback: show all dialogues at 55% of total duration
-        const dur = audio.combined_duration_ms ?? 5000;
-        const dt = setTimeout(() => { setShowDialogue(true); setActiveDialogueIndex(999); }, Math.max(500, dur * 0.55));
-        dialogueTimersRef.current.push(dt);
-      }
-    } else if (audio?.narrator_url || (audio?.dialogue_urls?.length ?? 0) > 0) {
-      const q: QueueItem[] = [];
-      if (audio?.narrator_url)
-        q.push({ url: audio.narrator_url, speaker: "narrator", duration_ms: audio.narrator_duration_ms ?? 0 });
-      for (const d of audio?.dialogue_urls ?? [])
-        q.push({ url: d.url, speaker: d.speaker, duration_ms: d.duration_ms ?? 0 });
-      playQueue(q);
-      const dt = setTimeout(() => setShowDialogue(true), Math.max(500, (audio?.narrator_duration_ms ?? 3000) * 0.55));
-      dialogueTimersRef.current.push(dt);
-    } else {
-      setShowDialogue(true); setActiveDialogueIndex(999);
-      const dt = setTimeout(() => advanceScene(), 5000);
-      dialogueTimersRef.current.push(dt);
-    }
-  }, 350);
-  return () => { clearTimeout(t); clearDialogueTimers(); };
-}, [currentIndex]);
+// From frontend/app/player/[runId]/page.tsx
+
+// When scene loads (useEffect, line 96-146):
+const audio = scene.audio;
+
+if (audio?.combined_url) {
+  // Play combined audio
+  play(audio.combined_url);
+  
+  // If dialogues have start_ms timing, reveal them at correct times
+  dlgs.forEach((d, i) => {
+    const dt = setTimeout(() => {
+      setShowDialogue(true);
+      setActiveDialogueIndex(i);
+    }, d.start_ms);
+  });
+} else if (audio?.narrator_url || audio?.dialogue_urls?.length > 0) {
+  // Build queue: narrator first, then each dialogue
+  const q = [
+    { url: audio.narrator_url, speaker: "narrator", duration_ms: ... },
+    { url: dialogue1.url, speaker: "leosharma", duration_ms: ... },
+    { url: dialogue2.url, speaker: "mayachen", duration_ms: ... }
+  ];
+  playQueue(q);
+}
 ```
 
 ### Audio Auto-Advance
-
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:74-80`
-
-```typescript
-const handleQueueEnd = useCallback(() => {
-  if (isPaused) return;
-  const scene = flatScenes[currentIndex];
-  const inter = scene?.student_interaction;
-  if (inter?.type && inter.type !== "none") setTimeout(() => setShowInteraction(true), 500);
-  else setTimeout(() => advanceScene(), 2500);
-}, [isPaused, advanceScene, flatScenes, currentIndex]);
-```
+- When audio ends, scene automatically advances after 2.5 seconds
+- If scene has `student_interaction`, shows interaction overlay instead
 
 ---
 
@@ -593,68 +383,30 @@ const handleQueueEnd = useCallback(() => {
 - **Actual path**: `outputs/run_20260324_173734/images/LS1/LS1_S1.png`
 
 ### Image Display in Player
-
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:243-256`
-
 ```typescript
+// From player/page.tsx line 243-248
 {cs.image_url ? (
-  // eslint-disable-next-line @next/next/no-img-element
   <img 
-    key={cs.scene_id} 
     src={cs.image_url} 
     alt={cs.scene_id}
-    onLoad={() => { setImageLoaded(true); setDisplayedImageUrl(cs.image_url ?? null); }}
-    onError={() => { setImageLoaded(true); setDisplayedImageUrl(cs.image_url ?? null); }}
-    className={"absolute inset-0 w-full h-full object-cover kenburns transition-opacity duration-700 " + (imageLoaded ? "opacity-100" : "opacity-0")} 
+    onLoad={() => { setImageLoaded(true); setDisplayedImageUrl(cs.image_url); }}
+    className="absolute inset-0 w-full h-full object-cover kenburns transition-opacity duration-700"
   />
 ) : (
-  <div className="absolute inset-0 w-full h-full flex items-center justify-center digital-grid">
-    <div className="text-center text-on-surface-variant/30">
-      <span className="material-symbols-outlined text-6xl mb-2 block">image</span>
-      <p className="font-label text-xs tracking-widest uppercase">Image generating...</p>
-    </div>
-  </div>
+  <div>Image generating...</div>
 )}
 ```
 
-### Image Preloading
-
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:149-155`
-
+### Preloading
 ```typescript
-// Preload next scene image to eliminate flash on transition
+// From player/page.tsx line 149-155
 useEffect(() => {
   const next = flatScenes[currentIndex + 1];
   if (next?.image_url) {
     const img = new window.Image();
-    img.src = next.image_url;
+    img.src = next.image_url;  // Preload next scene's image
   }
 }, [currentIndex, flatScenes]);
-```
-
-### Static File Serving (Backend)
-
-**Backend Code Location**: `backend/server.py:989-1006`
-
-```python
-@app.get("/static/{run_id}/{rest_of_path:path}")
-def serve_static(run_id: str, rest_of_path: str):
-    """Serve static files (images, audio) from the outputs directory."""
-    file_path = OUTPUTS_DIR / run_id / rest_of_path
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
-
-    # Determine media type
-    suffix = file_path.suffix.lower()
-    media_types = {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".mp3": "audio/mpeg",
-        ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    }
-    media_type = media_types.get(suffix, "application/octet-stream")
-    return FileResponse(str(file_path), media_type=media_type)
 ```
 
 ---
@@ -671,49 +423,23 @@ User uploads 1+ reference photos
 User clicks "Generate My Avatar"
        ↓
 Frontend sends POST /api/avatar/generate with FormData:
-   - username: "username"
-   - photos: [image files]
+  - username: "username"
+  - photos: [image files]
        ↓
 Backend processes:
-   1. Upload photo to FAL.ai CDN
-   2. Generate base avatar (flux-kontext/dev)
-   3. Remove background (rembg)
-   4. Generate 7 expressions (talking_open, talking_mid, talking_closed, happy, sad, angry, surprised)
-   5. Remove background from each expression
-   6. Save to data/avatars/{username}/
+  1. Upload photo to FAL.ai CDN
+  2. Generate base avatar (flux-kontext/dev)
+  3. Remove background (rembg)
+  4. Generate 7 expressions (talking_open, talking_mid, talking_closed, happy, sad, angry, surprised)
+  5. Remove background from each expression
+  6. Save to data/avatars/{username}/
        ↓
 Backend returns avatar JSON + expression URLs
        ↓
 Frontend displays avatar with expression switcher
 ```
 
-### Avatar Generation API (Backend)
-
-**Backend Code Location**: `backend/server.py:827-951`
-
-```python
-@app.post("/api/avatar/generate")
-async def generate_avatar(
-    background_tasks: BackgroundTasks,
-    username: str = Form(...),
-    photos: List[UploadFile] = File(...),
-):
-    """
-    4-step avatar pipeline:
-      1. Real photo → semi-realistic anime base via flux-kontext/dev (with dark bg)
-      2. Background removed via rembg → transparent neutral.png / base_face.png
-      3. Base (with bg) → 7 expression variants via flux-kontext/dev (strong anime expressions)
-      4. Background removed from each expression → transparent PNGs
-
-    Returns immediately after neutral + talking_open + talking_mid are ready.
-    Remaining 5 expressions are generated concurrently in the background.
-    """
-    # ... implementation
-```
-
 ### Avatar JSON Structure
-
-**File**: `data/avatars/1234/avatar.json`
 
 ```json
 {
@@ -799,71 +525,31 @@ data/avatars/{username}/
     └── ref_01.jpeg
 ```
 
-**File Path Example**: `data/avatars/1234/avatar.json`
-
 ### Avatar API Endpoints
 
-| Endpoint | Method | Purpose | Backend Code Location |
-|----------|--------|---------|----------------------|
-| `GET /api/avatar/{username}` | Get avatar JSON | `backend/server.py:954-962` |
-| `GET /api/avatar/{username}/base_face.png` | Get base face image | `backend/server.py:965-970` |
-| `GET /api/avatar/{username}/expressions/{expression}.png` | Get expression image | `backend/server.py:973-978` |
-| `POST /api/avatar/generate` | Generate new avatar | `backend/server.py:827-951` |
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/avatar/{username}` | Get avatar JSON |
+| `GET /api/avatar/{username}/base_face.png` | Get base face image |
+| `GET /api/avatar/{username}/expressions/{expression}.png` | Get expression image |
+| `POST /api/avatar/generate` | Generate new avatar |
 
 ### Avatar Expression Switching (Frontend)
 
-**Frontend Code Location**: `frontend/app/avatar/AvatarPageInner.tsx:111-196`
-
 ```typescript
-function AvatarPreview({
-  avatar, activeExpr, onExprChange,
-}: {
-  avatar: AvatarJson; activeExpr: ExpressionKey; onExprChange: (e: ExpressionKey) => void;
-}) {
-  const expressions: { key: ExpressionKey; icon: string; label: string }[] = [
-    { key: "neutral",  icon: "sentiment_neutral",    label: "Neutral"  },
-    { key: "happy",    icon: "sentiment_very_satisfied", label: "Happy"  },
-    { key: "sad",      icon: "sentiment_dissatisfied", label: "Sad"     },
-    { key: "angry",    icon: "mood_bad",              label: "Angry"   },
-    { key: "surprised",icon: "sentiment_excited",     label: "Surprised"},
-    { key: "talking_open", icon: "record_voice_over", label: "Talking" },
-  ];
+// From AvatarPageInner.tsx
 
-  const imgUrl = avatar.visual.expressions[activeExpr] || avatar.visual.base_face;
-  // ...
-}
-```
+const expressions = [
+  { key: "neutral", icon: "sentiment_neutral" },
+  { key: "happy", icon: "sentiment_very_satisfied" },
+  { key: "sad", icon: "sentiment_dissatisfied" },
+  { key: "angry", icon: "mood_bad" },
+  { key: "surprised", icon: "sentiment_excited" },
+  { key: "talking_open", icon: "record_voice_over" },
+];
 
-### Avatar Generation Call (Frontend)
-
-**Frontend Code Location**: `frontend/app/avatar/AvatarPageInner.tsx:236-260`
-
-```typescript
-async function handleGenerate() {
-  if (!hasEnoughPhotos) return;
-  setStep("generating");
-  setGenError("");
-  setProgress(["Uploading reference photos..."]);
-
-  const formData = new FormData();
-  formData.append("username", usernameParam);
-  allFiles.forEach((f) => formData.append("photos", f));
-
-  try {
-    setProgress((p) => [...p, "Generating semi-realistic anime avatar with Flux Kontext..."]);
-    const res = await fetch("/api/avatar/generate", { method: "POST", body: formData });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || "Generation failed");
-
-    setProgress((p) => [...p, "Generating expressions: neutral, talking...", "Polishing remaining expressions in background...", "Finalising avatar..."]);
-    setAvatar(data.avatar_json);
-    setStep("done");
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    setGenError(message);
-    setStep("upload");
-  }
-}
+// Get current expression image
+const imgUrl = avatar.visual.expressions[activeExpr] || avatar.visual.base_face;
 ```
 
 ---
@@ -878,8 +564,8 @@ User enters credentials on / page
 Frontend calls POST /api/auth/login
        ↓
 Backend validates against:
-   - Hardcoded users (admin/academy123, student/decoder2024, demo/demo)
-   - Registered users from data/users.json
+  - Hardcoded users (admin/academy123, student/decoder2024, demo/demo)
+  - Registered users from data/users.json
        ↓
 Backend returns: { user: { username, displayName } }
        ↓
@@ -888,150 +574,46 @@ Frontend stores user in localStorage (key: "academy_user")
 User is redirected to /dashboard
 ```
 
-### Login API (Backend)
-
-**Backend Code Location**: `backend/server.py:296-308`
-
-```python
-@app.post("/api/auth/login")
-def login(req: LoginRequest):
-    uname = req.username.lower().strip()
-    # Check hardcoded users first
-    user = USERS.get(uname)
-    if user and user["password"] == req.password:
-        return {"user": {"username": uname, "displayName": user["displayName"]}}
-    # Check registered users
-    db = _load_users()
-    db_user = db.get(uname)
-    if db_user and db_user["password_hash"] == _hash_password(req.password):
-        return {"user": {"username": uname, "displayName": db_user["full_name"]}}
-    raise HTTPException(status_code=401, detail="Invalid credentials")
-```
-
-### Hardcoded Users
-
-**Backend Code Location**: `backend/server.py:277-281`
-
-```python
-USERS = {
-    "admin": {"password": "academy123", "displayName": "Admin Agent"},
-    "student": {"password": "decoder2024", "displayName": "Agent 01"},
-    "demo": {"password": "demo", "displayName": "Demo User"},
-}
-```
-
 ### Auth Hook (`useAuth.ts`)
 
-**Frontend Code Location**: `frontend/hooks/useAuth.ts` (entire file - 59 lines)
-
 ```typescript
-export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+// Provides:
+// - user: current logged-in user
+// - loading: auth check loading state
+// - login(username, password): login function
+// - logout(): logout function
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
-    } catch {
-      // ignore
-    }
-    setLoading(false);
-  }, []);
+const { user, loading, login, logout } = useAuth();
 
-  const login = useCallback(
-    async (username: string, password: string): Promise<{ ok: boolean; error?: string }> => {
-      try {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-        });
-        const data = await res.json();
-        if (res.ok && data.user) {
-          setUser(data.user);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
-          return { ok: true };
-        }
-        return { ok: false, error: data.detail || "Invalid credentials" };
-      } catch {
-        return { ok: false, error: "Backend offline — run: uvicorn backend.server:app --port 8000 --reload" };
-      }
-    },
-    []
-  );
-
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
-
-  return { user, loading, login, logout };
-}
+// Login stores to localStorage:
+// localStorage.setItem("academy_user", JSON.stringify(user))
 ```
 
 ### Protected Routes
-
-**Frontend Code Location**: `frontend/app/player/[runId]/page.tsx:60`
-
-```typescript
-useEffect(() => { if (!authLoading && !user) router.replace("/"); }, [authLoading, user, router]);
-```
-
-Similar protection exists in:
-- `frontend/app/dashboard/page.tsx:38-40`
-- `frontend/app/avatar/page.tsx:6-14`
-- `frontend/app/profile/page.tsx` (not examined but similar pattern)
+- `/dashboard`, `/player`, `/avatar`, `/profile` all check for user
+- If no user, redirect to `/` (login page)
 
 ---
 
-## 11. CORS Configuration (Backend)
-
-**Backend Code Location**: `backend/server.py:63-69`
-
-```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
-This tells the browser that it's okay for the frontend running on port 3000 to make requests to the backend on port 8000.
-
----
-
-## 12. Key Files Summary with Line Numbers
+## 11. Key Files Summary
 
 ### Frontend Key Files
 
-| File | Purpose | Key Lines |
-|------|---------|-----------|
-| `frontend/app/page.tsx` | Login page | Entire file (Login form, auth call) |
-| `frontend/app/dashboard/page.tsx` | Run listing dashboard | Lines 38-47 (fetch runs), 236-298 (render cards) |
-| `frontend/app/player/[runId]/page.tsx` | Scene player with audio | Lines 85-91 (fetch run), 96-146 (audio logic), 243-256 (image display) |
-| `frontend/app/avatar/page.tsx` | Avatar creation page | Lines 1-16 (wrapper component) |
-| `frontend/app/avatar/AvatarPageInner.tsx` | Avatar generation logic | Lines 236-260 (handleGenerate), 111-196 (AvatarPreview) |
-| `frontend/hooks/useAuth.ts` | Authentication hook | Lines 31-50 (login), 53-56 (logout) |
-| `frontend/hooks/useAudioPlayer.ts` | Audio playback hook | Lines 90-109 (play, playQueue), 112-132 (pause, resume, stop) |
+| File | Purpose |
+|------|---------|
+| `frontend/app/page.tsx` | Login page |
+| `frontend/app/dashboard/page.tsx` | Run listing dashboard |
+| `frontend/app/player/[runId]/page.tsx` | Scene player with audio |
+| `frontend/app/avatar/page.tsx` | Avatar creation page |
+| `frontend/app/avatar/AvatarPageInner.tsx` | Avatar generation logic |
+| `frontend/hooks/useAuth.ts` | Authentication hook |
+| `frontend/hooks/useAudioPlayer.ts` | Audio playback hook |
 
 ### Backend Key Files
 
-| File | Purpose | Key Lines |
-|------|---------|-----------|
-| `backend/server.py` | FastAPI server with all endpoints | Entire file (1016 lines) |
-| `backend/server.py:296-308` | Login endpoint | Login logic |
-| `backend/server.py:311-327` | Register endpoint | Registration logic |
-| `backend/server.py:335-341` | Get latest run | Returns most recent run |
-| `backend/server.py:344-348` | List all runs | Returns all runs |
-| `backend/server.py:351-435` | Get full run data | Returns scenes + audio + config |
-| `backend/server.py:438-444` | Get scenes only | Returns scenes by LS |
-| `backend/server.py:447-454` | Get config only | Returns config.json |
-| `backend/server.py:827-951` | Avatar generation | 4-step avatar pipeline |
-| `backend/server.py:954-962` | Get avatar JSON | Returns avatar JSON |
-| `backend/server.py:989-1006` | Static file serving | Serves images/audio |
+| File | Purpose |
+|------|---------|
+| `backend/server.py` | FastAPI server with all endpoints |
 
 ### Key Data Directories
 
@@ -1043,15 +625,15 @@ This tells the browser that it's okay for the frontend running on port 3000 to m
 
 ---
 
-## 13. Summary for New Frontend Developers
+## 12. Summary for New Frontend Developers
 
 ### To Display a Run's Scenes:
-1. Call `GET /api/runs/{run_id}` (backend endpoint at `server.py:351`)
+1. Call `GET /api/runs/{run_id}`
 2. Get `scenes` object containing scenes grouped by LS
 3. Each scene has `image_url` for display and `audio` for playback
 
 ### To Play Audio:
-1. Use `useAudioPlayer` hook (`frontend/hooks/useAudioPlayer.ts`)
+1. Use `useAudioPlayer` hook
 2. Call `play(combined_url)` for single audio
 3. Or build queue with `playQueue([{url, speaker, duration_ms}, ...])`
 
@@ -1068,7 +650,7 @@ This tells the browser that it's okay for the frontend running on port 3000 to m
 
 ---
 
-## 14. Environment Setup for Development
+## 13. Environment Setup for Development
 
 ### Running Backend
 ```bash
@@ -1087,32 +669,3 @@ npm run dev
 - Backend API: http://localhost:8000
 - Backend Docs: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health
-
----
-
-## 15. WebSocket Support (Future Enhancement)
-
-If real-time updates are needed (like progress bars for avatar generation), WebSockets can be added. Example implementation:
-
-### Backend (to be added in `server.py`)
-```python
-from fastapi import WebSocket
-
-@app.websocket("/ws/avatar/{username}")
-async def avatar_progress(websocket: WebSocket, username: str):
-    await websocket.accept()
-    # Send progress updates as avatar generates
-    await websocket.send_json({"status": "generating", "step": 1})
-    await websocket.send_json({"status": "done"})
-```
-
-### Frontend (to use)
-```typescript
-const ws = new WebSocket('ws://localhost:8000/ws/avatar/username');
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  updateProgress(data.step);
-};
-```
-
-Currently, the system uses polling via `useEffect` for progress updates (see `AvatarPageInner.tsx:236-260` for the generation flow).

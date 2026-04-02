@@ -1,0 +1,57 @@
+{
+  "scene_id": "S11",
+  "phase": "VALIDATION",
+  "setting": "The vault chamber. The second sequence — 12, 17, 22, 27, __ — glows with a steady, expectant amber light. A faint green tint begins to seep into the empty blank space at the end of the row.",
+  "characters": [
+    "Leo",
+    "Maya"
+  ],
+  "action": "Leo exhales slowly, then presses his finger firmly against the glowing wall where the blank should be. The green light intensifies, spreading outward in concentric waves from his touch. Maya leans in, her eyes tracking the light's movement as it solidifies into a number.",
+  "dialogue": [
+    "Thirty-two.",
+    "It worked.",
+    "Both sequences.",
+    "Same pattern."
+  ],
+  "learning_moment": "The successful application of the same rule to a new sequence validates the discovered pattern and reinforces the concept of a consistent rule governing successive terms.",
+  "transition_hint": "The wall's hum shifts to a contented, low drone. A third, empty row of blanks flickers into existence below the first two.",
+  "narrator_audio_text": "The green light crystallizes into the number thirty-two, completing the sequence perfectly. The vault's hum settles into a satisfied drone.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Thirty-two.",
+      "audio_text": "Thirty two",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "It worked.",
+      "audio_text": "It worked",
+      "emotion": "satisfied"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Both sequences.",
+      "audio_text": "Both sequences",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Same pattern.",
+      "audio_text": "Same pattern",
+      "emotion": "insight"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

@@ -1,0 +1,57 @@
+{
+  "scene_id": "S10",
+  "phase": "APPLICATION",
+  "setting": "The vault chamber. The second sequence — 12, 17, 22, 27, __ — glows brighter now, its amber light pulsing in time with Leo's heartbeat. The first sequence remains visible but dimmer, its pattern established.",
+  "characters": [
+    "Leo",
+    "Maya"
+  ],
+  "action": "Leo shifts his focus to the second row. His finger traces an invisible line from 12 to 17, then 17 to 22. He hesitates, mouthing numbers silently. Maya watches, her wristband's blue light reflecting in her sharp eyes.",
+  "dialogue": [
+    "Hold on...",
+    "Five each time?",
+    "Check it.",
+    "Twelve plus five..."
+  ],
+  "learning_moment": "Leo applies the same reasoning process to a new sequence, calculating the common difference and using it to find the missing term.",
+  "transition_hint": "The vault's hum drops to a near-silent thrum, waiting for the final calculation.",
+  "narrator_audio_text": "The chamber holds its breath. Leo's mind races through the pattern, each step adding five.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Hold on...",
+      "audio_text": "Hold on",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Five each time?",
+      "audio_text": "Five each time",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Check it.",
+      "audio_text": "Check it",
+      "emotion": "neutral"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Twelve plus five...",
+      "audio_text": "Twelve plus five",
+      "emotion": "calculating"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If the pattern adds 5 each time, what number comes after 27?",
+    "pause_seconds": 8,
+    "reveal_text": "32. Because 27 + 5 = 32. The rule works for both sequences."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

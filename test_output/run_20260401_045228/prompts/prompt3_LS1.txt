@@ -1,0 +1,86 @@
+[3A] Scene Plan for LS1
+
+You are generating a SCENE PLAN for a learning step.
+
+----------------------------------------
+STORY CONTEXT:
+Title: The Infinite Vault
+Premise: Two competitive teen hackers, Maya and Leo, infiltrate a legendary abandoned arcade rumored to contain a vault holding the source code for a lost, world-changing video game. To open the vault, they must solve a series of light-puzzle sequences on a massive, glowing wall. Each puzzle presents a sequence of numbers with missing terms. They realize the sequences follow Arithmetic Progressions, but with a twist: the common difference changes between puzzles, and the final vault combination requires them to calculate not just a missing term, but the SUM of the first n terms of a hidden AP revealed by all previous puzzles combined. The stakes? Whoever solves it first claims the code and eternal gaming glory, but they soon discover the vault is rigged to permanently seal if they take too long or get a sum wrong. They must collaborate, using the AP sum formula Sₙ = n/2[2a + (n-1)d], to unlock the vault before time runs out.
+Characters: [{"name": "Maya", "role": "Brilliant, methodical puzzle-solver and competitive hacker.", "personality": "Calm under pressure, fiercely logical, observant, initially sees Leo as a reckless rival but learns to value his instinctive approach.", "visual_description": "16-year-old girl, slim and athletic build, long dark brown hair tied in a high, practical ponytail with a single electric blue streak, sharp hazel eyes, light olive skin, wears a dark purple tech-weave jacket with glowing circuit-like seams over a black t-shirt and cargo pants, always has a custom multi-tool wristband on her left arm.", "gender": "female", "voice_id": "Ivy"}, {"name": "Leo", "role": "Instinctive, fast-thinking gamer and thrill-seeking hacker.", "personality": "Energetic, impulsive, great at spotting patterns quickly, relies on gut feelings, competitive but secretly hates working alone.", "visual_description": "15-year-old boy, wiry and energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin, wears a faded orange and grey pixel-art graphic hoodie over ripped jeans, beat-up high-top sneakers, always has a cracked-screen tablet in his crossbody bag showing a live code interface.", "gender": "male", "voice_id": "Kevin"}]
+
+PREVIOUS LEARNING STEP LAST SCENE:
+None (this is the first step)
+
+CURRENT LEARNING STEP:
+- ID: LS1
+- Title: The Glowing Pattern on the Wall
+- Concepts: ["Sequence", "Patterns in Sequences", "List of Numbers", "Successive Terms"]
+- Narrative: Maya and Leo first encounter the vault's puzzle wall as it flickers to life, revealing a glowing sequence: 3, 7, 11, 15, ___, 23. Leo, feeling competitive and impatient, immediately shouts '19!' based on gut instinct, but the wall flashes red in rejection, sending a jolt of confusion through them both. Maya, feeling a surge of analytical curiosity, calms herself and traces the numbers with her finger in the air, noticing each number seems to grow by the same amount. Leo tries adding random numbers, growing frustrated as the wall continues to reject his guesses, until Maya points at the gaps between the glowing digits: 'Look, from 3 to 7 is +4, 7 to 11 is +4... it's a fixed addition.' The breakthrough hits them simultaneously—they feel a shared spark of understanding—as they realize the sequence follows a simple, uniform rule of adding the same number each time, with the missing term being the logical next step in that predictable pattern.
+
+----------------------------------------
+SCENE PLAN RULES:
+
+0. CINEMATIC OPENING RULE (CRITICAL):
+   - Scene S1 (HOOK): Environment ONLY — no character visible.
+     Wide establishing shot. Pure atmosphere. Like a movie title card.
+     Show the mystery/setting before the character arrives.
+     (e.g., empty school courtyard at golden hour, chalk numbers appearing on ground)
+   - Scene S2 (SETUP): Character enters from a distance or we see them approach.
+     We see the character before they see the problem.
+     Do NOT start with characters already in the middle of things.
+
+1. Generate between 12-15 scenes (minimum 10, aim for 12-15)
+2. Each scene must have a PURPOSE:
+   - HOOK: Grab attention
+   - SETUP: Introduce situation
+   - DISCOVERY: Reveal something
+   - CONFUSION: Create tension/mystery
+   - GUIDANCE: Show direction
+   - MICRO_LEARN: Teach micro concept
+   - VALIDATION: Confirm understanding
+   - APPLICATION: Real-world use
+   - TWIST: Surprise element
+   - ESCALATION: Increase stakes
+   - PAYOFF: Satisfying resolution
+   - REFLECTION: Personal insight
+   - TRANSITION: Bridge to next step
+   - CLIFFHANGER: Leave wanting more
+
+3. STRICT REQUIREMENTS:
+    - First scene MUST be HOOK
+    - DO NOT repeat same type consecutively
+    - Use tension/confusion every 2-3 scenes
+    - Delay full explanations (build curiosity first)
+    - Include at least one APPLICATION scene
+    - Final scene should have PAYOFF or set up next step
+
+4. Scene plan format:
+    - scene_id: "S1", "S2", etc.
+    - phase: scene type (HOOK, SETUP, etc.)
+    - summary: what happens (1 sentence, max 25 words)
+    - concept_focus: what concept is taught
+
+----------------------------------------
+STRICT RULES:
+
+* Generate 12-15 scenes (minimum 10, aim for 12-15)
+* Each summary MUST be 25 words or fewer
+* Return ONLY valid JSON - no markdown, no explanations
+* JSON must be COMPLETE with all brackets closed
+* Do not truncate output
+
+----------------------------------------
+OUTPUT JSON:
+
+{
+  "scene_plan": [
+    {
+      "scene_id": "S1",
+      "phase": "HOOK",
+      "summary": "...",
+      "concept_focus": "..."
+    }
+  ]
+}
+
+Generate 12-15 scenes (minimum 10, aim for 12-15 per learning step). More scenes = better concept coverage and cinematic pacing. Each summary must be concise (1 sentence, max 25 words).

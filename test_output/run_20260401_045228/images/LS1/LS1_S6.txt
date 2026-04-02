@@ -1,0 +1,19 @@
+Cinematic medium shot (DISCOVERY phase). The vault chamber, illuminated by a steady, cool cyan glow emanating from the wall where the numbers 3, 7, 11, 15, __ are etched. Maya stands directly before the wall, her face lit by its glow. She is frozen in focus, her right hand raised, index finger extended, tracing a line in the air between the glowing numbers. Leo is beside her, slightly behind, leaning forward with tense curiosity, watching her finger. His hand twitches. The scene is vibrant 2D animation style (Pixar/Ghibli), with warm golden hour light, soft shadows, and a bright, inviting atmosphere. Colors are warm amber and soft teal. Maya: 16-year-old, slim, athletic, long dark brown ponytail with a single electric blue streak, sharp hazel eyes, light olive skin, dark purple tech-weave jacket with glowing seams over black t-shirt and cargo pants, multi-tool wristband on left arm. Leo: 15-year-old, wiry, energetic, messy spiky black hair, bright dark brown eyes, warm tan skin, faded orange and grey pixel-art hoodie, ripped jeans, beat-up sneakers, cracked-screen tablet in crossbody bag. Their expressions show intense concentration and discovery. Four white, rounded-rectangle speech bubbles with thin dark borders and tails pointing to the speakers' mouths are in the upper portion of the frame, not overlapping faces. The bubbles contain the exact text in clean, legible black sans-serif font: 'What did we add here... to get from one to the next?' (tail points to Maya), 'Four.' (tail points to Leo), 'Every time.' (tail points to Leo), 'So the gap... is the rule.' (tail points to Maya). The mathematical pattern (adding 4 each time) is visualized by Maya's finger tracing the consistent gap between the physically etched numbers on the wall.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+What did we add here... to get from one to the next?
+Four.
+Every time.
+So the gap... is the rule.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

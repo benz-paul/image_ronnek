@@ -1,0 +1,57 @@
+{
+  "scene_id": "S1",
+  "phase": "HOOK",
+  "setting": "A vast, pitch-black chamber deep beneath the abandoned arcade. The air smells of ozone and decades of dust. In the center looms a colossal wall, thirty feet tall and seamless, made of some obsidian-like material. It's completely dormant.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya's fingers twitch involuntarily against her thigh, her breathing shallow. Leo's heart hammers against his ribs as he stares at the blank wall. Without warning, a low hum vibrates through the floor. The wall flickers once, twice, then blazes to life with a cold blue light. A single horizontal line of glowing numbers appears: 3, 7, 11, 15, ___, 23. The empty space pulses with a faint, expectant glow. Maya's jaw tightens. Leo takes an instinctive step back, his stomach dropping.",
+  "dialogue": [
+    "What is this?",
+    "A test. Look at the pattern.",
+    "It's waiting for something.",
+    "The next number. It wants the next number."
+  ],
+  "learning_moment": "The scene introduces a visual sequence as a puzzle—a list of numbers with a clear, repeating pattern and a missing term. No explanation is given; only the raw pattern and the characters' instinctive reactions to it are shown.",
+  "transition_hint": "The pulsing blank space demands an answer. What number completes the pattern?",
+  "narrator_audio_text": "In the silent vault, a wall of light awakens, presenting a line of numbers with one glaring gap. The first puzzle is live.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "What is this?",
+      "audio_text": "What is this.",
+      "emotion": "awestruck"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "A test.",
+      "audio_text": "A test.",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Look at the pattern.",
+      "audio_text": "Look at the pattern.",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "It's waiting.",
+      "audio_text": "It's waiting.",
+      "emotion": "excited"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

@@ -1,0 +1,19 @@
+CINEMATIC MEDIUM SHOT (DISCOVERY phase) of Maya and Leo in a vast, ancient chamber. WARM GOLDEN HOUR LIGHT filters through unseen openings, casting long, soft shadows that mix with the eerie COLD BLUE GLOW emanating from a section of the wall. The wall is covered in ancient, carved stone blocks, and a horizontal line of LARGE, GLOWING BLUE NUMBERS is embedded into it: 3, 7, 11, __, 23. The blank space is a dark, empty socket. Dust motes dance like tiny stars in the mixed light. MAYA (16, slim, athletic, light olive skin) stands close to the wall. Her long dark brown hair is in a high ponytail with a single electric blue streak. She wears her dark purple tech-weave jacket with glowing seams. Her sharp hazel eyes are wide with intense focus, darting along the number line. She holds up her left hand, counting silently on her fingers, her custom multi-tool wristband visible. Her breath is a visible whisper in the cool air. LEO (15, wiry, warm tan skin) stands beside her, bouncing nervously on the balls of his feet in his beat-up sneakers. His messy spiky black hair is backlit by the glow. He wears a faded orange and grey pixel-art hoodie. His bright dark brown eyes are fixed on the sequence. One hand points urgently at the blank space, then at the numbers '11' and '23' before and after it. His cracked-screen tablet hangs from his crossbody bag, its live code interface casting a soft light on his side. THEIR FACES SHOW THE MOMENT OF DISCOVERY: Maya's expression shifts from racing thought to dawning certainty. Leo's nervous energy crystallizes into focused understanding. FOUR WHITE, ROUNDED-RECTANGLE SPEECH BUBBLES with thin dark borders and small tails point to their mouths, placed in the upper portion of the frame without obscuring faces. The bubbles contain the EXACT text in clean, legible black sans-serif font: 'Seven to eleven...', 'Four. Always four.', 'So the blank...', 'Nineteen. It's nineteen.' The scene is in vibrant 2D animation style (Pixar/Ghibli-inspired) with clean bold line art, warm amber and soft teal color grading, expressive cartoon characters with child-friendly teen proportions, and a detailed, non-photorealistic background. The mathematical pattern (adding 4) is physically discoverable in the glowing sequence on the wall.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Seven to eleven...
+Four. Always four.
+So the blank...
+Nineteen. It's nineteen.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

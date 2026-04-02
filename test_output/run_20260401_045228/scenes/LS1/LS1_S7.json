@@ -1,0 +1,57 @@
+{
+  "scene_id": "S7",
+  "phase": "CONFUSION",
+  "setting": "The vault chamber. The blue light has shifted to a tense, pulsing amber. A new sequence now glows beside the first: 12, 17, 22, 27, __. The rhythmic hum has grown louder, vibrating through the floor plates. Leo's shadow dances wildly against the wall as he shifts from foot to foot.",
+  "characters": [
+    "Leo",
+    "Maya"
+  ],
+  "action": "Leo steps in front of the new sequence, ignoring Maya's outstretched hand. He stares at the blank space, his jaw tight. He raises a finger, hesitates, then jabs it toward the wall. The amber light flares with each guess. Maya watches, her arms crossed, her knuckles white where she grips her elbows.",
+  "dialogue": [
+    "Five? Six?",
+    "Wait— no.",
+    "Seven? Eight?",
+    "It's not random, Leo."
+  ],
+  "learning_moment": "This scene reinforces that guessing random numbers without identifying the pattern fails. The wall's negative feedback (louder hum) shows the system rejects incorrect, patternless answers. It contrasts with Maya's methodical approach of finding the consistent step between terms.",
+  "transition_hint": "The wall's hum reaches a painful pitch. A thin crack of red light splits the floor between them.",
+  "narrator_audio_text": "Leo jabs at the wall with random guesses. Each wrong answer makes the vault's hum grow louder, more aggressive.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Five? Six?",
+      "audio_text": "Five. Six.",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Wait— no.",
+      "audio_text": "Wait. No.",
+      "emotion": "confused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Seven? Eight?",
+      "audio_text": "Seven. Eight.",
+      "emotion": "desperate"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "It's not random, Leo.",
+      "audio_text": "It's not random, Leo.",
+      "emotion": "urgent"
+    }
+  ],
+  "student_interaction": {
+    "type": "think_prompt",
+    "prompt_text": "Why do you think Leo's guesses are making the wall react badly?",
+    "pause_seconds": 5,
+    "reveal_text": "The wall is testing for a pattern, not random numbers. Guessing without finding the rule triggers a warning."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

@@ -1,0 +1,18 @@
+CINEMATIC SCENE -- CONFUSION phase medium shot. Inside an ancient vault chamber with stone walls covered in faint glowing glyphs and geometric patterns. Two glowing numerical sequences hover side-by-side in mid-air, projected as translucent amber light: left sequence reads 3, 7, 11, 15, __ (with blank space pulsing); right sequence reads 12, 17, 22, 27, __ (blank space pulsing). Warm golden hour light streams through a high window, casting sharp shadows across the chamber floor. Maya (16-year-old girl, slim athletic build, long dark brown hair in high practical ponytail with single electric blue streak, sharp hazel eyes, light olive skin) stands slightly behind Leo, wearing dark purple tech-weave jacket with glowing circuit-like seams over black t-shirt and cargo pants, custom multi-tool wristband on left arm. Her expression is watchful and focused, hand resting on wristband. Leo (15-year-old boy, wiry energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin) wears faded orange and grey pixel-art graphic hoodie over ripped jeans, beat-up high-top sneakers. He stares intensely at the first sequence, finger hovering in air as he mentally traces from 3 to 7, then 7 to 11. His cracked-screen tablet hangs from crossbody bag showing live code interface. His breathing appears slowed, eyes wide and unblinking. Three white rounded-rectangle speech bubbles with thin dark borders and small tails pointing to speakers' mouths float in upper portion of frame: first bubble points to Leo containing 'So every step adds 4?' in clean black sans-serif font; second bubble points to Leo containing 'That's the rule?' in clean black sans-serif font; third bubble points to Maya containing 'Exactly. That's the rule.' in clean black sans-serif font. Art style: vibrant 2D animation inspired by Pixar and Studio Ghibli -- expressive cartoon characters with clean bold line art, warm amber and soft teal color grading, child-friendly proportions, detailed but not photorealistic background, warm inviting atmosphere. Characters look exactly their stated ages (teen proportions, NOT adult). SINGLE cinematic scene frame from animated movie.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+So every step adds 4?
+That's the rule?
+Exactly. That's the rule.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

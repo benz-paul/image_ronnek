@@ -1,0 +1,19 @@
+Cinematic medium shot (CONFUSION phase). The vault chamber interior: a circular room with metallic walls, floor plates glowing with amber light that pulses rhythmically, casting soft shadows. On the wall beside Leo, a glowing amber sequence is inscribed: '12, 17, 22, 27, __' — each number is clearly etched into the surface, emitting light. Leo stands center, facing the sequence, his body tense. He is a 15-year-old boy with wiry energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin, wearing a faded orange and grey pixel-art graphic hoodie over ripped jeans and beat-up high-top sneakers. His crossbody bag is visible, tablet inside showing a live code interface. His shadow dances wildly on the wall behind him. His jaw is tight, finger raised hesitantly toward the blank space. Maya stands slightly behind him to the left, a 16-year-old girl with slim athletic build, long dark brown hair in a high ponytail with one electric blue streak, sharp hazel eyes, light olive skin, wearing a dark purple tech-weave jacket with glowing circuit-like seams over black t-shirt and cargo pants, multi-tool wristband on left arm. She watches Leo, arms crossed, knuckles white where she grips her elbows, expression concerned but analytical. Warm golden hour lighting fills the room, colors graded in warm amber and soft teal tones. Art style is vibrant 2D animation inspired by Pixar/Studio Ghibli: expressive cartoon characters, clean bold line art, child-friendly proportions, detailed but not photorealistic background. Four white rounded-rectangle speech bubbles with thin dark borders and black sans-serif text are placed in upper frame, tails pointing to speakers: 'Five? Six?' (pointing to Leo), 'Wait— no.' (pointing to Leo), 'Seven? Eight?' (pointing to Leo), 'It's not random, Leo.' (pointing to Maya). The mathematical sequence is discoverable in the environment as glowing wall markings. NEGATIVE PROMPT applied: different hair/eye colors, wrong outfits, adult-looking teens, multiple characters incorrectly, photorealistic style, 3D render.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Five? Six?
+Wait— no.
+Seven? Eight?
+It's not random, Leo.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

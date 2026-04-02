@@ -1,0 +1,57 @@
+{
+  "scene_id": "S5",
+  "phase": "GUIDANCE",
+  "setting": "The vault chamber. The crimson glow from the wall has faded to a soft, pulsing amber. The warning buzz has dropped to a low, steady hum. Maya stands close to the glowing numbers, her eyes tracing each digit with intense focus.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya holds up a sharp, silencing hand without looking at Leo. Her other hand traces the air just in front of the glowing sequence: 3, 7, 11, 15, __. Her jaw is tight, her breathing slow and controlled. Leo freezes mid-step, his own frustration visible in the way he grips the strap of his crossbody bag.",
+  "dialogue": [
+    "Wait.",
+    "Look at it.",
+    "Don't just guess.",
+    "Read the whole list."
+  ],
+  "learning_moment": "Maya demonstrates that solving a sequence requires observing the entire pattern, not just jumping to the next obvious term. This establishes the importance of systematic observation over impulsive guessing.",
+  "transition_hint": "The pattern is clear, but the puzzle wants more. What is the wall actually asking for?",
+  "narrator_audio_text": "Maya's hand cuts through the air, her focus absolute. The numbers glow, waiting to be understood, not just answered.",
+  "character_dialogues": [
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Wait.",
+      "audio_text": "Wait.",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Look at it.",
+      "audio_text": "Look at it.",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Don't just guess.",
+      "audio_text": "Don't just guess.",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Read the whole list.",
+      "audio_text": "Read the whole list.",
+      "emotion": "realization"
+    }
+  ],
+  "student_interaction": {
+    "type": "think_prompt",
+    "prompt_text": "Maya says to 'read the whole list.' What might she be looking for that Leo missed?",
+    "pause_seconds": 5,
+    "reveal_text": "She's looking for what the puzzle is actually asking, not just the next number in the sequence."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

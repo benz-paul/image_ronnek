@@ -1,0 +1,63 @@
+Chapter: Class 10 Mathematics Chapter 5 Arithmetic Progression
+Concepts: {"concepts": ["Arithmetic Progressions", "Common Difference", "First Term", "General Form", "Finite AP", "Infinite AP", "Term Notation", "Successive Terms", "Preceding Terms", "Consecutive Terms", "Positive Common Difference", "Negative Common Difference", "Zero Common Difference", "Patterns in Sequences", "Fixed Number Addition", "List of Numbers", "Arithmetic Progression", "Succeeding Term", "Preceding Term", "nth Term", "General Formula", "Difference Calculation", "AP Definition", "Term Subtraction", "Sequence Pattern", "Mathematical Notation", "AP Properties", "General term", "Last term", "Linear equations", "Simple interest formula", "Sum of First n Terms", "Formula for nth Term", "Formula for Sum", "Notation Sn", "Reverse Order Summation", "Gauss Summation Technique", "Sum of Positive Integers", "Positive integers", "Total production", "Uniform increase", "Fixed number", "Total sum", "Number of terms", "Series", "Sequence", "Summation notation", "Mathematical structures", "Relationships between terms", "Arithmetic series", "AP definitions", "Arithmetic Mean", "General Term Formula", "Sum Formula Notation", "Sum Formula Derivation", "Sum Formula Alternative Form"]}
+
+IMPORTANT: You must create a story with MINIMUM 2 MAIN CHARACTERS.
+
+STORY HOOK REQUIREMENT (CRITICAL):
+- The core problem must have STAKES — something the characters urgently want or need that ONLY mastering the math concept can unlock. "Students notice a pattern" is not enough.
+- Pick ONE of these engaging story archetypes (do NOT default to generic school drama):
+  * DETECTIVE/MYSTERY: characters solve a mystery where clues use mathematical patterns (e.g., a coded treasure map, a stolen artifact, an unexplained phenomenon)
+  * GAMING/ADVENTURE: characters are stuck in a challenge/level/quest that only math can unlock (e.g., a math-powered video game, an escape room, a magical obstacle)
+  * SPORTS CHALLENGE: a high-stakes competition where the math concept determines who wins (e.g., a tournament, a record attempt, a team crisis)
+  * SCI-FI DISCOVERY: characters discover a mathematical pattern in nature/space/technology that reveals something surprising
+- The story setting should feel exciting and vivid — not a bland classroom
+- Characters should feel like they belong in a world kids are already obsessed with (gaming, adventure, mystery, sports)
+
+Character Requirements:
+- Each character must have: name, role, personality, visual_description, gender, voice_id
+- Characters must interact in scenes through dialogue
+- Story must be visual and cinematic
+- Characters should be relatable and exciting to kids aged 12-16
+
+Visual Description Format (CRITICAL for image generation):
+- Write visual_description as if briefing a 2D animation studio (Pixar/Ghibli style).
+- Must include ALL of the following: hair color + style/cut, eye color, skin tone, clothing with colors, height/build, and ONE distinctive feature (e.g., a scar, accessory, hairstyle quirk, or recurring prop).
+- Characters should look youthful and energetic — never adult-looking.
+- BAD:  "tall boy with dark hair and glasses"
+- GOOD: "15-year-old boy, wiry energetic build, wild spiky black hair, bright dark eyes, warm brown skin, orange and white hoodie over dark jeans, always has a cracked phone screen in his back pocket showing a math app"
+
+Voice Assignment Rules (Amazon Polly voices):
+- gender must be "male" or "female"
+- Assign voice_id from this palette — pick the best match per character:
+  Male voices:   "Kevin" (teen boy, US), "Matthew" (adult teacher/mentor, US), "Brian" (adult, UK)
+  Female voices: "Ivy" (teen girl, US), "Joanna" (adult, US), "Emma" (adult, UK)
+- The NARRATOR always uses "Gregory" — do NOT assign "Gregory" to any story character.
+- No two characters should share the same voice_id.
+- Use "Kevin" for teen/young male characters, "Matthew" for adult teachers or mentors.
+- Use "Ivy" for teen/young female characters, "Joanna" for adult female characters.
+
+Return ONLY JSON:
+{
+  "title": "...",
+  "core_premise": "...",
+  "characters": [
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "male",
+      "voice_id": "Joey"
+    },
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "female",
+      "voice_id": "Joanna"
+    }
+  ]
+}
+
+CRITICAL: characters array must have at least 2 entries. Every character MUST have gender and voice_id.

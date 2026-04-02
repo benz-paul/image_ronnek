@@ -1,0 +1,10 @@
+{
+  "_error": "json_parse_failed",
+  "message": "Could not parse JSON after all fix attempts",
+  "_prompt_type": "scene",
+  "_raw_preview": "```json\n{\n  \"scene_id\": \"S8\",\n  \"phase\": \"DISCOVERY\",\n  \"setting\": \"The vault chamber. The amber light still pulses, but the red floor crack has stopped spreading. Both sequences glow side by side: 3, 7, 11, 15, __ and 12, 17, 22, 27, __. The hum has dropped to a low, watchful thrum. Dust motes hang frozen in the charged air.\",\n  \"characters\": [\"Maya\", \"Leo\"],\n  \"action\": \"Maya steps forward, ignoring the tension in her shoulders. She points at the first sequence, her finger tracing invisible li",
+  "scene_id": "S8",
+  "phase": "DISCOVERY",
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

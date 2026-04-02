@@ -1,0 +1,19 @@
+Cinematic medium shot in vibrant 2D animation style inspired by Pixar and Studio Ghibli. Warm golden hour light filters through cracks in the vault chamber, casting soft amber and teal tones across the scene. Maya (16, slim athletic build, long dark brown ponytail with electric blue streak, sharp hazel eyes, light olive skin) wears her dark purple tech-weave jacket with glowing circuit seams over black t-shirt and cargo pants, multi-tool wristband on left arm. She stands firmly, gripping Leo's wrist tightly with white knuckles, shaking her head sharply. Leo (15, wiry energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin) wears faded orange and grey pixel-art hoodie over ripped jeans, beat-up sneakers, cracked-screen tablet visible in crossbody bag. He leans toward the vault wall where glowing numbers pulse rhythmically: '3, 7, 11, 15, 19...' arranged in a horizontal line with equal spacing between them. Maya's expression shows intense focus and caution, eyes scanning the number pattern. Leo looks surprised, mouth slightly open. Four white rounded-rectangle speech bubbles with thin dark borders and black sans-serif text appear in upper frame: 'Not yet.' with tail pointing to Maya's mouth, 'Why?' with tail pointing to Leo's mouth, 'Check it.' with tail pointing to Maya's mouth, 'From three to seven...' with tail pointing to Maya's mouth. The number sequence on the wall visually demonstrates an arithmetic progression, each number increasing by four. The scene has clean bold line art, child-friendly proportions, warm inviting atmosphere, and looks like a single frame from an animated movie.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Not yet.
+Why?
+Check it.
+From three to seven...
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

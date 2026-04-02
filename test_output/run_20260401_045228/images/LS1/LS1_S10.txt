@@ -1,0 +1,19 @@
+CINEMATIC MEDIUM SHOT — CONFUSION PHASE. Inside an ancient vault chamber with stone walls covered in faint glowing amber runes. Two sequences of glowing amber numbers are inscribed on a large stone slab: the top row reads '4, 9, 14, 19, 24' (dimmer glow), the second row reads '12, 17, 22, 27, __' (brighter pulsing glow synchronized with a heartbeat rhythm). The blank space after 27 glows brightest. LEO (15, wiry build, messy spiky black hair, tan skin, faded orange/grey pixel-art hoodie, ripped jeans, beat-up sneakers) stands before the slab, his finger tracing an invisible line from 12 to 17 to 22 in the air. His expression shows confusion — furrowed brow, mouth slightly open as he silently mouths numbers. MAYA (16, slim athletic build, long dark brown ponytail with electric blue streak, light olive skin, dark purple tech-weave jacket with glowing circuit seams, cargo pants, multi-tool wristband on left arm) stands slightly behind him, watching intently. Her sharp hazel eyes are fixed on Leo's movements, her wristband emitting a soft blue light that reflects in her eyes. Warm golden hour light streams through a high window, casting soft shadows. The atmosphere is bright, inviting yet mysterious. The art style is vibrant 2D animation inspired by Pixar/Studio Ghibli — expressive cartoon characters with child-friendly proportions, clean bold line art, warm amber and soft teal color grading, detailed but not photorealistic stone textures. FOUR white rounded-rectangle speech bubbles with thin dark borders and small tails pointing to Leo's mouth float in the upper portion of the frame, not overlapping faces. Each bubble contains clean black sans-serif text: 'Hold on...', 'Five each time?', 'Check it.', 'Twelve plus five...'. The mathematical pattern (adding 5 each time) is physically embedded in the glowing number sequence on the stone slab — discoverable through spatial arrangement. NEGATIVE PROMPT: different hair color, different eye color, wrong outfit, wrong age, adult-looking teenagers, multiple characters when only one is in the scene, photorealistic style, 3D render, comic strips, multi-panel layouts, labels, arrows, diagrams, annotations.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Hold on...
+Five each time?
+Check it.
+Twelve plus five...
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

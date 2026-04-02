@@ -1,0 +1,57 @@
+{
+  "scene_id": "S2",
+  "phase": "SETUP",
+  "setting": "The same vast chamber. The cold blue light from the wall casts long, shifting shadows across the dusty floor. The air feels charged, humming with the same low frequency as the glowing numbers. Dust motes dance in the eerie glow like tiny stars.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya's eyes dart along the glowing line, her mind racing. She counts silently on her fingers, her breath a shallow whisper. Leo rocks back and forth on the balls of his feet, a nervous energy making his hands twitch at his sides. He points at the blank space, then at the numbers before and after it.",
+  "dialogue": [
+    "Seven to eleven...",
+    "Four. Always four.",
+    "So the blank...",
+    "Nineteen. It's nineteen."
+  ],
+  "learning_moment": "The characters actively observe and describe the pattern in the sequence—the consistent difference between successive terms—using plain language, without yet naming the formal concept.",
+  "transition_hint": "They have a number. But how do they give it to the wall?",
+  "narrator_audio_text": "The glowing wall pulses, waiting. Maya and Leo see the pattern in the numbers.",
+  "character_dialogues": [
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Seven to eleven...",
+      "audio_text": "Seven to eleven.",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Four. Always four.",
+      "audio_text": "Four. Always four.",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "So the blank...",
+      "audio_text": "So the blank.",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Nineteen. It's nineteen.",
+      "audio_text": "Nineteen. It's nineteen.",
+      "emotion": "confident"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

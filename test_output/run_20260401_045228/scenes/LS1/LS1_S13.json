@@ -1,0 +1,57 @@
+{
+  "scene_id": "S13",
+  "phase": "ESCALATION",
+  "setting": "The vault chamber. The completed third sequence — 5, 9, 13, 17, 21 — glows green on the wall. The low drone shifts to a deeper, resonant thrum. The entire wall of numbers dissolves into shimmering light, then reforms. A new, longer row appears: __, 8, 12, 16, 20, 24, __.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Leo’s triumphant grin freezes as the wall resets. He leans forward, squinting at the new blanks. Maya’s wristband projects the old sequences beside the new one. Her finger hovers over the first blank, her jaw tightening.",
+  "dialogue": [
+    "Seven blanks.",
+    "First one’s empty.",
+    "What’s the start?",
+    "Can’t work backward?"
+  ],
+  "learning_moment": "A missing first term introduces the need to work backward in a sequence, testing understanding that the pattern applies consistently in both directions.",
+  "transition_hint": "The vault’s thrum pulses, synchronizing with a faint, rhythmic glow from the first blank — a silent, urgent countdown.",
+  "narrator_audio_text": "The wall resets, presenting a longer puzzle with the first number missing. The vault’s hum deepens, pressing in.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Seven blanks.",
+      "audio_text": "Seven blanks",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "First one’s empty.",
+      "audio_text": "First one’s empty",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "What’s the start?",
+      "audio_text": "What’s the start",
+      "emotion": "confused"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Can’t work backward?",
+      "audio_text": "Can’t work backward",
+      "emotion": "insight"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "The new sequence is: __, 8, 12, 16, 20, 24, __. If the pattern is consistent, what number should the first blank be?",
+    "pause_seconds": 8,
+    "reveal_text": "The first number is 4! The pattern adds 4 each time, so working backward: 8 - 4 = 4."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

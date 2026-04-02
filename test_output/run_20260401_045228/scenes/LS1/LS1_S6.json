@@ -1,0 +1,64 @@
+{
+  "scene_id": "S6",
+  "phase": "MICRO_LEARN",
+  "setting": "The vault chamber. The amber glow from the wall has settled into a steady, cool blue light. The numbers 3, 7, 11, 15, __ are now etched in a soft, persistent cyan. Maya stands directly before the wall, her face illuminated by its glow. Leo has edged closer, his earlier frustration replaced by a tense, watchful curiosity. The low hum of the wall is now a rhythmic, almost heartbeat-like pulse, waiting.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya slowly raises her right hand, index finger extended. She doesn't touch the wall, but traces a line in the air between the glowing 3 and the glowing 7. Her eyes narrow, focusing on the empty space between the digits. She then repeats the motion between 7 and 11, and again between 11 and 15. Her breathing is shallow, her entire body still except for the deliberate movement of her arm. Leo watches her finger, his own hand twitching as if he wants to trace it too.",
+  "dialogue": [
+    "What did we add here... to get from one to the next?",
+    "Four.",
+    "Every time.",
+    "So the gap... is the rule."
+  ],
+  "learning_moment": "Maya identifies the constant difference between successive terms. This is the core concept of an arithmetic progression: a sequence where each term is obtained by adding a fixed number (the common difference) to the previous term. She focuses on the 'gap' or 'step' between numbers, not just the numbers themselves.",
+  "transition_hint": "The wall seems to accept this understanding. The blue light intensifies, and a new, more complex sequence begins to form on the adjacent panel.",
+  "narrator_audio_text": "Maya traces her finger between 3 and 7. 'What did we add here to get from one to the next?'",
+  "character_dialogues": [
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "What did we add here... to get from one to the next?",
+      "audio_text": "What did we add here... to get from one to the next?",
+      "emotion": "focused_questioning"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Four.",
+      "audio_text": "Four.",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Every time.",
+      "audio_text": "Every time.",
+      "emotion": "confirmation"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "So the gap... is the rule.",
+      "audio_text": "So the gap... is the rule.",
+      "emotion": "understanding"
+    }
+  ],
+  "student_interaction": {
+    "type": "multiple_choice",
+    "prompt_text": "Maya is focusing on the 'gap' between numbers. What is she trying to find?",
+    "options": [
+      "The biggest number in the list",
+      "The number that is missing",
+      "The amount added each time to get the next number",
+      "The total of all the numbers"
+    ],
+    "correct_answer": 2,
+    "pause_seconds": 5,
+    "reveal_text": "She's trying to find the common difference, the amount added each time to move from one term to the next."
+  },
+  "show_avatar": true,
+  "avatar_expression": "thinking"
+}

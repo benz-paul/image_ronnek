@@ -1,0 +1,20 @@
+{
+  "concepts": [
+    "Arithmetic Progressions",
+    "Common Difference",
+    "First Term",
+    "General Form",
+    "Finite AP",
+    "Infinite AP",
+    "Term Notation",
+    "Successive Terms",
+    "Preceding Terms",
+    "Consecutive Terms",
+    "Positive Common Difference",
+    "Negative Common Difference",
+    "Zero Common Difference",
+    "Patterns in Sequences",
+    "Fixed Number Addition",
+    "List of Numbers"
+  ]
+}

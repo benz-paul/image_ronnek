@@ -1,0 +1,19 @@
+Cinematic medium shot (DISCOVERY phase) of the vault chamber interior. The walls are ancient stone with faint amber light pulsing rhythmically from embedded circuits, casting soft golden hour illumination that creates gentle shadows. In the center of the frame, the glowing number sequence 3, 7, 11, 15, __ is prominently displayed on a smooth stone panel, each digit about 8 inches tall, emitting a steady amber glow. Maya stands close to the numbers, her body in sharp profile as she holds up a silencing hand toward Leo. Her other hand traces the air just in front of the glowing sequence. She has a tight jaw, intense focused hazel eyes, and slow controlled breathing visible in her expression. Leo is frozen mid-step behind her, his body language showing frustration as he grips the strap of his crossbody bag. His tablet screen shows a live code interface reflecting the number sequence. Four white rounded-rectangle speech bubbles with thin dark borders and small tails pointing to Maya's mouth appear in the upper portion of the frame, not overlapping faces, containing in clean black sans-serif font exactly: 'Wait.' 'Look at it.' 'Don't just guess.' 'Read the whole list.' The scene is rendered in vibrant 2D animation style with clean bold line art, warm amber and soft teal color grading, expressive cartoon characters with youthful teen proportions, and detailed but not photorealistic background. Maya wears her dark purple tech-weave jacket with glowing circuit-like seams over black t-shirt and cargo pants, with her signature high ponytail showing the electric blue streak and multi-tool wristband on left arm. Leo wears his faded orange and grey pixel-art graphic hoodie over ripped jeans and beat-up high-top sneakers, with messy spiky black hair. The atmosphere is tense but bright and inviting with soft shadows.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Wait.
+Look at it.
+Don't just guess.
+Read the whole list.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

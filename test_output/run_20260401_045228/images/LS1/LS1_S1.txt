@@ -1,0 +1,19 @@
+WIDE ESTABLISHING SHOT (HOOK) of a vast, pitch-black chamber deep beneath an abandoned arcade. The air glows faintly with dust motes in warm golden hour light filtering from an unseen source, casting soft shadows. In the center looms a colossal wall, thirty feet tall and seamless, made of an obsidian-like material that now blazes to life with a cold blue light, contrasting with the amber ambient glow. A single horizontal line of six glowing numbers appears carved into the wall's surface: 3, 7, 11, 15, ___, 23. The empty fifth slot pulses with a faint, expectant glow. MAYA (16, slim athletic build, long dark brown hair in a high ponytail with a single electric blue streak, sharp hazel eyes, light olive skin, dark purple tech-weave jacket with glowing circuit-like seams over black t-shirt and cargo pants, custom multi-tool wristband on left arm) stands in the foreground left, her fingers twitching against her thigh, jaw tight, eyes wide with tension. LEO (15, wiry energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin, faded orange and grey pixel-art graphic hoodie over ripped jeans, beat-up high-top sneakers, cracked-screen tablet in crossbody bag showing live code interface) stands slightly behind and to the right, having taken an instinctive step back, his expression one of stomach-dropping awe. The scene is in a vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters with clean bold line art, child-friendly teen proportions, detailed but not photorealistic background of ancient machinery and dust. Color grading is warm amber and soft teal, rich but not oversaturated. FOUR white rounded-rectangle speech bubbles with thin dark borders and small tails pointing to the characters' mouths float in the upper portion of the frame, containing in clean black sans-serif font the exact text: 'What is this?', 'A test. Look at the pattern.', 'It's waiting for something.', 'The next number. It wants the next number.' The mathematical pattern (arithmetic progression with a common difference of 4) is discoverable in the environment as the sequence of glowing numbers embedded in the wall.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+What is this?
+A test. Look at the pattern.
+It's waiting for something.
+The next number. It wants the next number.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

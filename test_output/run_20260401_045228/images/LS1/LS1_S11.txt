@@ -1,0 +1,19 @@
+CINEMATIC SCENE - DISCOVERY phase. The vault chamber interior: ancient stone walls with glowing amber inscriptions arranged in rows. CENTER FRAME: the second sequence — 12, 17, 22, 27, __ — etched into the wall glowing with steady amber light, the empty blank space at the end now pulsing with faint green energy. CLOSE-UP on the glowing wall where Leo (15-year-old boy, wiry build, messy spiky black hair, bright dark brown eyes, warm tan skin, faded orange and grey pixel-art hoodie, ripped jeans, beat-up sneakers) presses his finger firmly against the blank space. Concentric waves of green light spread outward from his touch point, solidifying into the number '32' that now glows brightly in the sequence. Maya (16-year-old girl, slim athletic build, long dark brown ponytail with electric blue streak, sharp hazel eyes, light olive skin, dark purple tech-weave jacket with glowing seams, cargo pants, multi-tool wristband) leans in beside him, her eyes wide with excitement tracking the light's movement. Both characters show DISCOVERY expressions: Leo's eyes lit up with realization, Maya leaning forward with hands slightly raised. WARM GOLDEN HOUR LIGHT from an unseen source casts soft shadows. Art style: vibrant 2D animation inspired by Pixar/Ghibli — expressive cartoon characters, clean bold line art, warm amber and soft teal color grading, child-friendly proportions, detailed but not photorealistic background. TWO WHITE ROUNDED-RECTANGLE SPEECH BUBBLES with thin dark borders and tails pointing to characters' mouths: first bubble near Leo contains 'Thirty-two.' in clean black sans-serif font; second bubble near Maya contains three lines: 'It worked. / Both sequences. / Same pattern.' in same font. Background shows the complete sequence pattern physically embedded in the wall: 12, 17, 22, 27, 32 — each number spaced evenly apart demonstrating the +5 arithmetic progression. Camera angle: medium shot focusing on the characters and the glowing wall sequence.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Thirty-two.
+It worked.
+Both sequences.
+Same pattern.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

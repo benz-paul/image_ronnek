@@ -1,0 +1,57 @@
+{
+  "scene_id": "S3",
+  "phase": "DISCOVERY",
+  "setting": "The vault chamber. The glowing numbers on the wall now pulse with a slow, rhythmic heartbeat of light. A low hum vibrates through the floorboards.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Leo steps toward the wall, hand outstretched, but Maya grabs his wrist. Her grip is tight, knuckles white. She shakes her head sharply, a single word forming silently on her lips: 'Wait.' Her eyes scan the line again, her mind testing the pattern she just saw.",
+  "dialogue": [
+    "Not yet.",
+    "Why?",
+    "Check it.",
+    "From three to seven..."
+  ],
+  "learning_moment": "Maya explicitly traces the pattern step-by-step from the first term, verifying the rule holds for every successive term in the list of numbers.",
+  "transition_hint": "The pattern holds. But is naming it enough for the wall?",
+  "narrator_audio_text": "The wall's hum deepens as Maya retraces the pattern, testing each step.",
+  "character_dialogues": [
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Not yet.",
+      "audio_text": "Not yet.",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Why?",
+      "audio_text": "Why.",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Check it.",
+      "audio_text": "Check it.",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "From three to seven...",
+      "audio_text": "From three to seven.",
+      "emotion": "curious"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If the pattern holds, what number comes after 15?",
+    "pause_seconds": 8,
+    "reveal_text": "The pattern adds 4 each time. After 15 comes 19."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

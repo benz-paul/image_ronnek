@@ -1,0 +1,22 @@
+{
+  "title": "The Chrono-Lock Conspiracy",
+  "core_premise": "Two teenage hackers, Leo and Zara, discover their city's new 'smart' infrastructure is secretly controlled by a mathematical pattern—an arithmetic progression—embedded in the countdown sequences of traffic lights, security systems, and digital billboards. The pattern is counting down to a city-wide system shutdown. To stop the blackout and expose the conspiracy, they must identify the first term and common difference of the AP hidden in the flashing codes, then use the nth-term formula to predict and intercept the final sequence before it triggers the shutdown.",
+  "characters": [
+    {
+      "name": "Leo",
+      "role": "Teen tech prodigy and amateur urban explorer",
+      "personality": "Observant, logical, and restless; sees patterns everywhere. Prone to muttering equations under his breath when excited.",
+      "visual_description": "16-year-old boy, lean and agile build, messy dark brown hair with a single bright blue streak, sharp hazel eyes, light olive skin, wears a worn gray tech jacket with glowing circuit-pattern patches over black cargo pants, always carries a custom-modified tablet in a cross-body sling bag. Distinctive feature: a wristband with seven LED lights that blink in sequence when he's thinking.",
+      "gender": "male",
+      "voice_id": "Kevin"
+    },
+    {
+      "name": "Zara",
+      "role": "Charismatic coder and activist with a talent for social engineering",
+      "personality": "Bold, quick-witted, and fiercely protective of her community. Uses humor to defuse tension but is deadly serious about uncovering truth.",
+      "visual_description": "15-year-old girl, athletic and confident posture, long curly auburn hair tied in a half-up style with neon-green hair ties, piercing green eyes, warm brown skin, wears a vintage band t-shirt under a cropped denim jacket, ripped jeans, and high-top sneakers. Distinctive feature: a chunky smartwatch on her left wrist that she constantly taps to record data and hack nearby devices.",
+      "gender": "female",
+      "voice_id": "Ivy"
+    }
+  ]
+}

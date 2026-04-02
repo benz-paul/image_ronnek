@@ -1,0 +1,18 @@
+CINEMATIC MEDIUM SHOT — Maya and Leo stand in the vault chamber, facing each other with the glowing wall behind them. The chamber has ancient stone walls with faint glowing circuit-like patterns etched into them, warm golden hour light streaming through a high arched window casting soft shadows. The first blank in a new sequence pulses with faint rhythmic blue light on the wall, syncing with a deep thrumming sound. Maya's multi-tool wristband on her left arm projects holographic solved patterns — glowing geometric sequences of numbers and shapes — floating beside the new challenge on the wall. The patterns show arithmetic progressions with visible differences between terms. Maya (16, slim athletic build, long dark brown ponytail with electric blue streak, hazel eyes, light olive skin, dark purple tech-weave jacket with glowing circuits over black t-shirt and cargo pants) turns from the wall to face Leo, her expression shifting from tight concentration to determined clarity, eyes focused. Leo (15, wiry energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin, faded orange and grey pixel-art hoodie over ripped jeans, beat-up sneakers) meets her gaze, his restless energy momentarily stilled as he holds his cracked-screen tablet showing live code interface. They both glance back at the glowing blanks on the wall, then at each other with shared understanding. THREE WHITE ROUNDED-RECTANGLE SPEECH BUBBLES WITH THIN DARK BORDERS AND TAILS POINTING TO MAYA'S MOUTH in the upper portion of the frame: first bubble says 'Okay.', second bubble says 'Same rule.', third bubble says 'But backwards now.' All text in clean black sans-serif font. The mathematical concept of arithmetic progression is visualized through the projected patterns showing sequences with consistent differences between terms. Vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters with child-friendly proportions, clean bold line art, warm amber and soft teal color grading, warm inviting atmosphere. Characters look their stated ages — youthful, energetic teen proportions.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+Okay.
+Same rule.
+But backwards now.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

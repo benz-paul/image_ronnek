@@ -1,0 +1,57 @@
+{
+  "scene_id": "S4",
+  "phase": "CONFUSION",
+  "setting": "The vault chamber. The glowing wall now pulses with a faint crimson light, casting sharp shadows across the room. The low hum has risen to a warning buzz that vibrates in their teeth.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Leo's hand shoots up before Maya can stop him. He shouts the number, his voice echoing in the chamber. The wall flashes a deep, angry red. The buzz sharpens, and the floor vibrates violently under their feet. Maya's stomach drops as she sees the numbers remain incomplete.",
+  "dialogue": [
+    "19!",
+    "No—",
+    "It's wrong.",
+    "Why?"
+  ],
+  "learning_moment": "The wall's negative response shows that identifying the next number in the list is not enough to solve the puzzle. The sequence pattern is correct, but the puzzle mechanics are different.",
+  "transition_hint": "The pattern was right, but the answer was wrong. What is the wall actually asking for?",
+  "narrator_audio_text": "Leo's guess echoes in the chamber. The wall flashes red, its warning hum vibrating through their bones.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "19!",
+      "audio_text": "Nineteen.",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "No—",
+      "audio_text": "No.",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "It's wrong.",
+      "audio_text": "It's wrong.",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Why?",
+      "audio_text": "Why.",
+      "emotion": "confused"
+    }
+  ],
+  "student_interaction": {
+    "type": "think_prompt",
+    "prompt_text": "The pattern adds 4 each time. 15 + 4 = 19. So why did the wall reject 19?",
+    "pause_seconds": 5,
+    "reveal_text": "The pattern is correct, but the puzzle wants something more than just the next number."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

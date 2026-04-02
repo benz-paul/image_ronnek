@@ -1,0 +1,19 @@
+CINEMATIC SCENE - CONFUSION PHASE (medium shot). Inside a massive ancient vault chamber with glowing geometric patterns on walls. On a massive stone wall, TWO GLOWING SEQUENCES are illuminated side-by-side: left sequence shows glowing blue numbers 3, 7, 11, 15, 19 embedded in the wall; right sequence shows glowing amber numbers 12, 17, 22, 27, 32. Below them, a third row of five empty stone slots flickers with faint light. Warm golden hour light streams through a high window, casting soft shadows. MAYA (16, athletic, dark brown ponytail with electric blue streak, hazel eyes, olive skin, purple tech-weave jacket with glowing circuits, black t-shirt, cargo pants, multi-tool wristband) has stepped back from the wall, her body turned slightly toward LEO (15, wiry, spiky black hair, dark brown eyes, tan skin, orange/grey pixel-art hoodie, ripped jeans, beat-up sneakers, cracked-screen tablet in crossbody bag). Between them floats a TRANSLUCENT BLUE HOLOGRAM SCREEN projected from Maya's wristband, showing the two sequences written in glowing text: '3, 7, 11, 15, 19' and '12, 17, 22, 27, 32'. Maya's hazel eyes flick between the wall sequences and the hologram, her brow furrowed in concentration. She points at the hologram with her right hand. Leo stands beside her, his restless energy stilled, his dark brown eyes fixed intently on the holographic display, head tilted in thought. FOUR WHITE ROUNDED-RECTANGLE SPEECH BUBBLES with thin dark borders appear in upper portion of frame, tails pointing to Maya's mouth: first bubble contains 'A fixed addition each time.' second bubble 'Predictable.' third bubble 'Our lists of numbers.' fourth bubble 'Same rule for successive terms.' All text in clean black sans-serif font. The vault's atmosphere is quiet, focused, with a low hum. Art style: vibrant 2D animation inspired by Pixar/Studio Ghibli - expressive cartoon teens with child-friendly proportions, clean bold line art, warm amber and soft teal color grading, detailed but non-photorealistic background. NO multiple panels, NO labels/arrows/diagrams, NO style variation.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+A fixed addition each time.
+Predictable.
+Our lists of numbers.
+Same rule for successive terms.
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

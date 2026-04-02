@@ -1,0 +1,28 @@
+{
+  "concepts": [
+    "Arithmetic Progression",
+    "Common Difference",
+    "First Term",
+    "General Form of AP",
+    "Finite AP",
+    "Infinite AP",
+    "Term Notation",
+    "Successive Terms",
+    "Preceding Terms",
+    "Fixed Number Addition",
+    "Positive Common Difference",
+    "Negative Common Difference",
+    "Zero Common Difference",
+    "nth Term",
+    "Sum of n Terms",
+    "Consecutive Terms",
+    "Mathematical Patterns",
+    "Number Sequences",
+    "Term Subtraction Rule",
+    "AP Definition",
+    "AP Properties",
+    "Sequence Structures",
+    "Arithmetic Sequence",
+    "Difference Between Terms"
+  ]
+}

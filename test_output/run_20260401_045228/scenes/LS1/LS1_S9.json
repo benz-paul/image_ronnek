@@ -1,0 +1,49 @@
+{
+  "scene_id": "S9",
+  "phase": "MICRO_LEARN",
+  "setting": "The vault chamber. The two glowing sequences still hover side by side: 3, 7, 11, 15, __ and 12, 17, 22, 27, __. The amber light casts sharp shadows across Maya's focused face and Leo's wide, unblinking eyes.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Leo stares at the first sequence, his finger hovering in the air as he mentally traces from 3 to 7, then 7 to 11. His breathing has slowed. Maya watches him, her own hand resting on her wristband, ready to intervene but waiting.",
+  "dialogue": [
+    "So every step adds 4?",
+    "That's the rule?",
+    "Exactly. That's the rule."
+  ],
+  "learning_moment": "Leo verbalizes the fixed pattern rule for the first sequence, moving from observation to formalizing the relationship between successive terms.",
+  "transition_hint": "The second sequence pulses slightly brighter, inviting the same analysis.",
+  "narrator_audio_text": "Leo's mind locks onto the pattern, the rhythm of addition becoming clear. The vault hums softly, waiting for the next connection.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "So every step adds 4?",
+      "audio_text": "So every step adds four?",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "That's the rule?",
+      "audio_text": "That's the rule?",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Exactly. That's the rule.",
+      "audio_text": "Exactly. That's the rule.",
+      "emotion": "confident"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If every step adds 4, what number comes after 15 in the first sequence?",
+    "pause_seconds": 8,
+    "reveal_text": "19. Because 15 + 4 = 19. The pattern holds."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

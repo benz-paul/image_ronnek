@@ -1,0 +1,49 @@
+{
+  "scene_id": "S14",
+  "phase": "TRANSITION",
+  "setting": "The vault chamber. The first blank in the new sequence pulses with a faint, rhythmic glow, syncing with the deepening thrum. Maya's wristband still projects the old solved patterns beside the new challenge.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya turns from the wall to face Leo, her expression shifting from tight concentration to determined clarity. Leo meets her gaze, his restless energy momentarily stilled. They both glance back at the glowing blanks, then at each other.",
+  "dialogue": [
+    "Okay.",
+    "Same rule.",
+    "But backwards now."
+  ],
+  "learning_moment": "Recognizing that a consistent pattern in a sequence can be applied in reverse to find a missing first term.",
+  "transition_hint": "The first blank's pulsing glow slows, as if awaiting their input. The two rivals stand shoulder-to-shoulder, facing the wall.",
+  "narrator_audio_text": "A silent understanding passes between them. The vault's hum holds its breath.",
+  "character_dialogues": [
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Okay.",
+      "audio_text": "Okay",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Same rule.",
+      "audio_text": "Same rule",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "But backwards now.",
+      "audio_text": "But backwards now",
+      "emotion": "insight"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

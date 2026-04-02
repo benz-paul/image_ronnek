@@ -1,0 +1,63 @@
+Chapter: Class 10 Mathematics Chapter 5 Arithmetic Progression
+Concepts: {"concepts": ["Arithmetic Progression", "Common Difference", "First Term", "General Form of AP", "Finite AP", "Infinite AP", "Term Notation", "Successive Terms", "Preceding Terms", "Fixed Number Addition", "Positive Common Difference", "Negative Common Difference", "Zero Common Difference", "nth Term", "Sum of n Terms", "Consecutive Terms", "Mathematical Patterns", "Number Sequences", "Term Subtraction Rule", "AP Definition", "AP Properties", "Sequence Structures", "Arithmetic Sequence", "Difference Between Terms", "Succeeding Term", "Preceding Term", "Term Subtraction", "General AP Representation", "Difference Formula", "k-th Term", "k+1-th Term", "List of Numbers", "Mathematical Notation", "Term Relationship", "Sequence Properties", "n-th Term Formula", "First Term a", "Common Difference d", "n-th Term a_n", "Term Calculation", "Increment Pattern", "Annual Increment", "Salary Calculation", "Pattern Recognition", "General Term Formula", "a_n = a + (n-1)d", "Arithmetic progression", "First term", "Common difference", "nth term", "General term", "Term notation", "Sequence pattern", "Linear equations", "Term formula", "Positive integer condition", "Reverse order AP", "Simple interest formula", "Consecutive term difference", "Last term", "Total number of terms", "Missing terms", "Term identification", "Term comparison", "Common difference property", "AP definition", "Third term", "Nth term", "Sum of first n terms", "Formula for nth term", "Formula for sum", "AP notation", "Term from last", "Difference between terms", "Multiples of numbers", "Divisible numbers", "Equal nth terms", "First three terms", "Increment", "Weekly savings", "Money box example", "Gauss sum technique", "Reversed order addition", "Sum of positive integers", "Sn notation", "Four quantities relationship", "Difference of sums", "Positive and negative terms", "Cancel out terms", "Sum of n positive integers", "Formula for sum of AP", "First term of AP", "Last term of AP", "nth term of AP", "General term of AP", "Sum of first n positive integers", "Sum of terms formula", "AP properties", "AP definitions", "AP relationships", "AP formulas", "AP symbols", "AP structures", "Sum of AP terms", "AP term notation", "AP common difference notation", "AP first term notation", "AP last term notation", "AP nth term notation", "Sum of first n terms notation", "AP sum formula derivation", "AP mathematical structures", "AP term relationships", "AP formula for sum", "AP general formula", "AP term definition", "AP sum definition", "AP common difference definition", "AP first term definition", "AP last term definition", "AP nth term definition", "AP sum of terms definition", "AP notation for terms", "AP notation for sum", "AP notation for common difference", "AP notation for first term", "AP notation for last term", "AP notation for nth term", "AP mathematical properties", "AP term properties", "AP sum properties", "AP common difference properties", "AP first term properties", "AP last term properties", "AP nth term properties", "AP formula properties", "AP relationship between terms", "AP relationship between sum and terms", "AP relationship between common difference and terms", "AP relationship between first term and terms", "AP relationship between last term and terms", "AP relationship between nth term and terms", "AP mathematical formulas", "AP sum formulas", "AP term formulas", "AP common difference formulas", "AP first term formulas", "AP last term formulas", "AP nth term formulas", "AP structural formulas", "AP notation formulas", "AP definition formulas", "AP property formulas", "AP relationship formulas", "AP sum of first n positive integers formula", "AP sum of first n terms formula", "AP general sum formula", "AP term general formula", "AP common difference general formula", "AP first term general formula", "AP last term general formula", "AP nth term general formula", "AP sum general formula", "AP notation general", "AP definition general", "AP property general", "AP relationship general", "AP formula general", "AP mathematical general", "AP structural general", "AP term structural", "AP sum structural", "AP common difference structural", "AP first term structural", "AP last term structural", "AP nth term structural", "AP notation structural", "AP definition structural", "AP property structural", "AP relationship structural", "AP formula structural", "AP mathematical structural", "AP general structural", "AP term mathematical", "AP sum mathematical", "AP common difference mathematical", "AP first term mathematical", "AP last term mathematical", "AP nth term mathematical", "AP notation mathematical", "AP definition mathematical", "AP property mathematical", "AP relationship mathematical", "AP formula mathematical", "AP structural mathematical", "AP general mathematical", "nth term formula", "Finite AP sum", "Arithmetic mean", "List of numbers", "Fixed number addition", "Term differences", "General form of AP", "Consecutive numbering", "Uniform decrease", "Length variation", "Distance calculation", "Total distance", "Volume calculation", "Step dimensions", "Rise and tread", "Solid concrete", "Total volume", "Sum of terms", "Product of terms", "Negative term condition", "Hint notation", "Exercise labeling", "Chapter summary", "Mathematical structures", "Notations and symbols", "Term relationship", "Sum formula", "Difference property", "Mean formula"]}
+
+IMPORTANT: You must create a story with MINIMUM 2 MAIN CHARACTERS.
+
+STORY HOOK REQUIREMENT (CRITICAL):
+- The core problem must have STAKES — something the characters urgently want or need that ONLY mastering the math concept can unlock. "Students notice a pattern" is not enough.
+- Pick ONE of these engaging story archetypes (do NOT default to generic school drama):
+  * DETECTIVE/MYSTERY: characters solve a mystery where clues use mathematical patterns (e.g., a coded treasure map, a stolen artifact, an unexplained phenomenon)
+  * GAMING/ADVENTURE: characters are stuck in a challenge/level/quest that only math can unlock (e.g., a math-powered video game, an escape room, a magical obstacle)
+  * SPORTS CHALLENGE: a high-stakes competition where the math concept determines who wins (e.g., a tournament, a record attempt, a team crisis)
+  * SCI-FI DISCOVERY: characters discover a mathematical pattern in nature/space/technology that reveals something surprising
+- The story setting should feel exciting and vivid — not a bland classroom
+- Characters should feel like they belong in a world kids are already obsessed with (gaming, adventure, mystery, sports)
+
+Character Requirements:
+- Each character must have: name, role, personality, visual_description, gender, voice_id
+- Characters must interact in scenes through dialogue
+- Story must be visual and cinematic
+- Characters should be relatable and exciting to kids aged 12-16
+
+Visual Description Format (CRITICAL for image generation):
+- Write visual_description as if briefing a 2D animation studio (Pixar/Ghibli style).
+- Must include ALL of the following: hair color + style/cut, eye color, skin tone, clothing with colors, height/build, and ONE distinctive feature (e.g., a scar, accessory, hairstyle quirk, or recurring prop).
+- Characters should look youthful and energetic — never adult-looking.
+- BAD:  "tall boy with dark hair and glasses"
+- GOOD: "15-year-old boy, wiry energetic build, wild spiky black hair, bright dark eyes, warm brown skin, orange and white hoodie over dark jeans, always has a cracked phone screen in his back pocket showing a math app"
+
+Voice Assignment Rules (Amazon Polly voices):
+- gender must be "male" or "female"
+- Assign voice_id from this palette — pick the best match per character:
+  Male voices:   "Kevin" (teen boy, US), "Matthew" (adult teacher/mentor, US), "Brian" (adult, UK)
+  Female voices: "Ivy" (teen girl, US), "Joanna" (adult, US), "Emma" (adult, UK)
+- The NARRATOR always uses "Gregory" — do NOT assign "Gregory" to any story character.
+- No two characters should share the same voice_id.
+- Use "Kevin" for teen/young male characters, "Matthew" for adult teachers or mentors.
+- Use "Ivy" for teen/young female characters, "Joanna" for adult female characters.
+
+Return ONLY JSON:
+{
+  "title": "...",
+  "core_premise": "...",
+  "characters": [
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "male",
+      "voice_id": "Joey"
+    },
+    {
+      "name": "...",
+      "role": "...",
+      "personality": "...",
+      "visual_description": "...",
+      "gender": "female",
+      "voice_id": "Joanna"
+    }
+  ]
+}
+
+CRITICAL: characters array must have at least 2 entries. Every character MUST have gender and voice_id.

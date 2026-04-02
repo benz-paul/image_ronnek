@@ -1,0 +1,63 @@
+Story: {"title": "The Infinite Vault", "core_premise": "Two competitive teen hackers, Maya and Leo, infiltrate a legendary abandoned arcade rumored to contain a vault holding the source code for a lost, world-changing video game. To open the vault, they must solve a series of light-puzzle sequences on a massive, glowing wall. Each puzzle presents a sequence of numbers with missing terms. They realize the sequences follow Arithmetic Progressions, but with a twist: the common difference changes between puzzles, and the final vault combination requires them to calculate not just a missing term, but the SUM of the first n terms of a hidden AP revealed by all previous puzzles combined. The stakes? Whoever solves it first claims the code and eternal gaming glory, but they soon discover the vault is rigged to permanently seal if they take too long or get a sum wrong. They must collaborate, using the AP sum formula S\u2099 = n/2[2a + (n-1)d], to unlock the vault before time runs out.", "characters": [{"name": "Maya", "role": "Brilliant, methodical puzzle-solver and competitive hacker.", "personality": "Calm under pressure, fiercely logical, observant, initially sees Leo as a reckless rival but learns to value his instinctive approach.", "visual_description": "16-year-old girl, slim and athletic build, long dark brown hair tied in a high, practical ponytail with a single electric blue streak, sharp hazel eyes, light olive skin, wears a dark purple tech-weave jacket with glowing circuit-like seams over a black t-shirt and cargo pants, always has a custom multi-tool wristband on her left arm.", "gender": "female", "voice_id": "Ivy"}, {"name": "Leo", "role": "Instinctive, fast-thinking gamer and thrill-seeking hacker.", "personality": "Energetic, impulsive, great at spotting patterns quickly, relies on gut feelings, competitive but secretly hates working alone.", "visual_description": "15-year-old boy, wiry and energetic build, messy spiky black hair, bright dark brown eyes, warm tan skin, wears a faded orange and grey pixel-art graphic hoodie over ripped jeans, beat-up high-top sneakers, always has a cracked-screen tablet in his crossbody bag showing a live code interface.", "gender": "male", "voice_id": "Kevin"}]}
+Concepts: {"concepts": ["Arithmetic Progressions", "Common Difference", "First Term", "General Form", "Finite AP", "Infinite AP", "Term Notation", "Successive Terms", "Preceding Terms", "Consecutive Terms", "Positive Common Difference", "Negative Common Difference", "Zero Common Difference", "Patterns in Sequences", "Fixed Number Addition", "List of Numbers", "Arithmetic Progression", "Succeeding Term", "Preceding Term", "nth Term", "General Formula", "Difference Calculation", "AP Definition", "Term Subtraction", "Sequence Pattern", "Mathematical Notation", "AP Properties", "General term", "Last term", "Linear equations", "Simple interest formula", "Sum of First n Terms", "Formula for nth Term", "Formula for Sum", "Notation Sn", "Reverse Order Summation", "Gauss Summation Technique", "Sum of Positive Integers", "Positive integers", "Total production", "Uniform increase", "Fixed number", "Total sum", "Number of terms", "Series", "Sequence", "Summation notation", "Mathematical structures", "Relationships between terms", "Arithmetic series", "AP definitions", "Arithmetic Mean", "General Term Formula", "Sum Formula Notation", "Sum Formula Derivation", "Sum Formula Alternative Form"]}
+
+Return ONLY JSON:
+{
+  "learning_steps": [...]
+}
+
+STRICT OUTPUT ENFORCEMENT:
+
+You MUST follow the exact JSON schema.
+
+Each learning step MUST contain:
+
+* "learning_step_id"
+* "title"
+* "concepts_introduced"
+* "narrative_moment"
+
+DO NOT use:
+
+* step_number
+* description
+* concepts_covered
+
+If any of these incorrect keys are used, the output is INVALID.
+
+---
+
+NARRATIVE_MOMENT QUALITY RULES (CRITICAL — this field drives all scene generation):
+- Must describe a 3-act discovery arc:
+  (1) ENCOUNTER: How the characters first stumble onto the concept — through confusion, surprise, or a mystery object
+  (2) EXPLORATION: What they try, what goes wrong, what small observations they make (failed attempts are good)
+  (3) BREAKTHROUGH: The specific moment of realization — what clicks, what it feels like in the body
+- Must include at least ONE physical/environmental anchor:
+  A specific object, place, or visual detail that embeds the concept in the world
+  (e.g., "chalk numbers spiraling on a courtyard floor", "tiles on a staircase with uneven gaps", "a cracked clock showing wrong increments")
+- Must name the emotional journey: what the characters FEEL at each act (confusion → frustration → curiosity → surprise → satisfaction)
+- Minimum 5 sentences. Aim for 7-8. Write it like a scene treatment, not a topic summary.
+- BAD:  "Students learn about arithmetic progressions and their formula."
+- GOOD: "Leo finds a strange number pattern chalked on the science block wall — each gap between numbers is exactly the same, but he can't figure out why it matters. He tries adding, then multiplying, getting increasingly frustrated when none of his guesses explain the rule. Maya spots it: 'same jump every time.' But when they test it on a different sequence on the next wall, the jump is completely different — same kind of pattern, different step. The moment they realize there are different versions of this rule is when it clicks: the jump has a name, and it belongs to the pattern forever."
+
+---
+
+SELF-CHECK BEFORE OUTPUT:
+
+Before returning the final JSON:
+
+1. Ensure every learning step contains:
+
+   * learning_step_id (LS1, LS2, ...)
+   * title (non-empty)
+   * concepts_introduced (must NOT be empty)
+   * narrative_moment (minimum 5 sentences with 3-act arc and physical anchor)
+
+2. If ANY field is missing or empty:
+   REGENERATE the entire output.
+
+3. Ensure JSON is valid and parsable.
+
+---
+
+Output ONLY valid JSON

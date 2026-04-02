@@ -1,0 +1,19 @@
+Cinematic medium-wide shot inside the ancient vault chamber. The massive glowing wall at the back pulses with angry crimson light, casting sharp, dramatic shadows across the stone floor. The entire room vibrates visibly, with dust particles suspended in the air. Maya (16, athletic build, long dark brown ponytail with electric blue streak, hazel eyes, light olive skin, dark purple tech-weave jacket with glowing circuit seams, black t-shirt, cargo pants, multi-tool wristband on left arm) stands with a horrified expression, eyes wide, one hand reaching out toward Leo as if to stop him, her other hand clutching her stomach. Leo (15, wiry build, messy spiky black hair, bright dark brown eyes, warm tan skin, faded orange and grey pixel-art hoodie, ripped jeans, beat-up high-tops, cracked-screen tablet visible in crossbody bag showing live code) stands with his arm raised triumphantly, mouth open mid-shout, his face shifting from confidence to confusion as the wall flashes red. Two white rounded-rectangle speech bubbles with thin dark borders and small tails pointing to the characters' mouths appear in the upper portion of the frame: one contains '19!' pointing to Leo, the other contains 'No—' pointing to Maya. The scene is rendered in vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters with clean bold line art, child-friendly teen proportions, warm golden hour lighting with soft shadows, and warm amber/soft teal color grading. The atmosphere is tense and dramatic, with the warning buzz visually suggested through vibrating lines in the air.
+
+SPEECH BUBBLE REQUIREMENT — MANDATORY:
+Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.
+Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:
+
+19!
+No—
+It's wrong.
+Why?
+
+SPEECH BUBBLE RULES:
+- Each bubble is white or off-white with a thin dark border
+- Text is dark (black or very dark gray), clean, easily legible
+- Bubble tail points clearly to the speaking character's open mouth
+- Bubbles in upper portion of frame, not overlapping character faces
+- Do NOT paraphrase — use EXACTLY the words provided
+- If two characters speak, place two separate bubbles
+- Prioritize text legibility — clean printing, not calligraphy

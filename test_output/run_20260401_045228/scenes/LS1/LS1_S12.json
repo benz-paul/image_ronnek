@@ -1,0 +1,57 @@
+{
+  "scene_id": "S12",
+  "phase": "REFLECTION",
+  "setting": "The vault chamber. The first two completed sequences — 3, 7, 11, 15, 19 and 12, 17, 22, 27, 32 — glow side by side on the massive wall. Below them, a third row of empty blanks flickers, waiting. The vault's hum is a low, steady drone now, almost peaceful.",
+  "characters": [
+    "Maya",
+    "Leo"
+  ],
+  "action": "Maya steps back from the wall, her eyes flicking between the two glowing lines. She taps her wristband, and a small, translucent blue holographic screen materializes in the air between them. On it, she quickly writes the two sequences. Leo watches, his restless energy momentarily stilled, his gaze fixed on the hologram.",
+  "dialogue": [
+    "A fixed addition each time.",
+    "Predictable.",
+    "Our lists of numbers.",
+    "Same rule for successive terms."
+  ],
+  "learning_moment": "Comparing two successful sequences reinforces the concept of a consistent pattern (a fixed addition) governing a list of numbers, highlighting the predictability of successive terms.",
+  "transition_hint": "The third row of blanks on the wall pulses once, brighter, drawing their attention. The numbers 5, 9, 13, __, __ appear within it.",
+  "narrator_audio_text": "The shared success hangs in the air, a fragile truce. The hologram between them holds the proof of their pattern.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "A fixed addition each time.",
+      "audio_text": "A fixed addition each time",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Predictable.",
+      "audio_text": "Predictable",
+      "emotion": "satisfied"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Our lists of numbers.",
+      "audio_text": "Our lists of numbers",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "maya",
+      "voice_id": "Ivy",
+      "dialogue": "Same rule for successive terms.",
+      "audio_text": "Same rule for successive terms",
+      "emotion": "confident"
+    }
+  ],
+  "student_interaction": {
+    "type": "mini_quiz",
+    "prompt_text": "Look at the new sequence on the wall: 5, 9, 13, __, __. What number should come next?",
+    "pause_seconds": 10,
+    "reveal_text": "The next number is 17! You add 4 each time: 5 + 4 = 9, 9 + 4 = 13, 13 + 4 = 17."
+  },
+  "show_avatar": false,
+  "avatar_expression": "neutral"
+}

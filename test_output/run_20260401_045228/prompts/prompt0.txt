@@ -1,0 +1,199 @@
+Extract the key concepts present in this text section.
+
+IMPORTANT:
+- Return ONLY concept TITLES (short, 2-5 words)
+- DO NOT explain or describe
+- Extract at most 25 concepts per section — be selective, prefer quality over quantity
+- If two concepts are very similar, keep only the more general/important one
+
+RULES:
+- Only extract concepts that are clearly present and named in this section
+- Do NOT generate variations, permutations, or combinations of concepts
+- Do NOT invent concepts that are not explicitly in the text
+
+STRICT FILTERING RULE:
+
+Do NOT include:
+
+* examples
+* case studies
+* word problems
+* story-based scenarios
+* application-specific situations (e.g., taxi fare, rabbits, salary cases)
+
+ONLY include:
+
+* definitions
+* formulas
+* properties
+* relationships between concepts
+* mathematical structures
+* notations and symbols
+
+If an item is an example of a concept, DO NOT include it.
+
+OUTPUT:
+
+Return ONLY JSON:
+{
+  "concepts": [
+    "Concept 1",
+    "Concept 2",
+    "Concept 3"
+  ]
+}
+
+TEXT SECTION:
+ARITHMETIC PROGRESSIONS 49
+5
+5.1 Introduction
+You must have observed that in nature, many things follow a certain pattern, such as
+the petals of a sunflower , the holes of a honeycomb, the grains on a maize cob, the
+spirals on a pineapple and on a pine cone, etc.
+We now look for some patterns which occur in our day-to-day life. Some such
+examples are :
+(i) Reena applied for a job and got selected. She
+has been offered a job with a starting monthly
+salary of ` 8000, with an annual increment of
+` 500 in her salary. Her salary (in `) for the 1st,
+2nd, 3rd, . . . years will be, respectively
+8000, 8500, 9000, . . . .
+(ii) The lengths of the rungs of a ladder decrease
+uniformly by 2 cm from bottom to top
+(see Fig. 5.1). The bottom rung is 45 cm in
+length. The lengths (in cm) of the 1st, 2nd,
+3rd, . . ., 8th rung from the bottom to the top
+are, respectively
+45, 43, 41, 39, 37, 35, 33, 31
+(iii) In a savings scheme, the amount becomes 
+5
+4  times of itself after every 3 years.
+The maturity amount (in `) of an investment of ` 8000 after 3, 6, 9 and 12 years
+will be, respectively :
+10000, 12500, 15625, 19531.25
+ARITHMETIC PROGRESSIONS
+Fig. 5.1
+Reprint 2025-26
+
+
+50 MATHEMA TICS
+(iv) The number of unit squares in squares with side 1, 2, 3, . . . units (see Fig. 5.2)
+are, respectively
+12, 22, 32, . . . .
+Fig. 5.2
+(v) Shakila puts ` 100 into her daughter’s money box when she was one year old
+and increased the amount by ` 50 every year. The amounts of money (in `) in the
+box on the 1st, 2nd, 3rd, 4th, . . . birthday were
+100, 150, 200, 250, . . ., respectively.
+(vi) A pair of rabbits are too young to produce in their first month. In the second, and
+every subsequent month, they produce a new pair. Each new pair of rabbits
+produce a new pair in their second month and in every subsequent month (see
+Fig. 5.3). Assuming no rabbit dies, the number of pairs of rabbits at the start of
+the 1st, 2nd, 3rd, . . ., 6th month, respectively are :
+1, 1, 2, 3, 5, 8
+Fig. 5.3
+Reprint 2025-26
+
+
+ARITHMETIC PROGRESSIONS 51
+In the examples above, we observe some patterns. In some, we find that the
+succeeding terms are obtained by adding a fixed number, in other by multiplying
+with a fixed number, in another we find that they are squares of consecutive
+numbers, and so on.
+In this chapter, we shall discuss one of these patterns in which succeeding terms
+are obtained by adding a fixed number to the preceding terms. We shall also see how
+to find their nth terms and the sum of n consecutive terms, and use this knowledge in
+solving some daily life problems.
+5.2 Arithmetic Progressions
+Consider the following lists of numbers :
+(i) 1, 2, 3, 4, . . .
+(ii) 100, 70, 40, 10, . . .
+(iii) – 3, –2, –1, 0, . . .
+(iv) 3, 3, 3, 3, . . .
+(v) –1.0, –1.5, –2.0, –2.5, . . .
+Each of the numbers in the list is called a  term.
+Given a term, can you write the next term in each of the lists above? If so, how
+will you write it? Perhaps by following a pattern or rule. Let us observe and write the
+rule.
+In (i), each term is 1 more than the term preceding it.
+In (ii), each term is 30 less than the term preceding it.
+In (iii), each term is obtained by adding 1 to  the term preceding it.
+In (iv), all the terms in the list are 3 , i.e., each term is obtained by adding
+(or subtracting) 0 to the term preceding it.
+In (v), each term is obtained by adding – 0.5 to (i.e., subtracting 0.5 from) the
+term preceding it.
+In all the lists above, we see that successive terms are obtained by adding a fixed
+number to the preceding terms. Such list of numbers is said to form an  Arithmetic
+Progression ( AP ) .
+So, an arithmetic progression is a list of numbers in which each term  is
+obtained by adding a fixed number to the preceding term except the first
+term.
+This fixed number is called the common difference of the AP. Remember that
+it can be positive, negative or zero .
+Reprint 2025-26
+
+
+52 MATHEMA TICS
+Let us denote the first term of an AP by a1, second term by a2, . . ., nth term by
+an and the common difference by d. Then the AP becomes a 1, a2, a3, . . ., an.
+So, a2 – a1 = a3 – a2 = . . . = an – an – 1 = d.
+Some more examples of AP are:
+(a) The heights ( in cm ) of some students of a school standing in a queue in the
+morning assembly are 147 , 148, 149, . . ., 157.
+(b) The minimum temperatures ( in degree celsius ) recorded for a week in the
+month of January in a city, arranged in ascending order are
+– 3.1, – 3.0, – 2.9, – 2.8, – 2.7, – 2.6, – 2.5
+(c) The balance money ( in ` ) after paying 5 % of the total  loan of ` 1000 every
+month is 950, 900, 850, 800, . . ., 50.
+(d) The cash prizes ( in ` ) given by a school to the toppers of Classes I to XII are,
+respectively, 200, 250, 300, 350, . . ., 750.
+(e) The total savings (in `) after every month for 10 months when ` 50 are saved
+each month are 50, 100, 150, 200, 250, 300, 350, 400, 450, 500.
+It is left as an exercise for you to explain why each of the lists above is an AP .
+You can see that
+a, a + d, a + 2d, a + 3d, . . .
+represents an arithmetic progression where a is the first term and d the common
+difference. This is called the general form of an AP.
+Note that in examples (a) to (e) above, there are only a finite number of terms.
+Such an AP is called a finite AP. Also note that each of these Arithmetic Progressions
+(APs) has a last term. The APs in examples (i) to (v) in this section, are not finite APs
+and so they are called infinite Arithmetic Progressions . Such APs do not have a
+last term.
+Now, to know about an AP, what is the minimum information that you need? Is it
+enough to know the first term? Or, is it enough to know only the common difference?
+You will find that you will need to know both – the first term a and the common
+difference d.
+For instance if the first term a is 6 and the common difference d is 3, then
+the AP is
+ 6, 9,12, 15, . . .
+and if a is 6 and d is – 3, then the AP is
+6, 3, 0, –3, . . .
+Reprint 2025-26
+
+
+ARITHMETIC PROGRESSIONS 53
+Similarly, when
+a = – 7, d = – 2, the AP is  – 7, – 9, – 11, – 13, . . .
+a =  1.0, d = 0.1, the AP is  1.0, 1.1, 1.2, 1.3, . . .
+a =  0, d = 1 1
+2 , the AP is  0,  1 1
+2 , 3, 4 1
+2 , 6, . . .
+a = 2, d = 0, the AP is  2, 2, 2, 2, . . .
+So, if you know what a and d are, you can list the AP. What about the other way
+round? That is, if you are given a list of numbers can you say that it is an AP and then
+find a and d? Since a is the first term, it can easily be written. We know that in an AP ,
+every succeeding term is obtained by adding d to the preceding term. So, d found by
+subtracting any term from its succeeding term, i.e., the term which immediately follows
+it should be same for an AP .
+For example, for the list of numbers :
+6, 9, 12, 15, . . . ,
+We have a
+2 – a1 = 9  – 6 = 3,
+a3 – a2 = 12 – 9 = 3,
+a4 – a3 = 15 – 12 = 3
+Here the difference of any two consecutive terms in each case is 3. So, the
+given list is an AP whose first term a is 6 and common difference d is 3.
+For the list of numbers : 6, 3, 0, – 3, . . .,
+a2 – a1 = 3 – 6 = – 3
+a3 – a2 = 

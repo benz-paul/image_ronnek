@@ -1,0 +1,36 @@
+```json
+{
+    "learning_steps": [
+        {
+            "learning_step_id": "LS1",
+            "title": "The Glowing Pattern on the Wall",
+            "concepts_introduced": ["Sequence", "Patterns in Sequences", "List of Numbers", "Successive Terms"],
+            "narrative_moment": "Maya and Leo first encounter the vault's puzzle wall as it flickers to life, revealing a glowing sequence: 3, 7, 11, 15, ___, 23. Leo, feeling competitive and impatient, immediately shouts '19!' based on gut instinct, but the wall flashes red in rejection, sending a jolt of confusion through them both. Maya, feeling a surge of analytical curiosity, calms herself and traces the numbers with her finger in the air, noticing each number seems to grow by the same amount. Leo tries adding random numbers, growing frustrated as the wall continues to reject his guesses, until Maya points at the gaps between the glowing digits: 'Look, from 3 to 7 is +4, 7 to 11 is +4... it's a fixed addition.' The breakthrough hits them simultaneously—they feel a shared spark of understanding—as they realize the sequence follows a simple, uniform rule of adding the same number each time, with the missing term being the logical next step in that predictable pattern."
+        },
+        {
+            "learning_step_id": "LS2",
+            "title": "Naming the Jump",
+            "concepts_introduced": ["Arithmetic Progression", "Common Difference", "Fixed Number Addition", "Difference Calculation"],
+            "narrative_moment": "The next puzzle wall segment lights up with a new sequence: 12, 9, 6, ___, 0. Leo, now wary, mutters 'It's going down this time,' feeling a mix of intrigue and caution. Maya observes aloud that the 'jump' is now -3, a negative step, which Leo tests by successfully predicting the missing term is 3, causing the wall to glow green in approval. Their celebration is cut short when a third sequence appears: 5, 5, 5, 5, ___, making them both freeze in confusion—is this even a puzzle? After a moment of shared frustration, Maya's eyes widen as she realizes the 'jump' here is zero, nothing changes. The moment of naming this variable 'jump' as the 'common difference' clicks for them both, anchored by the three distinct wall segments showing positive, negative, and zero changes—they now see every sequence as part of a larger family defined by this single, critical number."
+        },
+        {
+            "learning_step_id": "LS3",
+            "title": "The Formula for Any Term",
+            "concepts_introduced": ["nth Term", "General Formula", "Term Notation", "General Term Formula"],
+            "narrative_moment": "A new, more complex puzzle appears: 'Find the 20th term: 2, 5, 8, 11...' Leo groans, feeling overwhelmed at the prospect of counting manually, while Maya bites her lip, sensing there must be a shortcut. They try writing out terms on Leo's cracked tablet, but after calculating the 10th term, they both feel the pressure of time and shared exasperation. Staring at the vault's massive, ticking countdown timer, Maya notices how each term is just the first number plus repeated additions of the common difference. In a flash of inspiration, she sketches a formula on her wristband's holographic display: 'start + (jump × steps back).' The physical act of writing 'a + (n-1)d' makes the abstract concrete—Leo whoops as he plugs in the numbers and gets the 20th term instantly, their faces lit with the satisfaction of unlocking a powerful tool that can leap to any term in the sequence."
+        },
+        {
+            "learning_step_id": "LS4",
+            "title": "The Need for a Total",
+            "concepts_introduced": ["Sum of First n Terms", "Series", "Total sum", "Number of terms"],
+            "narrative_moment": "The vault's final challenge is revealed not as a missing term, but as a command: 'Calculate the total of the first 50 terms of the sequence: 1, 4, 7, 10...' Leo slumps against the wall, feeling defeated, imagining the tedious, error-prone addition. Maya, however, observes the previous solved puzzles glowing faintly on the wall, their sequences combining into a larger pattern, and feels a dawning curiosity about summation. They attempt adding the first few terms manually, but the vault shudders warningly—time is running out, amplifying their shared anxiety. Staring at the sequence, Leo has a sudden memory of a story about Gauss adding numbers 1 to 100 by pairing ends. He excitedly sketches on the dusty floor: 'What if we pair 1 and 148? 4 and 145?' The breakthrough moment is visceral—Maya's eyes lock with his, and together they feel the exhilarating click of seeing the sequence as a series of paired sums, realizing they need a formula to find this total efficiently before the vault seals forever."
+        },
+        {
+            "learning_step_id": "LS5",
+            "title": "Deriving the Sum Formula",
+            "concepts_introduced": ["Formula for Sum", "Notation Sn", "Gauss Summation Technique", "Reverse Order Summation", "Sum Formula Derivation"],
+            "narrative_moment": "Working frantically under the pulsing red warning lights, Maya and Leo huddle over Leo's tablet, using the pairing idea on the sequence 1, 4, 7, 10... Leo writes the series forward, while Maya, with methodical intensity, writes it backwards directly below, creating a physical, mirrored column of numbers on the screen. They both feel a surge of collaborative focus as they see each vertical pair sums to the same value: 1+148, 4+145, and so on. Maya counts the pairs—there are 50 terms, so 25 pairs—and multiplies, but then pauses, realizing this only works for an even number of terms. The critical insight comes when Leo shouts, 'It's just (first + last) times half the terms!' and Maya instantly generalizes it to Sₙ = n/2(first + last). The final, triumphant step is substituting the nth term formula, resulting in Sₙ = n/2[2a + (n-1)d]—a formula that appears glowing on the vault's main console, ready for input, as they share a look of exhausted, profound satisfaction."
+        }
+    ]
+}
+```

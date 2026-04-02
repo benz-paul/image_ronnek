@@ -1,0 +1,11 @@
+{
+  "learning_step_id": "LS1",
+  "title": "The Glowing Pattern on the Wall",
+  "concepts_introduced": [
+    "Sequence",
+    "Patterns in Sequences",
+    "List of Numbers",
+    "Successive Terms"
+  ],
+  "narrative_moment": "Maya and Leo first encounter the vault's puzzle wall as it flickers to life, revealing a glowing sequence: 3, 7, 11, 15, ___, 23. Leo, feeling competitive and impatient, immediately shouts '19!' based on gut instinct, but the wall flashes red in rejection, sending a jolt of confusion through them both. Maya, feeling a surge of analytical curiosity, calms herself and traces the numbers with her finger in the air, noticing each number seems to grow by the same amount. Leo tries adding random numbers, growing frustrated as the wall continues to reject his guesses, until Maya points at the gaps between the glowing digits: 'Look, from 3 to 7 is +4, 7 to 11 is +4... it's a fixed addition.' The breakthrough hits them simultaneously—they feel a shared spark of understanding—as they realize the sequence follows a simple, uniform rule of adding the same number each time, with the missing term being the logical next step in that predictable pattern."
+}
