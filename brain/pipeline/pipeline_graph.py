@@ -811,23 +811,27 @@ class PipelineGraph:
                 ls_key = f"LS{ls_index + 1}"
 
             scene_plan = state.scene_plans.get(ls_key, [])
-            current_ls = state.learning_steps_list[ls_index] if ls_index < len(state.learning_steps_list) else {}
-
-            # Single-scene mode: cap to only generated scenes (not the full plan)
-            single_done = getattr(state, "single_scene_done", False)
-            if single_done:
-                total_scenes = len(current_ls.get("scenes", []))
-                debug(f"[DEBUG] Single-scene mode: limiting to {total_scenes} generated scene(s), not {len(scene_plan)} planned")
-            else:
-                total_scenes = len(scene_plan)
 
             # LS1-only mode → only process LS1 scenes
             if state.generation_mode == "ls1":
+                # In single-scene scope, only generate images for actually-generated scenes.
+                # single_scene_done is cleared by the first prompt4 call so we use
+                # scene_generation_scope (persists in state) as the reliable source of truth.
+                scope = getattr(state, "scene_generation_scope", "multiple")
+                if scope == "single":
+                    total_scenes = len(state.scenes.get(ls_key, []))
+                    debug(f"[ROUTER] single-scope: limiting to {total_scenes} generated scene(s) not {len(scene_plan)} planned")
+                else:
+                    total_scenes = len(scene_plan)
+
                 if scene_index >= total_scenes:
                     debug("[ROUTER] LS1-only: all scenes done → generate_ppt")
                     return "generate_ppt"
                 debug(f"[ROUTER] LS1-only: scene {scene_index + 1}/{total_scenes}")
                 return "execute_prompt4"
+
+            current_ls = state.learning_steps_list[ls_index] if ls_index < len(state.learning_steps_list) else {}
+            total_scenes = len(scene_plan)
 
             # Full mode - continue through all scenes and LS
             if scene_index < len(scene_plan):
@@ -1752,15 +1756,25 @@ class PipelineGraph:
             "dialogue": scene_dialogue,
         }
 
-        # Build dialogue lines for speech bubbles
+        # Build dialogue lines for speech bubbles — prefer character_dialogues (has speaker names)
+        char_dialogues = scene.get("character_dialogues", [])
         dialogue_lines = []
-        for d in scene_dialogue:
-            if isinstance(d, dict):
-                speaker = d.get("speaker", "Character")
-                text = d.get("text", "")
-                dialogue_lines.append(f"{speaker}: {text}")
-            elif isinstance(d, str):
-                dialogue_lines.append(d)
+        if char_dialogues:
+            for cd in char_dialogues:
+                if isinstance(cd, dict):
+                    speaker = cd.get("character_id", cd.get("name", "Character")).capitalize()
+                    text = cd.get("dialogue", cd.get("text", ""))
+                    if text:
+                        dialogue_lines.append(f"'{text}' — {speaker}")
+        if not dialogue_lines:
+            # Fallback to plain dialogue array
+            for d in scene_dialogue:
+                if isinstance(d, dict):
+                    text = d.get("text", "")
+                    if text:
+                        dialogue_lines.append(f"'{text}'")
+                elif isinstance(d, str) and d:
+                    dialogue_lines.append(f"'{d}'")
         dialogue_text = "\n".join(dialogue_lines) if dialogue_lines else "(no dialogue)"
 
         # Build character anchor from story backbone — injected into every Prompt 4 call
@@ -1773,18 +1787,17 @@ class PipelineGraph:
         char_anchor_block = "\n".join(char_anchor_lines) if char_anchor_lines else "(no characters defined)"
 
         dialogue_instruction = (
-            "SPEECH BUBBLE REQUIREMENT — MANDATORY:\n"
-            "Draw white rounded-rectangle speech bubbles with a small tail pointing to the speaker's mouth.\n"
-            "Each bubble must contain ONLY the exact text below — printed in clean black sans-serif font:\n\n"
+            "SPEECH BUBBLES — RENDER THESE FIRST (HIGHEST PRIORITY):\n"
+            "White rounded-rectangle speech bubbles, each with a small curved tail pointing at the speaker's mouth.\n"
+            "Render one bubble per line below. Copy the text EXACTLY as written inside single quotes:\n\n"
             f"{dialogue_text}\n\n"
-            "SPEECH BUBBLE RULES:\n"
-            "- Each bubble is white or off-white with a thin dark border\n"
-            "- Text is dark (black or very dark gray), clean, easily legible\n"
-            "- Bubble tail points clearly to the speaking character's open mouth\n"
-            "- Bubbles in upper portion of frame, not overlapping character faces\n"
-            "- Do NOT paraphrase — use EXACTLY the words provided\n"
-            "- If two characters speak, place two separate bubbles\n"
-            "- Prioritize text legibility — clean printing, not calligraphy"
+            "BUBBLE RULES (non-negotiable):\n"
+            "- White or off-white fill, thin dark border, bold black sans-serif font inside\n"
+            "- Each bubble tail points clearly to the speaking character's open mouth\n"
+            "- Place bubbles in upper portion of frame — never cover character faces\n"
+            "- One separate bubble per character — do NOT merge lines into one bubble\n"
+            "- EXACT words only — do not paraphrase, shorten, or omit any bubble\n"
+            "- Text must be legible at reading size — clean print, not cursive"
         )
 
         prompt = self.prompt_builder.get_prompt(
@@ -1822,11 +1835,12 @@ class PipelineGraph:
                 parsed.get("visual_prompt") or parsed.get("prompt") or response_content
             )
 
-        # Re-append the explicit speech bubble directive so Flux receives it directly.
-        # DeepSeek absorbs the dialogue_instruction into a narrative sentence; by appending
-        # it again here we guarantee Flux sees the same explicit format that worked in test_op.
+        # PREPEND the speech bubble directive so it appears FIRST in the Flux prompt.
+        # BFL benchmarks show Flux 2 Pro is 92% accurate on text — but only when the
+        # text requirement is front-loaded. Appending at the end buries it after a long
+        # scene description, which causes the model to ignore or produce empty bubbles.
         if dialogue_text and dialogue_text != "(no dialogue)":
-            visual_prompt = visual_prompt + "\n\n" + dialogue_instruction
+            visual_prompt = dialogue_instruction + "\n\n" + visual_prompt
 
         debug(f"[PROMPT4] dialogue_in prompt: {visual_prompt[:100]}...")
 
