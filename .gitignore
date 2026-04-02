@@ -14,6 +14,9 @@ node_modules/
 .next/
 frontend/tsconfig.tsbuildinfo
 
+# Pipeline variant scripts
+run_ls1_pipeline.py
+
 # Outputs & temp
 outputs/
 brain/outputs/

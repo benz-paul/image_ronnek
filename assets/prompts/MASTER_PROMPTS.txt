@@ -599,6 +599,7 @@ You are generating a SINGLE cinematic scene for an image model.
 
 GLOBAL STYLE LOCK (MANDATORY — apply to every single scene):
 - Art style: vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters, clean bold line art, warm colors, child-friendly proportions, detailed but not photorealistic backgrounds
+- FRAMING (CRITICAL): ALL scenes use CINEMATIC MEDIUM SHOT — characters must occupy 50–70% of frame height, full bodies and expressions clearly visible. NEVER use wide-angle shots where characters appear tiny. NEVER use extreme close-ups that cut off the body.
 - Characters must look their stated age — youthful, energetic, teen proportions (NOT adult)
 - Lighting: warm golden hour light, soft shadows, bright and inviting atmosphere
 - Color grading: warm amber and soft teal, rich but not oversaturated
@@ -607,7 +608,7 @@ GLOBAL STYLE LOCK (MANDATORY — apply to every single scene):
 
 CHARACTER IDENTITY LOCK (CRITICAL — never deviate from these descriptions):
 [CHARACTER_ANCHOR]
-NEGATIVE PROMPT: different hair color, different eye color, wrong outfit, wrong age, adult-looking teenagers, multiple characters when only one is in the scene, photorealistic style, 3D render
+NEGATIVE PROMPT: different hair color, different eye color, wrong outfit, wrong age, adult-looking teenagers, multiple characters when only one is in the scene, photorealistic style, wide-angle shot, tiny characters, empty landscape without characters
 
 STRICT RULES:
 - This is ONE single scene (NOT multiple panels)
@@ -624,17 +625,17 @@ CONCEPT VISUALIZATION (CRITICAL — makes images teach, not just decorate):
 - The mathematical concept should be DISCOVERABLE in the scene setting — embedded in the environment, not floating text
 - Use spatial arrangement to reinforce the concept (e.g., evenly spaced objects for arithmetic progression)
 
-CAMERA GUIDANCE BY SCENE PHASE:
-- HOOK: Wide establishing shot — show the full environment, characters small in frame, mystery/curiosity atmosphere
-- SETUP: Medium-wide shot — characters entering or exploring the space
-- CONFUSION: Medium shot — focus on character reactions (furrowed brows, scratching heads, looking puzzled)
-- DISCOVERY: Close-up on the artifact/object that reveals the concept (whiteboard, ground markings, notebook)
-- GUIDANCE: Over-the-shoulder shot — mentor character pointing at or explaining something visible
-- MICRO_LEARN: Close-up on the concept visualization (the pattern, the sequence, the diagram)
-- VALIDATION: Split focus — character and their work/visualization both visible
-- APPLICATION: Medium shot — characters actively using the concept in a real-world context
-- REFLECTION: Wide shot — characters stepping back, the complete concept visible in environment
-- PAYOFF/RESOLUTION: Character-centric medium shot — satisfaction/pride visible, concept in background
+CAMERA GUIDANCE BY SCENE PHASE (all shots MEDIUM — characters always 50–70% of frame):
+- HOOK: Cinematic medium shot — BOTH characters visible in the environment, wonder/curiosity on their faces. Environment frames them, but characters are the focus. NOT a wide landscape shot.
+- SETUP: Medium shot — characters side by side, actively reacting to or examining the scene
+- CONFUSION: Medium shot — both characters in frame, expressions clearly visible (furrowed brows, puzzled looks, frustration)
+- DISCOVERY: Medium shot — character's face and hands both visible, the concept visualization (numbers, pattern) clearly behind them
+- GUIDANCE: Medium shot — mentor character gesturing toward something visible, learner character watching
+- MICRO_LEARN: Medium shot — character demonstrating the concept, the visual element clearly visible in mid-ground
+- VALIDATION: Medium shot — both characters visible, success/confirmation visible on their faces and in the environment
+- APPLICATION: Medium shot — characters actively working with the concept in context
+- REFLECTION: Medium shot — characters side by side slightly stepping back, the full solved concept visible behind them
+- PAYOFF/RESOLUTION: Medium shot — character-centric, satisfaction and pride clearly on face, concept visible in background
 
 CHARACTER EXPRESSIONS:
 - Characters must show the EMOTIONAL STATE of the scene through facial expressions and body language
@@ -649,9 +650,9 @@ Return JSON:
   "visual_prompt": "clean visual description following the rules above"
 }
 
+[DIALOGUE_INSTRUCTION]
+
 INPUT:
 [SCENE_DATA]
-
-[DIALOGUE_INSTRUCTION]
 
 IMPORTANT: Output ONLY valid JSON with "visual_prompt" key.
