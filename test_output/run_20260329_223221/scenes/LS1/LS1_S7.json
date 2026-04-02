@@ -1,0 +1,55 @@
+{
+  "scene_id": "S7",
+  "phase": "VALIDATION",
+  "setting": "The violet hologram still floats between the blue numbers, now pulsing softly where the differences are highlighted. Leo's eyes dart from the first number to the second, his breath catching in his throat.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo drops into a crouch beside the number 3, his finger jabbing at the floor, then at the 7. He counts silently on his lips, then snaps his head up toward Zara. His AR glasses flicker rapidly as he processes.",
+  "dialogue": [
+    "Three to seven.",
+    "That's also four.",
+    "Every jump is the same!",
+    "It's not random!"
+  ],
+  "learning_moment": "Leo independently validates the constant difference by checking another pair of consecutive terms (7-3=4), confirming the pattern is consistent across the entire sequence. This moves from verification to confident validation.",
+  "transition_hint": "The hologram pulses brighter, as if acknowledging the confirmation.",
+  "narrator_audio_text": "Leo's finger traces the cold blue light from three to seven, his voice tight with sudden certainty as the pendulum swings overhead.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Three to seven.",
+      "audio_text": "Three to seven",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "That's also four.",
+      "audio_text": "That's also four",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Every jump is the same!",
+      "audio_text": "Every jump is the same",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "It's not random!",
+      "audio_text": "It's not random",
+      "emotion": "excited"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If the difference is always 4, what number should come after 15?",
+    "pause_seconds": 8,
+    "reveal_text": "19. The pattern continues: 15 + 4 = 19."
+  }
+}

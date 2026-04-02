@@ -1,0 +1,571 @@
+{
+  "LS1": {
+    "LS1_S1": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S1\\narrator.mp3",
+        "duration_ms": 7536
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S1\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S1\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S1\\dialogue_03.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 624,
+          "start_ms": 7536
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1008,
+          "start_ms": 8160
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 1536,
+          "start_ms": 9168
+        }
+      ],
+      "total_duration_ms": 10704,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S1.mp3",
+      "combined_duration_ms": 10726
+    },
+    "LS1_S2": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2\\narrator.mp3",
+        "duration_ms": 6912
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 840,
+          "start_ms": 6912
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1152,
+          "start_ms": 7752
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 2568,
+          "start_ms": 8904
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 1512,
+          "start_ms": 11472
+        }
+      ],
+      "total_duration_ms": 12984,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S2.mp3",
+      "combined_duration_ms": 13013
+    },
+    "LS1_S3": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3\\narrator.mp3",
+        "duration_ms": 5232
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 576,
+          "start_ms": 5232
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1224,
+          "start_ms": 5808
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 1104,
+          "start_ms": 7032
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 1032,
+          "start_ms": 8136
+        }
+      ],
+      "total_duration_ms": 9168,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S3.mp3",
+      "combined_duration_ms": 9197
+    },
+    "LS1_S4": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4\\narrator.mp3",
+        "duration_ms": 4704
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "zara",
+          "duration_ms": 696,
+          "start_ms": 4704
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "leo",
+          "duration_ms": 936,
+          "start_ms": 5400
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "zara",
+          "duration_ms": 1272,
+          "start_ms": 6336
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "leo",
+          "duration_ms": 1200,
+          "start_ms": 7608
+        }
+      ],
+      "total_duration_ms": 8808,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S4.mp3",
+      "combined_duration_ms": 8837
+    },
+    "LS1_S5": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5\\narrator.mp3",
+        "duration_ms": 5976
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "zara",
+          "duration_ms": 1464,
+          "start_ms": 5976
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1608,
+          "start_ms": 7440
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 744,
+          "start_ms": 9048
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "leo",
+          "duration_ms": 1104,
+          "start_ms": 9792
+        }
+      ],
+      "total_duration_ms": 10896,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S5.mp3",
+      "combined_duration_ms": 10925
+    },
+    "LS1_S6": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6\\narrator.mp3",
+        "duration_ms": 5952
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "zara",
+          "duration_ms": 1416,
+          "start_ms": 5952
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1536,
+          "start_ms": 7368
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "zara",
+          "duration_ms": 1296,
+          "start_ms": 8904
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 1416,
+          "start_ms": 10200
+        }
+      ],
+      "total_duration_ms": 11616,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S6.mp3",
+      "combined_duration_ms": 11645
+    },
+    "LS1_S7": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7\\narrator.mp3",
+        "duration_ms": 6840
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 1056,
+          "start_ms": 6840
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "leo",
+          "duration_ms": 1032,
+          "start_ms": 7896
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 1224,
+          "start_ms": 8928
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "leo",
+          "duration_ms": 984,
+          "start_ms": 10152
+        }
+      ],
+      "total_duration_ms": 11136,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S7.mp3",
+      "combined_duration_ms": 11165
+    },
+    "LS1_S8": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8\\narrator.mp3",
+        "duration_ms": 6048
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 888,
+          "start_ms": 6048
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1440,
+          "start_ms": 6936
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 960,
+          "start_ms": 8376
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 768,
+          "start_ms": 9336
+        }
+      ],
+      "total_duration_ms": 10104,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S8.mp3",
+      "combined_duration_ms": 10133
+    },
+    "LS1_S9": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9\\narrator.mp3",
+        "duration_ms": 5784
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "zara",
+          "duration_ms": 2928,
+          "start_ms": 5784
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1272,
+          "start_ms": 8712
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 1368,
+          "start_ms": 9984
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 624,
+          "start_ms": 11352
+        }
+      ],
+      "total_duration_ms": 11976,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S9.mp3",
+      "combined_duration_ms": 12005
+    },
+    "LS1_S10": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10\\narrator.mp3",
+        "duration_ms": 6936
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 1032,
+          "start_ms": 6936
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1656,
+          "start_ms": 7968
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 1080,
+          "start_ms": 9624
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 1320,
+          "start_ms": 10704
+        }
+      ],
+      "total_duration_ms": 12024,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S10.mp3",
+      "combined_duration_ms": 12053
+    },
+    "LS1_S11": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11\\narrator.mp3",
+        "duration_ms": 6000
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "zara",
+          "duration_ms": 1992,
+          "start_ms": 6000
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1872,
+          "start_ms": 7992
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "zara",
+          "duration_ms": 1848,
+          "start_ms": 9864
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 912,
+          "start_ms": 11712
+        }
+      ],
+      "total_duration_ms": 12624,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S11.mp3",
+      "combined_duration_ms": 12653
+    },
+    "LS1_S12": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12\\narrator.mp3",
+        "duration_ms": 7296
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 648,
+          "start_ms": 7296
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1728,
+          "start_ms": 7944
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "leo",
+          "duration_ms": 816,
+          "start_ms": 9672
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "zara",
+          "duration_ms": 1128,
+          "start_ms": 10488
+        }
+      ],
+      "total_duration_ms": 11616,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S12.mp3",
+      "combined_duration_ms": 11645
+    },
+    "LS1_S13": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13\\narrator.mp3",
+        "duration_ms": 6360
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 1872,
+          "start_ms": 6360
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1296,
+          "start_ms": 8232
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "zara",
+          "duration_ms": 1920,
+          "start_ms": 9528
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "leo",
+          "duration_ms": 888,
+          "start_ms": 11448
+        }
+      ],
+      "total_duration_ms": 12336,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S13.mp3",
+      "combined_duration_ms": 12365
+    },
+    "LS1_S14": {
+      "narrator": {
+        "path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14\\narrator.mp3",
+        "duration_ms": 6528
+      },
+      "characters": {
+        "dialogue_01": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14\\dialogue_01.mp3",
+        "dialogue_02": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14\\dialogue_02.mp3",
+        "dialogue_03": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14\\dialogue_03.mp3",
+        "dialogue_04": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14\\dialogue_04.mp3"
+      },
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "speaker": "leo",
+          "duration_ms": 1344,
+          "start_ms": 6528
+        },
+        {
+          "id": "dialogue_02",
+          "speaker": "zara",
+          "duration_ms": 1392,
+          "start_ms": 7872
+        },
+        {
+          "id": "dialogue_03",
+          "speaker": "zara",
+          "duration_ms": 1200,
+          "start_ms": 9264
+        },
+        {
+          "id": "dialogue_04",
+          "speaker": "leo",
+          "duration_ms": 1320,
+          "start_ms": 10464
+        }
+      ],
+      "total_duration_ms": 11784,
+      "combined_path": "C:\\Users\\gvpra\\Downloads\\Jushwanth\\BIA INTERNSHIP\\Final_Automation\\Automation_prompt_json_generator\\outputs\\run_20260329_223221\\audio\\LS1\\LS1_S14.mp3",
+      "combined_duration_ms": 11813
+    }
+  }
+}

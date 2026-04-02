@@ -1,0 +1,11 @@
+CINEMATIC MEDIUM SHOT - DISCOVERY phase. Leo crouches low beside a large blue number '3' painted on a weathered concrete floor, with another blue number '7' visible a short distance away. Between them floats Zara's violet hologram projection - a transparent glowing diagram connecting the numbers with pulsing lines that highlight the distance. Leo's finger points emphatically at the '3', then swings to point at the '7'. His face shows intense focus - bright hazel eyes wide with realization, lips moving silently as he counts. His messy electric-blue hair spikes upward, his worn black gaming hoodie with neon green circuit patterns rumpled as he crouches. His AR glasses hang around his neck, flickering with rapid blue code patterns. In the background, Zara stands watching, her tall slender frame leaning forward with curiosity, her long dark brown braid with one purple streak hanging over her shoulder, sharp gray eyes fixed on Leo. Warm golden hour light streams through a window, casting soft shadows and creating a bright, inviting atmosphere. The scene has vibrant 2D animation style with clean bold line art, warm amber and soft teal color grading. Four speech bubbles appear near Leo with EXACT text: 'Three to seven.' 'That's also four.' 'Every jump is the same!' 'It's not random!' Each bubble is clearly readable with correct English text. The mathematical pattern is physically embedded in the environment through the numbered floor markings and the connecting hologram lines.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+Three to seven.
+That's also four.
+Every jump is the same!
+It's not random!
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

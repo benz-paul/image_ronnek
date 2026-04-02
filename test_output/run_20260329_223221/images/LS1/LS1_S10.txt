@@ -1,0 +1,13 @@
+MEDIUM WIDE SHOT -- Cinematic scene in a mysterious chamber with a large frozen pendulum mechanism in the background, now swinging with a glowing blue tip pointing toward a distant yellow tile numbered '23' on the far wall. In the foreground, tile '19' on the floor glows with brilliant gold energy that's fading, with faint golden particles rising from it. Leo (15-year-old boy with messy electric-blue spiky hair, hazel eyes, light olive skin) wears a worn black gaming hoodie with neon green circuit patterns and baggy cargo pants, his AR glasses hanging around his neck flickering with code. He staggers back from the glowing tile, shaking his tingling right foot with a pained but excited expression. Zara (16-year-old girl with long dark brown braided hair featuring one purple streak, sharp gray eyes, warm medium-brown skin) wears a sleek violet tech-jacket over a white tee and black leggings. She stands beside Leo, her body angled toward the pendulum, her left arm raised as her holographic wrist-projector displays geometric schematics and a glowing sequence: '19 → 23' with '+4' between them. Her eyes snap from the activated tile to the pendulum's target, face showing intense focus and discovery. Warm golden hour light floods the chamber through high windows, casting soft shadows and creating a bright, inviting atmosphere with warm amber and soft teal color grading. The scene has vibrant 2D animation style like Pixar/Studio Ghibli -- expressive cartoon characters with clean bold line art, child-friendly teen proportions, detailed but not photorealistic background. Speech bubbles appear: 'The pattern holds!' near Zara's wrist-projector, 'So 19 plus 4...' near her face, '23. Right.' near Leo looking at the distant tile, 'But the pendulum...' and 'It's pointing there.' near both characters looking at the mechanism, 'It's not done.' near Leo's concerned face looking back at Zara. The mathematical pattern is physically embedded: tile '19' glowing on floor, distant tile '23' visible on wall, pendulum pointing at it, and sequence visualized on Zara's wrist-projector. NO multiple panels, NO labels/arrows/diagrams, NO style variation, characters look exactly as described.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+The pattern holds!
+So 19 plus 4...
+23. Right.
+But the pendulum...
+It's pointing there.
+It's not done.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

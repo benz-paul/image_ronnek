@@ -1,0 +1,11 @@
+CINEMATIC SINGLE SCENE - WIDE ESTABLISHING SHOT (HOOK PHASE). A circular chamber with massive floating gears rotating slowly in the air, each glowing with intricate numerical patterns etched in pulsating blue light. The floor is a mosaic of interlocking tiles arranged in a spiral pattern toward the center, showing the sequence: 2, 5, 8, 11... with the next tile (14) visible. Warm golden hour light streams through unseen openings, casting soft shadows from the gears. Leo, a 15-year-old boy with messy electric-blue hair in choppy spikes, bright hazel eyes, light olive skin, wearing a worn black gaming hoodie with neon green circuit patterns and baggy cargo pants, stands with his sneaker on the '2' tile. Zara, a 16-year-old girl with long dark brown hair in a practical braid (one bright purple streak), sharp intelligent gray eyes, warm medium-brown skin, wearing a sleek violet tech-jacket over a white tee and black leggings, stands behind him scanning the gears. Her holographic wrist-projector displays geometric schematics. The gear above Leo's tile spins faster, casting shifting shadows. Speech bubbles appear: 'Different numbers.' near Leo, 'Same idea.' near Zara, 'Consecutive terms...' near Zara's wrist-projector, and 'Constant difference.' floating between them. Art style: vibrant 2D animation inspired by Pixar and Studio Ghibli with expressive cartoon characters, clean bold line art, warm amber and soft teal color grading, child-friendly teen proportions. The scene looks like a frame from an animated movie.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+Different numbers.
+Same idea.
+Consecutive terms...
+Constant difference.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

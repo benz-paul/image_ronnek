@@ -1,0 +1,55 @@
+{
+  "scene_id": "S8",
+  "phase": "TWIST",
+  "setting": "The deep hum vibrates through the floor tiles, a physical pressure that makes Leo's teeth ache. The violet hologram flickers and dissolves as the pendulum freezes mid-swing, its blue light now a solid, accusing beam pointing at the distant number 19, which pulses with a slow, ominous rhythm.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo's triumphant grin vanishes. He stumbles back from the frozen pendulum, his hand flying to his chest as the vibration hits. Zara's wrist-projector sputters static. She stares past Leo, her braid whipping as her head snaps toward the pulsing 19, her gray eyes wide.",
+  "dialogue": [
+    "It stopped.",
+    "Why did it stop?",
+    "The tile...",
+    "It's waiting."
+  ],
+  "learning_moment": "The scene introduces a twist: the pattern prediction (15+4=19) was correct, but the system's reaction—halting and highlighting the predicted term—creates a new problem. This reinforces that finding the constant difference allows accurate prediction, but now the environment responds to that prediction, raising the stakes.",
+  "transition_hint": "The hum deepens, and a second tile, further down the line, begins to glow a faint, sickly yellow.",
+  "narrator_audio_text": "A deep hum filled the chamber as the pendulum froze. The number 19 pulsed like a distant, waiting heart.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "It stopped.",
+      "audio_text": "It stopped",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Why did it stop?",
+      "audio_text": "Why did it stop",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "The tile...",
+      "audio_text": "The tile",
+      "emotion": "awestruck"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "It's waiting.",
+      "audio_text": "It's waiting",
+      "emotion": "realization"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "The pattern is 3, 7, 11, 15, 19... What number should pulse next if the pattern continues?",
+    "pause_seconds": 8,
+    "reveal_text": "23. The common difference is still 4, so 19 + 4 = 23."
+  }
+}

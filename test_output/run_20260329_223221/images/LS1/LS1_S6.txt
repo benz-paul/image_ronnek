@@ -1,0 +1,11 @@
+Cinematic medium shot — DISCOVERY phase. The chamber floor glows with bright blue numbers 3, 7, 11, 15 etched in cold light arranged in a line. Zara (16-year-old girl with long dark brown braid with one purple streak, sharp gray eyes, medium-brown skin, wearing violet tech-jacket over white tee) kneels on the floor, her violet holographic wrist-projector floating between the numbers, displaying shimmering connecting lines between them. She points at the numbers 7 and 11 on the hologram, her brow furrowed in concentration as she bites her lip. Leo (15-year-old boy with messy electric-blue spiky hair, hazel eyes, light olive skin, wearing black gaming hoodie with neon green circuit patterns) stands beside her, rocking back on his heels, his AR glasses flickering with code around his neck as he watches intently. A large pendulum casts a sweeping shadow across their faces in slow rhythm. Two speech bubbles appear: one near Zara saying 'Seven from eleven.' and another saying 'Eleven from fifteen.' The scene has warm golden hour lighting with soft shadows, vibrant 2D animation style with clean bold line art, warm amber and soft teal color grading, expressive cartoon characters with child-friendly proportions.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+Seven from eleven.
+Eleven from fifteen.
+Each difference is four.
+That's... consistent.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

@@ -1,0 +1,55 @@
+{
+  "scene_id": "S2",
+  "phase": "SETUP",
+  "setting": "The same colossal chamber. Leo and Zara stand near the entrance archway, their bodies flickering with residual teleportation static. The pendulum swings silently ahead. On the vast black floor, four glowing blue numbers (5, 9, 13, 17) form a faint, pulsing line leading toward the center. The air crackles with energy, and the ozone smell is stronger now.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo stumbles forward a step, his knees feeling like jelly. He presses a hand to his temple, his AR glasses swinging wildly. Zara’s braid has come slightly loose, one strand sticking to her cheek. She takes a slow, deliberate breath, her eyes scanning the glowing pattern on the floor, then tracking the pendulum’s hypnotic arc. Leo’s fingers curl into his palms, his knuckles white.",
+  "dialogue": [
+    "What… where?",
+    "Look at the floor.",
+    "Five, nine, thirteen, seventeen.",
+    "Always four more?"
+  ],
+  "learning_moment": "Characters notice the sequence continues (5, 9, 13, 17) and begin to describe the relationship between consecutive terms in plain language, focusing on the consistent increase.",
+  "transition_hint": "Zara’s wrist-projector flickers to life, casting a pale violet grid over the glowing numbers.",
+  "narrator_audio_text": "Disoriented and materializing at the chamber's edge, the two gamers face the silent, swinging pendulum and its trail of blue light.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "What… where?",
+      "audio_text": "What where.",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Look at the floor.",
+      "audio_text": "Look at the floor.",
+      "emotion": "neutral"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Five, nine, thirteen, seventeen.",
+      "audio_text": "Five nine thirteen seventeen.",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Always four more?",
+      "audio_text": "Always four more.",
+      "emotion": "curious"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "scene_id": "S1",
+  "phase": "HOOK",
+  "setting": "A colossal, circular chamber of polished black stone. The air is cold and still, smelling of ozone and ancient dust. In the center, a stone pendulum the size of a car swings in perfect silence, its arc wide and slow. With each pass, a single tile on the vast floor flashes with a bright, electric-blue number before fading back to black.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo's breath hitches as the pendulum swings past, his fingers twitching against his leg. The floor tile directly beneath its apex glows: 5. The pendulum reaches its opposite peak. A new tile glows: 9. Leo's eyes dart between the fading numbers, his jaw tightening. Zara stands statue-still, her braid unmoving, but her gray eyes track each flash with laser focus. The pendulum swings again. A third tile ignites: 13. Leo's stomach gives a small, cold lurch. The silence is absolute, broken only by the faint, high-frequency hum of the glowing numbers and the sound of his own heartbeat in his ears.",
+  "dialogue": [
+    "Wait.",
+    "It's counting.",
+    "Five... nine... thirteen..."
+  ],
+  "learning_moment": "Characters observe a sequence of numbers (5, 9, 13) appearing with a rhythmic pattern, sparking curiosity about the relationship between them without any explanation.",
+  "transition_hint": "The pendulum completes another arc. A fourth tile flashes: 17.",
+  "narrator_audio_text": "In the vast silent chamber, a giant pendulum swings. With each pass, a single blue number burns briefly into the dark floor.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Wait.",
+      "audio_text": "Wait.",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "It's counting.",
+      "audio_text": "It's counting.",
+      "emotion": "neutral"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Five... nine... thirteen...",
+      "audio_text": "Five nine thirteen.",
+      "emotion": "frustrated"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  }
+}

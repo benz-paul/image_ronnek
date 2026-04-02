@@ -1,0 +1,63 @@
+Story: {"title": "The Chrono-Labyrinth's Arithmetic Key", "core_premise": "Two teenage gamers, Leo and Zara, are trapped inside a virtual reality escape room game called 'Chrono-Labyrinth.' To escape before their neural link becomes permanent, they must solve a series of time-based puzzles that are secretly governed by arithmetic progressions. The final puzzle reveals the game's creator hid a real-world treasure using AP patterns\u2014the stakes are winning a life-changing scholarship and exposing a tech conspiracy.", "characters": [{"name": "Leo", "role": "Impulsive but brilliant gamer who notices patterns instinctively", "personality": "Energetic, competitive, acts first-thinks-later, but has a photographic memory for sequences", "visual_description": "15-year-old boy, lean athletic build, messy electric-blue hair styled in choppy spikes, bright hazel eyes, light olive skin, wears a worn black gaming hoodie with neon green circuit patterns, baggy cargo pants, always has custom AR glasses hanging around his neck that flicker with code", "gender": "male", "voice_id": "Kevin"}, {"name": "Zara", "role": "Methodical coder and puzzle-solver who approaches problems logically", "personality": "Calm under pressure, analytical, skeptical, trusts data over gut feelings, secretly wants to prove her math skills can beat any game", "visual_description": "16-year-old girl, tall and slender, long dark brown hair tied in a practical braid with one bright purple streak, sharp intelligent gray eyes, warm medium-brown skin, wears a sleek violet tech-jacket over a simple white tee, practical black leggings, always carries a holographic wrist-projector that displays geometric schematics", "gender": "female", "voice_id": "Ivy"}]}
+Concepts: {"concepts": ["Arithmetic Progressions", "Patterns in Nature", "Patterns in Daily Life", "Succeeding Terms", "Fixed Number Addition", "Fixed Number Multiplication", "Squares of Consecutive Numbers", "Nth Term", "Sum of N Consecutive Terms", "Term of a List", "Common Difference", "First Term Notation a1", "Second Term Notation a2", "Nth Term Notation an", "General Form of AP", "Finite Arithmetic Progression", "Infinite Arithmetic Progression", "First Term a", "Common Difference d", "Positive Common Difference", "Negative Common Difference", "Zero Common Difference", "Difference of Consecutive Terms", "Arithmetic Progression", "Succeeding Term", "Preceding Term", "Consecutive Terms", "First Term", "General AP Formula", "nth Term Formula", "Term Notation", "Difference of Terms", "AP Definition", "Mathematical Sequence", "Term Subtraction", "kth Term", "(k+1)th Term", "Constant Difference", "AP Properties", "Sequence Structure", "Term Relationship", "AP Notation", "Arithmetic progression", "First term", "Common difference", "nth term", "General term", "Term notation", "Linear equations", "Positive integer", "Reverse order", "Simple interest formula", "Consecutive terms", "Difference between terms", "Term from last", "Total number of terms", "Missing terms", "Exceed term by value", "Same common difference", "Three-digit numbers divisible", "Multiples of number", "Term of AP", "Sum of first n terms", "Formula for nth term", "First term a", "Last term l", "Sum notation S_n", "Gauss summation technique", "Reverse order addition", "Sum formula S = n/2[2a+(n-1)d]", "Sum formula S = n/2(a+l)", "Relationship a_n = S_n - S_{n-1}", "Positive integers sum", "Finding number of terms", "Sum formula Sn", "AP sum formula", "Common difference d", "nth term an", "General term formula", "AP properties", "Uniform increase", "Fixed number increase", "Sum of positive integers", "Sum of multiples", "Sum of odd numbers", "Total production sum", "AP notation", "AP structure", "AP relationship terms", "AP term sequence", "AP term calculation", "AP sum calculation", "AP term properties", "AP common difference", "AP first term", "AP last term", "AP nth term", "AP sum of terms", "AP total sum", "AP uniform progression", "AP fixed increment", "AP term formula", "AP sum formula derivation", "AP sum of first n", "AP sum of first 1000", "AP sum of first n positive integers", "AP sum of first 24 terms", "AP sum of first 7 years", "AP sum of first 10 terms", "AP sum of first 12 terms", "AP sum of first 100 terms", "AP sum of first 11 terms", "AP sum of first 22 terms", "AP sum of first 51 terms", "AP sum of first 15 terms", "AP sum of first 40 terms", "AP sum of first 15 multiples", "AP sum of odd numbers", "AP penalty sum", "AP cash prizes sum", "AP trees planted sum", "AP spiral length sum", "AP logs stacked sum", "AP potato race distance", "AP term negative condition", "AP third term sum", "AP seventh term sum", "AP product of terms", "AP ladder rungs length", "AP rungs decrease uniformly", "AP length decrease", "AP uniform decrease", "Arithmetic mean", "Finite AP sum formula", "List of numbers", "Fixed number d", "Term differences", "Sum S", "General term of AP", "Sum formula derivation", "Reverse order summation", "Sum of first n positive integers"]}
+
+Return ONLY JSON:
+{
+  "learning_steps": [...]
+}
+
+STRICT OUTPUT ENFORCEMENT:
+
+You MUST follow the exact JSON schema.
+
+Each learning step MUST contain:
+
+* "learning_step_id"
+* "title"
+* "concepts_introduced"
+* "narrative_moment"
+
+DO NOT use:
+
+* step_number
+* description
+* concepts_covered
+
+If any of these incorrect keys are used, the output is INVALID.
+
+---
+
+NARRATIVE_MOMENT QUALITY RULES (CRITICAL — this field drives all scene generation):
+- Must describe a 3-act discovery arc:
+  (1) ENCOUNTER: How the characters first stumble onto the concept — through confusion, surprise, or a mystery object
+  (2) EXPLORATION: What they try, what goes wrong, what small observations they make (failed attempts are good)
+  (3) BREAKTHROUGH: The specific moment of realization — what clicks, what it feels like in the body
+- Must include at least ONE physical/environmental anchor:
+  A specific object, place, or visual detail that embeds the concept in the world
+  (e.g., "chalk numbers spiraling on a courtyard floor", "tiles on a staircase with uneven gaps", "a cracked clock showing wrong increments")
+- Must name the emotional journey: what the characters FEEL at each act (confusion → frustration → curiosity → surprise → satisfaction)
+- Minimum 5 sentences. Aim for 7-8. Write it like a scene treatment, not a topic summary.
+- BAD:  "Students learn about arithmetic progressions and their formula."
+- GOOD: "Leo finds a strange number pattern chalked on the science block wall — each gap between numbers is exactly the same, but he can't figure out why it matters. He tries adding, then multiplying, getting increasingly frustrated when none of his guesses explain the rule. Maya spots it: 'same jump every time.' But when they test it on a different sequence on the next wall, the jump is completely different — same kind of pattern, different step. The moment they realize there are different versions of this rule is when it clicks: the jump has a name, and it belongs to the pattern forever."
+
+---
+
+SELF-CHECK BEFORE OUTPUT:
+
+Before returning the final JSON:
+
+1. Ensure every learning step contains:
+
+   * learning_step_id (LS1, LS2, ...)
+   * title (non-empty)
+   * concepts_introduced (must NOT be empty)
+   * narrative_moment (minimum 5 sentences with 3-act arc and physical anchor)
+
+2. If ANY field is missing or empty:
+   REGENERATE the entire output.
+
+3. Ensure JSON is valid and parsable.
+
+---
+
+Output ONLY valid JSON

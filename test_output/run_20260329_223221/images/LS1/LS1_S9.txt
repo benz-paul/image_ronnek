@@ -1,0 +1,29 @@
+CINEMATIC MEDIUM SHOT — Leo and Zara stand on a line of glowing stone tiles in a mysterious chamber. The scene is in vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters with child-friendly teen proportions, clean bold line art, warm golden hour light casting soft shadows, color graded with warm amber and soft teal tones. The background shows ancient stone walls with faint geometric carvings.
+
+CHARACTERS: Leo (15, lean athletic build) has messy electric-blue hair in choppy spikes, bright hazel eyes, light olive skin, wearing his worn black gaming hoodie with neon green circuit patterns and baggy cargo pants, AR glasses hanging around his neck flickering with code. Zara (16, tall slender) has long dark brown hair in a practical braid with one bright purple streak, sharp intelligent gray eyes, warm medium-brown skin, wearing a sleek violet tech-jacket over a white tee and black leggings, her holographic wrist-projector displaying geometric schematics.
+
+ACTION: Zara's fingers fly across her wrist-projector interface, her face intense with concentration. Leo stands slightly ahead, his body tense, one foot raised as if to step forward but hesitating. He looks back over his shoulder at Zara, his bright hazel eyes wide with realization and urgency.
+
+ENVIRONMENT DETAIL: On the ground between them, a line of stone tiles glows with embedded numbers. Directly in front of Leo, a tile glows with a pulsing '19' in bright white light. Further down the line, a second tile glows with a sickly yellow light showing the number '23'. The spatial arrangement shows an arithmetic progression: the tiles are evenly spaced, creating a visual sequence.
+
+CHARACTER EXPRESSIONS: Zara shows intense focus — furrowed brow, lips pressed together, eyes fixed on her projector. Leo shows the moment of discovery and decision — eyes lit up with understanding, breath caught, body poised between action and hesitation.
+
+SPEECH BUBBLES: Four clearly readable speech bubbles with exact text:
+1. Floating near Zara: '15 plus our constant 4 equals 19.'
+2. Floating near Zara: 'That tile should be next.'
+3. Floating near Leo: 'The yellow one... 23.'
+4. Floating near Zara: 'Go!'
+
+CONCEPT VISUALIZATION: The arithmetic progression is physically embedded in the environment — numbered tiles arranged in a line, with the pattern discoverable through the glowing numbers (15, 19, 23) and the constant difference of 4 visually reinforced by the even spacing between tiles. The mathematical relationship is shown through physical objects the characters interact with.
+
+NEGATIVE PROMPT ENFORCED: No different hair/eye colors, wrong outfits, adult-looking teenagers, multiple characters when only two are in scene, photorealistic style, or 3D render. Single cinematic scene only — no comic strips, panels, labels, arrows, or diagrams.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+15 plus our constant 4 equals 19.
+That tile should be next.
+The yellow one... 23.
+Go!
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

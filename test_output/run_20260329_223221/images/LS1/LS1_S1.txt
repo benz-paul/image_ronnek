@@ -1,0 +1,10 @@
+Wide establishing shot of a colossal circular chamber with polished black stone walls, bathed in warm golden hour light filtering from unseen sources above. The vast floor is covered in dark hexagonal tiles. In the exact center, a massive stone pendulum the size of a car swings in a wide, slow, silent arc. With each pass, a single tile directly beneath the pendulum's apex flashes with bright electric-blue light, revealing a glowing number before fading back to black. Leo stands frozen mid-stride, his breath caught, wearing his worn black gaming hoodie with neon green circuit patterns, baggy cargo pants, and AR glasses hanging around his neck. His messy electric-blue hair spikes upward, his hazel eyes wide with dawning realization as he stares at the floor. Zara stands statue-still nearby, her long dark brown braid with one purple streak hanging down her back, wearing her sleek violet tech-jacket over a white tee and black leggings. Her sharp gray eyes track the pendulum with intense focus, her holographic wrist-projector displaying faint geometric schematics. Three glowing numbers are visible on the floor in sequence along the pendulum's path: a '5' tile fading, a '9' tile at its brightest directly beneath the current pendulum position, and a '13' tile just beginning to glow ahead of the pendulum's path — forming a clear arithmetic progression of +4. Two speech bubbles appear: one near Leo saying 'Wait.' and one near Zara saying 'It's counting. Five... nine... thirteen...' in clean, readable text. The atmosphere is mysterious and cinematic with soft shadows, warm amber and teal color grading, and the entire scene rendered in vibrant 2D animation style with expressive cartoon characters, clean bold line art, and child-friendly teen proportions.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+Wait.
+It's counting.
+Five... nine... thirteen...
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

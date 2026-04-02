@@ -1,0 +1,55 @@
+{
+  "scene_id": "S4",
+  "phase": "CONFUSION",
+  "setting": "The colossal chamber. Zara's violet grid now floats in the air, showing both sequences side-by-side: 3, 7, 11, 15 on the left and 3, 7, 11, 15 on the right. The pendulum continues its steady swing, but its blue tip no longer touches new tiles—it just passes over the last glowing 15.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo's fingers tap rapidly against his thigh—a nervous gamer tic. He squints at the pendulum, then at the grid, then back again. Zara’s jaw tightens as she watches the pendulum complete three full arcs without lighting a new number. Her hand hovers over her wrist-projector, frozen mid-adjustment.",
+  "dialogue": [
+    "Wait.",
+    "It stopped.",
+    "Random numbers?",
+    "A countdown?"
+  ],
+  "learning_moment": "The sequence halts at 15, breaking the expected pattern continuation. This introduces doubt about whether the progression is truly arithmetic or something else, prompting questioning of the 'constant difference' assumption.",
+  "transition_hint": "Zara's projector flickers—the grid recalculates, highlighting the gap after 15.",
+  "narrator_audio_text": "The pendulum swings in silence, its blue light brushing the same tile again and again.",
+  "character_dialogues": [
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Wait.",
+      "audio_text": "Wait",
+      "emotion": "frustrated"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "It stopped.",
+      "audio_text": "It stopped",
+      "emotion": "confused"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Random numbers?",
+      "audio_text": "Random numbers",
+      "emotion": "skeptical"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "A countdown?",
+      "audio_text": "A countdown",
+      "emotion": "curious"
+    }
+  ],
+  "student_interaction": {
+    "type": "think_prompt",
+    "prompt_text": "The pattern seemed clear—adding 4 each time. Why would it stop at 15? What could break a sequence?",
+    "pause_seconds": 5,
+    "reveal_text": "Sometimes a pattern holds only for a few terms, or there's a hidden rule. The constant difference might not tell the whole story."
+  }
+}

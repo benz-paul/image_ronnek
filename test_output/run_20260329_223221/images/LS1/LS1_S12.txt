@@ -1,0 +1,11 @@
+CINEMATIC SCENE: Medium-wide shot (VALIDATION phase). Inside an ancient stone chamber with glowing geometric patterns etched into the walls. The floor is made of large stone tiles arranged in a grid pattern. Only tiles 19 and 23 glow with a soft amber light — tile 19 glows faintly near Zara, tile 23 glows brightly under Leo's feet. A heavy stone pendulum hangs from the ceiling, its blue crystalline tip frozen directly above glowing tile 23. On the far wall, the number '23' is deeply etched into the stone, and from this etching, a vertical seam of brilliant golden light has appeared, widening into a glowing doorway shape. Zara stands near tile 19, her body leaning forward with excitement, eyes wide, one hand pointing toward the emerging doorway, her holographic wrist-projector displaying a schematic showing the numbers 19 and 23 connected by a glowing line. Leo stands firmly on glowing tile 23, feeling vibrations through his shoes, looking at Zara with a mix of triumph and caution. Four speech bubbles appear: 'We did it!' (from Leo), 'The pattern was the key!' (from Zara), 'It's an exit!' (from Zara), and 'Hold on...' (from Leo). Warm golden hour light streams through the new doorway, casting long soft shadows across the chamber floor. The color palette uses warm amber tones from the glowing tiles and doorway contrasted with soft teal from the pendulum and wall patterns. Both characters look youthful and energetic in vibrant 2D animation style with clean bold line art — Zara with her practical braid (one purple streak), violet tech-jacket, and intelligent gray eyes; Leo with his messy electric-blue spiked hair, black gaming hoodie with neon green circuit patterns, and AR glasses hanging around his neck.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+We did it!
+The pattern was the key!
+It's an exit!
+Hold on...
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

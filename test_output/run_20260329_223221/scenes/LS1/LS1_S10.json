@@ -1,0 +1,57 @@
+{
+  "scene_id": "S10",
+  "phase": "ESCALATION",
+  "setting": "Leo's foot lands on tile 19 with a solid thud. The tile erupts in a brilliant gold flare that shoots up his leg, making his teeth vibrate. The frozen pendulum groans back to life, swinging once more—its blue tip now pointing unwaveringly at the distant yellow 23.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo staggers back from the glowing tile, shaking out his tingling foot. Zara's eyes snap from the activated 19 to the pendulum's new target. Her wrist-projector flickers, recalculating the sequence forward from 19.",
+  "dialogue": [
+    "The pattern holds!",
+    "So 19 plus 4...",
+    "23. Right.",
+    "But the pendulum...",
+    "It's pointing there.",
+    "It's not done."
+  ],
+  "learning_moment": "The successful application of the constant difference (adding 4) confirms the pattern, but the pendulum's continued movement escalates the puzzle—implying more terms are needed. The arithmetic progression isn't just identified; it must be followed further.",
+  "transition_hint": "As the hum in the chamber deepens, the tiles between 19 and 23 begin to pulse with a faint, warning red—each number lighting up in sequence: 20, 21, 22.",
+  "narrator_audio_text": "Gold light surged from the tile up Leo's leg. The pendulum swung again, its blue tip now aimed at the distant yellow glow.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "The pattern holds!",
+      "audio_text": "The pattern holds",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "So 19 plus 4...",
+      "audio_text": "So 19 plus 4",
+      "emotion": "calculating"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "23. Right.",
+      "audio_text": "23 Right",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "But the pendulum...",
+      "audio_text": "But the pendulum",
+      "emotion": "curious"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "The pattern is 3, 7, 11, 15, 19, 23... What number comes after 23 if you keep adding the same constant difference?",
+    "pause_seconds": 8,
+    "reveal_text": "27. 23 + 4 = 27. The arithmetic progression continues."
+  }
+}

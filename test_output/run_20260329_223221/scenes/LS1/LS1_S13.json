@@ -1,0 +1,55 @@
+{
+  "scene_id": "S13",
+  "phase": "REFLECTION",
+  "setting": "The doorway grinds fully open, revealing a dark corridor. The golden light from the chamber spills onto the floor ahead, illuminating a new set of glowing tiles arranged in a line: 2, 5, 8, 11... Leo and Zara stand in the doorway, looking back at the pendulum chamber they just conquered.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo turns from the new corridor to look back at the chamber, his grin fading into a thoughtful expression. Zara follows his gaze, her eyes tracing the path of tiles they stepped on: 3, 7, 11, 15, 19, 23. Her holographic wrist-projector activates, painting a simple diagram in the air between them — a line connecting the numbers, with arrows and the subtraction '7-3=4', '11-7=4' written beside each step.",
+  "dialogue": [
+    "So chaos has rules.",
+    "Math finds them.",
+    "Remember this constant difference.",
+    "Always four."
+  ],
+  "learning_moment": "Reflecting on the solved puzzle reinforces the concept: In an arithmetic progression, the difference between consecutive terms is constant. This constant difference is the key to the pattern.",
+  "transition_hint": "Leo's eyes shift from the diagram to the new corridor. The sequence 2, 5, 8, 11... glows softly, waiting.",
+  "narrator_audio_text": "Golden light framed their silhouettes in the doorway. Behind them, the numbers still glowed, a silent testament to order.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "So chaos has rules.",
+      "audio_text": "So chaos has rules",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Math finds them.",
+      "audio_text": "Math finds them",
+      "emotion": "proud"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Remember this constant difference.",
+      "audio_text": "Remember this constant difference",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Always four.",
+      "audio_text": "Always four",
+      "emotion": "realization"
+    }
+  ],
+  "student_interaction": {
+    "type": "mini_quiz",
+    "prompt_text": "Look at the new sequence in the corridor: 2, 5, 8, 11... What is the constant difference here?",
+    "pause_seconds": 10,
+    "reveal_text": "3. 5 - 2 = 3, 8 - 5 = 3, 11 - 8 = 3. The pattern continues with the same step each time."
+  }
+}

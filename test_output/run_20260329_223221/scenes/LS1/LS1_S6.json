@@ -1,0 +1,55 @@
+{
+  "scene_id": "S6",
+  "phase": "MICRO_LEARN",
+  "setting": "The chamber floor glows with blue numbers—3, 7, 11, 15—etched in cold light. Zara's violet hologram floats between them, connecting the terms with shimmering lines. The pendulum's shadow sweeps over their faces in a slow, silent rhythm.",
+  "characters": [
+    "Zara",
+    "Leo"
+  ],
+  "action": "Zara's finger traces a line from 7 to 11 on the hologram, then another from 11 to 15. She bites her lip, her brow furrowed in concentration. Leo rocks back on his heels, his AR glasses flickering as he watches the numbers. Zara's other hand moves in quick, precise gestures—subtracting, comparing.",
+  "dialogue": [
+    "Seven from eleven.",
+    "Eleven from fifteen.",
+    "Each difference is four.",
+    "That's... consistent."
+  ],
+  "learning_moment": "Zara explicitly calculates the difference between consecutive terms (11-7=4, 15-11=4) and observes the constant difference. This formalizes the pattern noticed earlier, moving from observation to verification.",
+  "transition_hint": "The hologram now highlights the differences between terms, not just the terms themselves.",
+  "narrator_audio_text": "Zara's fingers dance through the glowing numbers, subtracting term from term as the pendulum's shadow passes over them.",
+  "character_dialogues": [
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Seven from eleven.",
+      "audio_text": "Seven from eleven",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Eleven from fifteen.",
+      "audio_text": "Eleven from fifteen",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Each difference is four.",
+      "audio_text": "Each difference is four",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "That's... consistent.",
+      "audio_text": "That's consistent",
+      "emotion": "insight"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If the difference between terms is always 4, what number would come before 3 in this sequence?",
+    "pause_seconds": 8,
+    "reveal_text": "The term before 3 would be -1. The pattern works backward too: 3 - 4 = -1."
+  }
+}

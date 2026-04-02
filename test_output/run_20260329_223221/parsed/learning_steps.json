@@ -1,0 +1,59 @@
+{
+  "learning_steps": [
+    {
+      "learning_step_id": "LS1",
+      "title": "The Pattern in the Pendulum",
+      "concepts_introduced": [
+        "Arithmetic Progression",
+        "Consecutive Terms",
+        "Difference of Consecutive Terms",
+        "Constant Difference"
+      ],
+      "narrative_moment": "Leo and Zara enter the first chamber of the Chrono-Labyrinth, where a massive pendulum swings over a floor tiled with glowing numbers. Leo, frustrated by the game's silence, impulsively jumps on the tiles, noticing the numbers light up in sequence: 3, 7, 11, 15. He feels confused, thinking it's a random countdown. Zara, skeptical of his chaos, observes the pendulum's arc and the lit tiles, recording the sequence on her wrist-projector. She tries subtracting terms, getting 4 each time, and her analytical mind sparks with curiosity—this isn't random. The breakthrough hits when the pendulum completes a swing and the next tile, 19, lights up automatically; Zara realizes the 'constant jump' is the secret rhythm of the room, and Leo's body tingles with the satisfaction of seeing a hidden rule in what felt like chaos."
+    },
+    {
+      "learning_step_id": "LS2",
+      "title": "Naming the Rule: First Term and Common Difference",
+      "concepts_introduced": [
+        "First Term Notation a1",
+        "Common Difference d",
+        "General Form of AP",
+        "Arithmetic Progression Definition"
+      ],
+      "narrative_moment": "In a library chamber with floating, holographic books, Leo and Zara find a shattered clock face where the numbers are rearranged into sequences on broken gears. Leo, with his photographic memory, spots a new sequence: 10, 13, 16, 19 on one gear, and feels a competitive thrill to beat Zara to the solution. Zara, calm under pressure, projects both sequences side-by-side, noting the first numbers (3 and 10) are different, but the jumps (4 and 3) are also different—she feels a flicker of frustration that there's no single answer. They experiment by trying to predict the next number on each gear, failing when they mix up the starting points. The breakthrough comes when Zara, tracing a finger over the gear's edge, names the parts: 'The start is the first term, the jump is the common difference—each sequence has its own, but they follow the same rule.' Leo's eyes widen as he feels the click of a universal language hidden in the broken timepieces."
+    },
+    {
+      "learning_step_id": "LS3",
+      "title": "Predicting the Future: The Nth Term Formula",
+      "concepts_introduced": [
+        "Nth Term Notation an",
+        "General AP Formula",
+        "nth Term Formula",
+        "Term Relationship"
+      ],
+      "narrative_moment": "Trapped in a corridor with walls that shift every minute, Leo and Zara face a pressure plate puzzle showing a sequence: 5, 9, 13, 17, and a holographic question: 'What is the 20th shield?' Leo, acting first, tries adding 4 repeatedly, but gets overwhelmed counting in his head as the walls close in, feeling panic. Zara, methodical, sketches the formula structure on her projector, muttering about needing a direct way without manual addition. She notices a pattern in her failed attempts: term position minus one, times the difference, plus the first term. The breakthrough strikes when the walls shudder and Leo yells, 'It's like a ladder—each step is the same, so just multiply the steps!' Together, they shout the formula: a + (n-1)d, and the 20th term flashes on the wall, the corridor freezing as they feel the exhilarating rush of bending time with math."
+    },
+    {
+      "learning_step_id": "LS4",
+      "title": "The Sum of All Steps: Gauss in the Labyrinth",
+      "concepts_introduced": [
+        "Sum of N Consecutive Terms",
+        "Sum formula S = n/2[2a+(n-1)d]",
+        "Sum formula S = n/2(a+l)",
+        "Gauss summation technique"
+      ],
+      "narrative_moment": "In a vast, circular arena with 100 glowing pedestals arranged in a spiral, each showing a term from an AP: 2, 5, 8, 11..., the game demands the total 'energy sum' to unlock the exit. Leo, energetic, starts running to each pedestal, adding numbers mentally, but quickly feels exhausted and frustrated as the total spirals out of control. Zara, analytical, notices the spiral's symmetry and recalls a story about Gauss pairing numbers, projecting the sequence forward and backward. She tries pairing first and last terms (2 and 299), getting 301, and multiplies by the number of pairs—but she initially divides wrong, causing a red error flash. The breakthrough happens when Leo, staring at the paired holograms, realizes the number of pairs is half the terms, and they chant together: 'n over two times first plus last.' The arena lights up, and they feel a deep satisfaction as the math reveals a shortcut through the labyrinth's grand scale."
+    },
+    {
+      "learning_step_id": "LS5",
+      "title": "Real-World Code: APs in the Conspiracy",
+      "concepts_introduced": [
+        "Finite Arithmetic Progression",
+        "Finding Number of Terms",
+        "Term from Last",
+        "AP in Daily Life"
+      ],
+      "narrative_moment": "In the final chamber, a holographic map of the city glows with AP patterns marking treasure locations—sequences like 50, 45, 40... represent decreasing signal strengths. Leo, with instinctive pattern recognition, spots the negative common difference on a flickering server rack, feeling a surge of urgency to escape. Zara, skeptical, cross-references the sequences with real-world data from her projector, discovering they correspond to router distances and time logs, but she struggles to find how many terms exist until the signal dies. They experiment by using the nth term formula backward, failing when they misidentify the last term. The breakthrough comes when Zara realizes the 'term from last' formula mirrors the standard one, and they calculate the exact number of hops to the treasure—a hidden server room. Their bodies tense with revelation as the tech conspiracy unravels through the very APs that trapped them."
+    }
+  ]
+}

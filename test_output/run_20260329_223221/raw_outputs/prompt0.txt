@@ -1,0 +1,27 @@
+{
+  "concepts": [
+    "Arithmetic Progressions",
+    "Patterns in Nature",
+    "Patterns in Daily Life",
+    "Succeeding Terms",
+    "Fixed Number Addition",
+    "Fixed Number Multiplication",
+    "Squares of Consecutive Numbers",
+    "Nth Term",
+    "Sum of N Consecutive Terms",
+    "Term of a List",
+    "Common Difference",
+    "First Term Notation a1",
+    "Second Term Notation a2",
+    "Nth Term Notation an",
+    "General Form of AP",
+    "Finite Arithmetic Progression",
+    "Infinite Arithmetic Progression",
+    "First Term a",
+    "Common Difference d",
+    "Positive Common Difference",
+    "Negative Common Difference",
+    "Zero Common Difference",
+    "Difference of Consecutive Terms"
+  ]
+}

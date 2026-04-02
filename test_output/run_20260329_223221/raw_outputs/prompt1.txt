@@ -1,0 +1,24 @@
+```json
+{
+    "title": "The Chrono-Labyrinth's Arithmetic Key",
+    "core_premise": "Two teenage gamers, Leo and Zara, are trapped inside a virtual reality escape room game called 'Chrono-Labyrinth.' To escape before their neural link becomes permanent, they must solve a series of time-based puzzles that are secretly governed by arithmetic progressions. The final puzzle reveals the game's creator hid a real-world treasure using AP patterns—the stakes are winning a life-changing scholarship and exposing a tech conspiracy.",
+    "characters": [
+        {
+            "name": "Leo",
+            "role": "Impulsive but brilliant gamer who notices patterns instinctively",
+            "personality": "Energetic, competitive, acts first-thinks-later, but has a photographic memory for sequences",
+            "visual_description": "15-year-old boy, lean athletic build, messy electric-blue hair styled in choppy spikes, bright hazel eyes, light olive skin, wears a worn black gaming hoodie with neon green circuit patterns, baggy cargo pants, always has custom AR glasses hanging around his neck that flicker with code",
+            "gender": "male",
+            "voice_id": "Kevin"
+        },
+        {
+            "name": "Zara",
+            "role": "Methodical coder and puzzle-solver who approaches problems logically",
+            "personality": "Calm under pressure, analytical, skeptical, trusts data over gut feelings, secretly wants to prove her math skills can beat any game",
+            "visual_description": "16-year-old girl, tall and slender, long dark brown hair tied in a practical braid with one bright purple streak, sharp intelligent gray eyes, warm medium-brown skin, wears a sleek violet tech-jacket over a simple white tee, practical black leggings, always carries a holographic wrist-projector that displays geometric schematics",
+            "gender": "female",
+            "voice_id": "Ivy"
+        }
+    ]
+}
+```

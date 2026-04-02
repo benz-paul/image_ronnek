@@ -1,0 +1,12 @@
+{
+  "timestamp": "20260329_223221",
+  "chapter": "Class 10 Mathematics Chapter 5 Arithmetic Progression",
+  "class_level": "10",
+  "subject": "Mathematics",
+  "generation_mode": "ls1",
+  "generate_images": true,
+  "text_model": "deepseek",
+  "image_model": "fal-flux2pro",
+  "image_mode": "dialogue",
+  "learning_steps": 1
+}

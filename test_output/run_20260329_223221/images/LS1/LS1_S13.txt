@@ -1,0 +1,11 @@
+CINEMATIC WIDE SHOT (HOOK/REFLECTION): The stone doorway stands fully open, its ancient mechanisms grinding apart. Golden light from the pendulum chamber spills onto the dark corridor floor ahead, illuminating a new line of four glowing stone tiles embedded in the floor: '2', '5', '8', '11'... The sequence trails off into darkness. In the doorway, Leo (15, lean, messy electric-blue hair, black gaming hoodie with neon circuits, cargo pants, AR glasses around neck flickering) and Zara (16, tall, dark brown braid with purple streak, violet tech-jacket, black leggings, holographic wrist-projector active) stand side-by-side, looking back into the chamber they just left. Their bodies are turned, showing they've paused their forward progress. Zara's wrist-projector casts a soft violet hologram in the air between them: a simple diagram showing a line connecting the numbers 3, 7, 11, 15, 19, 23. Beside each step, subtraction is written: '7-3=4', '11-7=4', etc. On the chamber floor behind them, the six tiles they stepped on are clearly visible, still glowing faintly: 3, 7, 11, 15, 19, 23. The scene is in vibrant 2D animation style (Pixar/Ghibli): clean bold lines, warm golden hour light with soft shadows, rich amber and soft teal color grading. The characters look youthful and energetic with teen proportions. Four small, clearly readable speech bubbles are placed near the characters: one near Leo ('So chaos has rules.'), and three near Zara ('Math finds them.', 'Remember this constant difference.', 'Always four.'). The mathematical concept (arithmetic progression with a common difference of 4) is discoverable in the environment through the two visible sequences of numbered tiles and the holographic diagram. The atmosphere is one of reflection and connection between the solved puzzle and the new challenge.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+So chaos has rules.
+Math finds them.
+Remember this constant difference.
+Always four.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

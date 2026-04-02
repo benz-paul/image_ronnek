@@ -1,0 +1,11 @@
+A single cinematic medium-wide shot showing Leo and Zara in a mysterious chamber. The scene has vibrant 2D animation style inspired by Pixar and Studio Ghibli — expressive cartoon characters with clean bold line art, warm colors, and child-friendly proportions. Leo (15-year-old boy with lean athletic build, messy electric-blue hair in choppy spikes, bright hazel eyes, light olive skin) wears his worn black gaming hoodie with neon green circuit patterns and baggy cargo pants, his custom AR glasses hanging around his neck flickering with code. Zara (16-year-old girl, tall and slender with long dark brown hair in a practical braid featuring one bright purple streak, sharp intelligent gray eyes, warm medium-brown skin) wears her sleek violet tech-jacket over a simple white tee with black leggings, her holographic wrist-projector displaying static geometric schematics. The frozen pendulum hangs motionless, its blue light forming a solid beam pointing directly at the distant number 19 etched into a wall tile, which pulses with a slow, ominous rhythm. Warm golden hour light casts soft shadows, creating a bright but tense atmosphere with warm amber and soft teal color grading. Leo stumbles back from the pendulum, hand flying to his chest, his triumphant grin vanished. Zara stands beside him, her braid whipping as her head snaps toward the pulsing 19, gray eyes wide with alarm. Four speech bubbles appear with EXACT text: 'It stopped.' (near Leo), 'Why did it stop?' (near Zara), 'The tile...' (near Zara), 'It's waiting.' (near Leo). The mathematical concept is discoverable in the environment — the number 19 is physically etched into the wall tile. The scene looks like a frame from an animated movie with no style variation.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+It stopped.
+Why did it stop?
+The tile...
+It's waiting.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

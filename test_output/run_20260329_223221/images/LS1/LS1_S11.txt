@@ -1,0 +1,31 @@
+A SINGLE cinematic scene in vibrant 2D animation style inspired by Pixar and Studio Ghibli. Warm golden hour lighting with soft shadows and warm amber/soft teal color grading. CONFUSION to DISCOVERY phase camera guidance.
+
+SCENE: Inside an ancient chamber with stone walls etched with faint glowing patterns. The floor consists of large square tiles. Tiles numbered 20, 21, and 22 pulse with warning red light, creating an ominous atmosphere. Overhead, a massive mechanical pendulum swings slowly, its tip emitting a soft blue light that currently brushes over tile 23.
+
+CHARACTERS: Zara (16, tall slender, long dark brown braid with one purple streak, sharp gray eyes, warm medium-brown skin, violet tech-jacket over white tee, black leggings) stands facing Leo. From her wrist-projector projects a glowing violet holographic diagram floating in the air between them. The diagram shows the sequence: 3, 7, 11, 15, 19, 23 arranged in a vertical line with arrows connecting each term downward (3→7→11→15→19→23). Zara points at the projected numbers with her right index finger, tracing one of the arrows. Her expression shows focused intelligence and discovery.
+
+Leo (15, lean athletic build, messy electric-blue spiky hair, bright hazel eyes, light olive skin, worn black gaming hoodie with neon green circuit patterns, baggy cargo pants) stands watching. His custom AR glasses hang around his neck, flickering with green code. His eyes flick between the violet holographic diagram and the red-lit tiles on the floor (20, 21, 22). His expression shows transition from confusion to dawning understanding, furrowed brow beginning to relax.
+
+SPEECH BUBBLES: Four clearly readable speech bubbles with exact text:
+1. "This is an arithmetic progression." (near Zara)
+2. "Each term increases." (near Zara)
+3. "By a constant difference." (near Zara)
+4. "Here, 4." (near Zara, pointing at the space between numbers in the diagram)
+
+MATHEMATICAL CONCEPT VISUALIZATION: The arithmetic progression is physically shown through THREE embedded elements: (1) Zara's violet holographic diagram with numbers 3,7,11,15,19,23 and connecting arrows, (2) the red-lit floor tiles numbered 20,21,22 continuing the sequence pattern, (3) the pendulum's blue light brushing tile 23 (the next logical term). The constant difference of 4 is visually suggested by the equal spacing between numbers in the hologram and the equal spacing of floor tiles.
+
+EMOTIONAL STATE: Zara shows excitement/discovery (eyes lit up, leaning slightly forward, pointing). Leo shows transition from confusion (tilted head, eyes flicking) to dawning understanding (brow relaxing, slight nod).
+
+NEGATIVE PROMPT APPLIED: No different hair/eye colors, correct outfits, teen proportions (not adult), single scene (not multiple panels), no labels/arrows/diagrams beyond what's described, no photorealistic style, no 3D render.
+
+COMPOSITION: Medium shot focusing on Zara and Leo with the holographic diagram between them. The red-lit floor tiles (20,21,22) visible in foreground, pendulum with blue light on tile 23 visible in background. Everything maintains identical character appearances and consistent animated movie style.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+This is an arithmetic progression.
+Each term increases.
+By a constant difference.
+Here, 4.
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

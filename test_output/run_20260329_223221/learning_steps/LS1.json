@@ -1,0 +1,11 @@
+{
+  "learning_step_id": "LS1",
+  "title": "The Pattern in the Pendulum",
+  "concepts_introduced": [
+    "Arithmetic Progression",
+    "Consecutive Terms",
+    "Difference of Consecutive Terms",
+    "Constant Difference"
+  ],
+  "narrative_moment": "Leo and Zara enter the first chamber of the Chrono-Labyrinth, where a massive pendulum swings over a floor tiled with glowing numbers. Leo, frustrated by the game's silence, impulsively jumps on the tiles, noticing the numbers light up in sequence: 3, 7, 11, 15. He feels confused, thinking it's a random countdown. Zara, skeptical of his chaos, observes the pendulum's arc and the lit tiles, recording the sequence on her wrist-projector. She tries subtracting terms, getting 4 each time, and her analytical mind sparks with curiosity—this isn't random. The breakthrough hits when the pendulum completes a swing and the next tile, 19, lights up automatically; Zara realizes the 'constant jump' is the secret rhythm of the room, and Leo's body tingles with the satisfaction of seeing a hidden rule in what felt like chaos."
+}

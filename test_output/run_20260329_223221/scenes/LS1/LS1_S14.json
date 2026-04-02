@@ -1,0 +1,55 @@
+{
+  "scene_id": "S14",
+  "phase": "TRANSITION",
+  "setting": "The corridor beyond the doorway opens into a circular chamber. Massive rotating gears float in the air, glowing with intricate numerical patterns etched in pulsating blue light. The floor is a mosaic of interlocking tiles, each showing a different sequence: 2, 5, 8, 11... continues in a spiral toward the center.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo steps forward first, his sneaker landing on the '2' tile. The gear above it spins faster, casting shifting shadows. Zara follows, her eyes scanning the patterns on the rotating gears—each displays a different arithmetic progression: one shows 10, 13, 16, 19... another shows 1, 4, 7, 10... Her wrist-projector flickers, trying to map them all.",
+  "dialogue": [
+    "Different numbers.",
+    "Same idea.",
+    "Consecutive terms...",
+    "Constant difference."
+  ],
+  "learning_moment": "Transitioning to a new challenge reinforces the concept: Different sequences can share the same underlying rule—each is an arithmetic progression defined by a constant difference between consecutive terms.",
+  "transition_hint": "A central gear begins to glow brighter, its numbers shifting: 5, __, 11, 14... with one missing term.",
+  "narrator_audio_text": "Gears turned in silent harmony, each carrying its own numerical heartbeat. The chamber hummed with waiting potential.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Different numbers.",
+      "audio_text": "Different numbers",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Same idea.",
+      "audio_text": "Same idea",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Consecutive terms...",
+      "audio_text": "Consecutive terms",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Constant difference.",
+      "audio_text": "Constant difference",
+      "emotion": "confident"
+    }
+  ],
+  "student_interaction": {
+    "type": "none",
+    "prompt_text": "",
+    "pause_seconds": 5,
+    "reveal_text": ""
+  }
+}

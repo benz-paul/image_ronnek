@@ -1,0 +1,11 @@
+CINEMATIC SCENE: WIDE ESTABLISHING SHOT (HOOK phase). A colossal chamber with towering dark walls, warm golden hour light streaming through high arched windows creating soft shadows. On the vast black floor, four glowing blue numbers (5, 9, 13, 17) form a faint, pulsing line leading toward the center where a massive pendulum swings silently. The air crackles with visible energy strands. Near the entrance archway, Leo (15-year-old boy, lean athletic build, messy electric-blue hair in choppy spikes, light olive skin, wearing worn black gaming hoodie with neon green circuit patterns, baggy cargo pants, AR glasses swinging around neck flickering with code) stumbles forward, knees wobbly, hand pressed to temple, knuckles white. Zara (16-year-old girl, tall slender, long dark brown hair in practical braid with one bright purple streak, warm medium-brown skin, wearing sleek violet tech-jacket over white tee, black leggings, holographic wrist-projector on wrist) stands beside him, braid slightly loose with one strand stuck to cheek, taking slow deliberate breath. Both characters flicker with residual teleportation static. Zara's eyes scan the glowing floor pattern, then track the pendulum's hypnotic arc. Two speech bubbles float near them: one near Leo reads 'What… where?' with confused expression; one near Zara reads 'Look at the floor.' with focused expression pointing downward. In vibrant 2D animation style inspired by Pixar/Studio Ghibli — expressive cartoon characters with child-friendly proportions, clean bold line art, warm amber and soft teal color grading, detailed but not photorealistic background. Atmospheric with ozone energy crackles.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+What… where?
+Look at the floor.
+Five, nine, thirteen, seventeen.
+Always four more?
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.

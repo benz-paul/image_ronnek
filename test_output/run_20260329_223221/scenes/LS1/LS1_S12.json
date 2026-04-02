@@ -1,0 +1,55 @@
+{
+  "scene_id": "S12",
+  "phase": "PAYOFF",
+  "setting": "The chamber floor glows only on tiles 19 and 23. The pendulum hangs motionless, its blue tip still hovering over 23. A grinding sound begins from the far wall where the number 23 is etched.",
+  "characters": [
+    "Zara",
+    "Leo"
+  ],
+  "action": "Leo, still standing on tile 23, feels the vibration through his shoes. He looks at Zara, who watches the wall with wide eyes. A seam of golden light appears in the stone, widening into a doorway.",
+  "dialogue": [
+    "We did it!",
+    "The pattern was the key!",
+    "It's an exit!",
+    "Hold on..."
+  ],
+  "learning_moment": "The successful application of the arithmetic progression (3, 7, 11, 15, 19, 23 with constant difference 4) directly causes the payoff—the door opening—reinforcing that pattern recognition solves real problems.",
+  "transition_hint": "The doorway grinds fully open, revealing a dark corridor beyond. But instead of freedom, a new glowing sequence appears on the corridor floor: 2, 5, 8, 11...",
+  "narrator_audio_text": "Stone ground against stone as a hidden door swung inward. Golden light spilled from the new opening, illuminating their hopeful faces.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "We did it!",
+      "audio_text": "We did it",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "The pattern was the key!",
+      "audio_text": "The pattern was the key",
+      "emotion": "proud"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "It's an exit!",
+      "audio_text": "It's an exit",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Hold on...",
+      "audio_text": "Hold on",
+      "emotion": "curious"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "A new sequence appears: 2, 5, 8, 11... If this is also an arithmetic progression, what is the constant difference?",
+    "pause_seconds": 8,
+    "reveal_text": "3. 5 - 2 = 3, 8 - 5 = 3, 11 - 8 = 3. The pattern continues with the same step each time."
+  }
+}

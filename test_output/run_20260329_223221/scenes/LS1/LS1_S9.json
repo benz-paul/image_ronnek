@@ -1,0 +1,55 @@
+{
+  "scene_id": "S9",
+  "phase": "APPLICATION",
+  "setting": "The deep hum vibrates through Leo's bones. Zara's eyes dart from the frozen pendulum to the pulsing 19, then to a second tile further down the line now glowing a faint, sickly yellow.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Zara's fingers fly across her wrist-projector, recalculating. Leo's breath catches as he sees the yellow tile's number: 23. He starts forward, then hesitates, looking back at Zara.",
+  "dialogue": [
+    "15 plus our constant 4 equals 19.",
+    "That tile should be next.",
+    "The yellow one... 23.",
+    "Go!"
+  ],
+  "learning_moment": "Zara applies the constant difference concept to make a prediction, confirming the pattern continues. Leo's hesitation shows the tension between understanding the rule and trusting it under pressure.",
+  "transition_hint": "Leo sprints toward the yellow 23 tile, his footsteps echoing. As his shoe touches the glowing surface, the chamber lights flicker violently.",
+  "narrator_audio_text": "Zara calculated aloud as Leo's eyes locked on the distant yellow glow. The pattern held its breath.",
+  "character_dialogues": [
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "15 plus our constant 4 equals 19.",
+      "audio_text": "15 plus our constant 4 equals 19",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "That tile should be next.",
+      "audio_text": "That tile should be next",
+      "emotion": "realization"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "The yellow one... 23.",
+      "audio_text": "The yellow one 23",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Go!",
+      "audio_text": "Go",
+      "emotion": "urgent"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "Zara says 15 + 4 = 19. If the pattern continues with the same constant difference, what number should be on the tile after 23?",
+    "pause_seconds": 8,
+    "reveal_text": "27. The common difference is 4, so 23 + 4 = 27."
+  }
+}

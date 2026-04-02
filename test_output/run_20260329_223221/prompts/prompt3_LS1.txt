@@ -1,0 +1,86 @@
+[3A] Scene Plan for LS1
+
+You are generating a SCENE PLAN for a learning step.
+
+----------------------------------------
+STORY CONTEXT:
+Title: The Chrono-Labyrinth's Arithmetic Key
+Premise: Two teenage gamers, Leo and Zara, are trapped inside a virtual reality escape room game called 'Chrono-Labyrinth.' To escape before their neural link becomes permanent, they must solve a series of time-based puzzles that are secretly governed by arithmetic progressions. The final puzzle reveals the game's creator hid a real-world treasure using AP patterns—the stakes are winning a life-changing scholarship and exposing a tech conspiracy.
+Characters: [{"name": "Leo", "role": "Impulsive but brilliant gamer who notices patterns instinctively", "personality": "Energetic, competitive, acts first-thinks-later, but has a photographic memory for sequences", "visual_description": "15-year-old boy, lean athletic build, messy electric-blue hair styled in choppy spikes, bright hazel eyes, light olive skin, wears a worn black gaming hoodie with neon green circuit patterns, baggy cargo pants, always has custom AR glasses hanging around his neck that flicker with code", "gender": "male", "voice_id": "Kevin"}, {"name": "Zara", "role": "Methodical coder and puzzle-solver who approaches problems logically", "personality": "Calm under pressure, analytical, skeptical, trusts data over gut feelings, secretly wants to prove her math skills can beat any game", "visual_description": "16-year-old girl, tall and slender, long dark brown hair tied in a practical braid with one bright purple streak, sharp intelligent gray eyes, warm medium-brown skin, wears a sleek violet tech-jacket over a simple white tee, practical black leggings, always carries a holographic wrist-projector that displays geometric schematics", "gender": "female", "voice_id": "Ivy"}]
+
+PREVIOUS LEARNING STEP LAST SCENE:
+None (this is the first step)
+
+CURRENT LEARNING STEP:
+- ID: LS1
+- Title: The Pattern in the Pendulum
+- Concepts: ["Arithmetic Progression", "Consecutive Terms", "Difference of Consecutive Terms", "Constant Difference"]
+- Narrative: Leo and Zara enter the first chamber of the Chrono-Labyrinth, where a massive pendulum swings over a floor tiled with glowing numbers. Leo, frustrated by the game's silence, impulsively jumps on the tiles, noticing the numbers light up in sequence: 3, 7, 11, 15. He feels confused, thinking it's a random countdown. Zara, skeptical of his chaos, observes the pendulum's arc and the lit tiles, recording the sequence on her wrist-projector. She tries subtracting terms, getting 4 each time, and her analytical mind sparks with curiosity—this isn't random. The breakthrough hits when the pendulum completes a swing and the next tile, 19, lights up automatically; Zara realizes the 'constant jump' is the secret rhythm of the room, and Leo's body tingles with the satisfaction of seeing a hidden rule in what felt like chaos.
+
+----------------------------------------
+SCENE PLAN RULES:
+
+0. CINEMATIC OPENING RULE (CRITICAL):
+   - Scene S1 (HOOK): Environment ONLY — no character visible.
+     Wide establishing shot. Pure atmosphere. Like a movie title card.
+     Show the mystery/setting before the character arrives.
+     (e.g., empty school courtyard at golden hour, chalk numbers appearing on ground)
+   - Scene S2 (SETUP): Character enters from a distance or we see them approach.
+     We see the character before they see the problem.
+     Do NOT start with characters already in the middle of things.
+
+1. Generate between 12-15 scenes (minimum 10, aim for 12-15)
+2. Each scene must have a PURPOSE:
+   - HOOK: Grab attention
+   - SETUP: Introduce situation
+   - DISCOVERY: Reveal something
+   - CONFUSION: Create tension/mystery
+   - GUIDANCE: Show direction
+   - MICRO_LEARN: Teach micro concept
+   - VALIDATION: Confirm understanding
+   - APPLICATION: Real-world use
+   - TWIST: Surprise element
+   - ESCALATION: Increase stakes
+   - PAYOFF: Satisfying resolution
+   - REFLECTION: Personal insight
+   - TRANSITION: Bridge to next step
+   - CLIFFHANGER: Leave wanting more
+
+3. STRICT REQUIREMENTS:
+    - First scene MUST be HOOK
+    - DO NOT repeat same type consecutively
+    - Use tension/confusion every 2-3 scenes
+    - Delay full explanations (build curiosity first)
+    - Include at least one APPLICATION scene
+    - Final scene should have PAYOFF or set up next step
+
+4. Scene plan format:
+    - scene_id: "S1", "S2", etc.
+    - phase: scene type (HOOK, SETUP, etc.)
+    - summary: what happens (1 sentence, max 25 words)
+    - concept_focus: what concept is taught
+
+----------------------------------------
+STRICT RULES:
+
+* Generate 12-15 scenes (minimum 10, aim for 12-15)
+* Each summary MUST be 25 words or fewer
+* Return ONLY valid JSON - no markdown, no explanations
+* JSON must be COMPLETE with all brackets closed
+* Do not truncate output
+
+----------------------------------------
+OUTPUT JSON:
+
+{
+  "scene_plan": [
+    {
+      "scene_id": "S1",
+      "phase": "HOOK",
+      "summary": "...",
+      "concept_focus": "..."
+    }
+  ]
+}
+
+Generate 12-15 scenes (minimum 10, aim for 12-15 per learning step). More scenes = better concept coverage and cinematic pacing. Each summary must be concise (1 sentence, max 25 words).

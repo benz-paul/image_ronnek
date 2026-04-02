@@ -1,0 +1,55 @@
+{
+  "scene_id": "S5",
+  "phase": "GUIDANCE",
+  "setting": "The colossal chamber. Zara's wrist-projector glows brightly, casting violet light across her determined face. The holographic grid now floats between them, showing the sequence 3, 7, 11, 15 with a blank space after 15. The pendulum continues its steady, silent swing overhead, its blue tip tracing the same arc over the last glowing tile.",
+  "characters": [
+    "Zara",
+    "Leo"
+  ],
+  "action": "Zara's thumb presses a glyph on her wrist-projector—a soft chime sounds. The grid flickers and expands, showing the four numbers in a vertical column. Her fingers trace through the air, drawing invisible lines between them. Leo crouches beside her, his hazel eyes scanning the projection, his breathing shallow and quick.",
+  "dialogue": [
+    "Let me record this.",
+    "There must be logic here.",
+    "Look—",
+    "Four each time."
+  ],
+  "learning_moment": "Zara systematically collects the data by recording the sequence, visually highlighting the gaps between terms. This demonstrates systematic observation—the first step in identifying an arithmetic progression before naming it.",
+  "transition_hint": "The projector highlights the spaces between numbers, making the equal gaps visually obvious.",
+  "narrator_audio_text": "Zara's projector hums to life, painting the sequence in glowing violet light as the pendulum swings silently above.",
+  "character_dialogues": [
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Let me record this.",
+      "audio_text": "Let me record this",
+      "emotion": "focused"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "There must be logic here.",
+      "audio_text": "There must be logic here",
+      "emotion": "determined"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Look—",
+      "audio_text": "Look",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Four each time.",
+      "audio_text": "Four each time",
+      "emotion": "realization"
+    }
+  ],
+  "student_interaction": {
+    "type": "think_prompt",
+    "prompt_text": "If the pattern is 'add 4 each time', what number should come after 15?",
+    "pause_seconds": 5,
+    "reveal_text": "The next term would be 19. But the pendulum isn't lighting new tiles—so maybe the pattern has changed, or we're missing something."
+  }
+}

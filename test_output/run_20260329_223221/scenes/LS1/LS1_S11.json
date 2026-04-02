@@ -1,0 +1,55 @@
+{
+  "scene_id": "S11",
+  "phase": "MICRO_LEARN",
+  "setting": "The chamber floor pulses with warning red from 20 to 22. Zara's wrist-projector projects a glowing violet diagram—the sequence 3, 7, 11, 15, 19, 23 floats between them, arrows connecting each term.",
+  "characters": [
+    "Zara",
+    "Leo"
+  ],
+  "action": "Zara points at the projected numbers, her finger tracing the arrows. Leo watches, his eyes flicking between the diagram and the red-lit tiles on the floor. The pendulum swings overhead, its blue light brushing tile 23.",
+  "dialogue": [
+    "This is an arithmetic progression.",
+    "Each term increases.",
+    "By a constant difference.",
+    "Here, 4."
+  ],
+  "learning_moment": "Zara formally names the pattern as an 'arithmetic progression' and explicitly states the 'constant difference' is 4, moving from observation to definition.",
+  "transition_hint": "The pendulum completes its swing. The red tiles between 20 and 22 flicker and go dark, leaving only 19 and 23 glowing. A low chime echoes.",
+  "narrator_audio_text": "Zara's projection hung in the air, a perfect map of their escape. The pendulum swung in silent agreement.",
+  "character_dialogues": [
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "This is an arithmetic progression.",
+      "audio_text": "This is an arithmetic progression",
+      "emotion": "confident"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Each term increases.",
+      "audio_text": "Each term increases",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "By a constant difference.",
+      "audio_text": "By a constant difference",
+      "emotion": "insight"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Here, 4.",
+      "audio_text": "Here four",
+      "emotion": "satisfied"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "If 23 is a term in this arithmetic progression, and the constant difference is 4, what was the term right before 3?",
+    "pause_seconds": 8,
+    "reveal_text": "-1. 3 - 4 = -1. The progression can extend backwards too."
+  }
+}

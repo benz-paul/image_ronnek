@@ -1,0 +1,55 @@
+{
+  "scene_id": "S3",
+  "phase": "DISCOVERY",
+  "setting": "The colossal chamber. Zara's violet grid from her wrist-projector hovers over the four glowing numbers. The pendulum continues its hypnotic swing, but now its arc seems to dip lower. With each pass, the blue light at its tip brushes a new set of floor tiles further along the same line.",
+  "characters": [
+    "Leo",
+    "Zara"
+  ],
+  "action": "Leo's eyes dart from the grid to the pendulum. He drops to one knee, palm flat on the cool black floor, feeling a faint vibration. Zara's fingers tap her projector, adjusting the grid's scale. Her braid swings as she turns her head sharply, tracking the pendulum's new contact points.",
+  "dialogue": [
+    "Look!",
+    "Three. Seven.",
+    "Eleven. Fifteen.",
+    "It's lighting them up!"
+  ],
+  "learning_moment": "Leo observes the pendulum's arc now touches a new sequence of tiles (3, 7, 11, 15). The characters identify consecutive terms and note the consistent difference between them is the same as before.",
+  "transition_hint": "Zara's wrist-projector flashes, overlaying both sequences side-by-side.",
+  "narrator_audio_text": "The pendulum's arc dips lower, its blue tip igniting a new line of numbers across the chamber floor.",
+  "character_dialogues": [
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Look!",
+      "audio_text": "Look",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "Three. Seven.",
+      "audio_text": "Three Seven",
+      "emotion": "curious"
+    },
+    {
+      "character_id": "leo",
+      "voice_id": "Kevin",
+      "dialogue": "Eleven. Fifteen.",
+      "audio_text": "Eleven Fifteen",
+      "emotion": "excited"
+    },
+    {
+      "character_id": "zara",
+      "voice_id": "Ivy",
+      "dialogue": "It's lighting them up!",
+      "audio_text": "It's lighting them up",
+      "emotion": "realization"
+    }
+  ],
+  "student_interaction": {
+    "type": "prediction",
+    "prompt_text": "Both sequences increase by 4. What number do you think will come next in this new line: 3, 7, 11, 15, ...?",
+    "pause_seconds": 8,
+    "reveal_text": "The next number would be 19. This constant increase between consecutive terms is called the common difference."
+  }
+}

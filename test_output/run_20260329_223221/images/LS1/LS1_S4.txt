@@ -1,0 +1,11 @@
+CINEMATIC MEDIUM SHOT — CONFUSION PHASE: Inside the colossal stone chamber with warm golden hour light casting soft shadows from high arched windows. The pendulum swings steadily in the center, its blue tip passing over the last glowing number 15 tile on the floor without activating new ones. Zara's violet holographic grid floats in the air beside the pendulum, showing two identical sequences side-by-side: 3, 7, 11, 15 on left and right panels. Leo stands slightly forward, squinting intensely at the pendulum then at the grid, his fingers tapping nervously against his thigh. Zara stands frozen, jaw tight, her hand hovering mid-air over her wrist-projector which displays geometric schematics. Four speech bubbles appear with EXACT text: 'Wait.' (from Leo), 'It stopped.' (from Zara), 'Random numbers?' (from Leo), 'A countdown?' (from Zara). Both characters look puzzled — Leo with furrowed brow and tilted head, Zara with sharp gray eyes narrowed in concentration. The scene maintains vibrant 2D animation style with clean bold line art, warm amber and soft teal color grading, expressive cartoon characters with teen proportions, detailed but not photorealistic background.
+
+DIALOGUE MODE - Include speech bubbles with EXACT text:
+Use EXACT dialogue below in speech bubbles:
+Wait.
+It stopped.
+Random numbers?
+A countdown?
+
+Speech bubbles must be clearly readable with correct English text.
+Keep each bubble SHORT — match the exact text provided, no additions.
