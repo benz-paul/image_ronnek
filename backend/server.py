@@ -249,8 +249,10 @@ def run_summary(run_folder: Path) -> Dict[str, Any]:
         audio_count = sum(1 for _ in audio_dir.rglob("*.mp3"))
         has_audio = audio_count > 0
 
-    # Check PPT
-    ppt_path = run_folder / "ppt" / "lesson.pptx"
+    # Check PPT - pipeline saves to lesson_output.pptx in run root; also check legacy ppt/lesson.pptx
+    ppt_path = run_folder / "lesson_output.pptx"
+    if not ppt_path.exists():
+        ppt_path = run_folder / "ppt" / "lesson.pptx"
 
     return {
         "run_id": run_folder.name,
@@ -359,7 +361,12 @@ def get_run(run_id: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
 
     config = load_json(run_folder / "inputs" / "config.json") or {}
-    story_backbone = load_json(run_folder / "parsed" / "story_backbone.json") or {}
+    # Pipeline saves as story.json; story_backbone.json is the legacy name
+    story_backbone = (
+        load_json(run_folder / "parsed" / "story_backbone.json")
+        or load_json(run_folder / "parsed" / "story.json")
+        or {}
+    )
     learning_steps = load_json(run_folder / "parsed" / "learning_steps.json") or {}
     scenes_by_ls = load_scenes_for_run(run_folder)
     audio_manifest = load_json(run_folder / "audio" / "manifest.json") or {}

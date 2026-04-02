@@ -14,6 +14,13 @@ import os
 import time
 from pathlib import Path
 
+# Ensure UTF-8 output on Windows (handles ✓, ←, →, ═ etc. in print statements)
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except AttributeError:
+    pass
+
 TEST_MODE = True
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
